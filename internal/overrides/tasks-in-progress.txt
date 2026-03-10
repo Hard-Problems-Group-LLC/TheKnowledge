@@ -1,0 +1,5 @@
+Repository Maintenance Tasks in Progress
+
+Track TheKnowledge's actively implemented maintenance work here. Keep
+`templates/project-management/tasks-in-progress.txt` as starter material
+unless the template wording or examples are being revised.

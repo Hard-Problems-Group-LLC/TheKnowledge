@@ -1,0 +1,32 @@
+Test Development Standards
+========================
+
+Purpose
+-------
+Guide contributors who design and maintain tests for reusable process tools
+and standards automation.
+
+Principles
+----------
+- Treat tests as executable scenarios tied to documented behavior.
+- Default to defense in depth: verify error handling, edge cases, and
+  regression boundaries.
+- Prefer deterministic fixtures and explicit setup.
+
+Fixture guidance
+----------------
+- Store reusable fixtures under `resources/tests/`.
+- Keep fixture names descriptive and ASCII-safe for portability.
+- Document fixture intent in docstrings or nearby standards docs.
+
+Implementing new tests
+----------------------
+1. Draft/update a behavior note or specification first.
+2. Add fixtures when shared inputs improve repeatability.
+3. Add tests with explicit assertions and failure-mode coverage.
+4. Run full required checks and resolve regressions before merge.
+
+Version-control expectations
+----------------------------
+- Commit tests with the code or document changes they validate.
+- Keep change history clear when refactoring test scope.

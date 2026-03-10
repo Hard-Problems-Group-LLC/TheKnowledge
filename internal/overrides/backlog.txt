@@ -1,0 +1,5 @@
+Repository Maintenance Backlog
+
+Use this backlog for TheKnowledge's own maintenance work. Keep
+`templates/project-management/backlog.txt` as starter material unless the
+template wording or examples are being revised.

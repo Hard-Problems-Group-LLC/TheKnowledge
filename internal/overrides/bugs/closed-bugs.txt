@@ -1,0 +1,5 @@
+Repository Maintenance Closed Bugs
+
+Record resolved TheKnowledge maintenance bugs here. Keep
+`templates/project-management/bugs/closed-bugs.txt` as starter material
+unless the template wording or examples are being revised.

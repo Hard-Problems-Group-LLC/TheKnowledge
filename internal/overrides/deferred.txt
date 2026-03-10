@@ -1,0 +1,5 @@
+Repository Maintenance Deferred Tasks
+
+Use this file for explicitly deferred TheKnowledge maintenance work. Keep
+`templates/project-management/deferred.txt` as starter material unless the
+template wording or examples are being revised.

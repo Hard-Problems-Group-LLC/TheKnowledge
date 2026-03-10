@@ -1,0 +1,28 @@
+Technology SOP Template
+=======================
+
+Technology
+----------
+- Name:
+- Version policy:
+
+Operational standards
+---------------------
+- Configuration baseline:
+- Security constraints:
+- Observability and logging:
+
+Validation
+----------
+- Local verification steps:
+- CI verification steps:
+- Failure handling and rollback:
+
+Maintenance
+-----------
+- Update cadence:
+- Known risks:
+
+References
+----------
+- 

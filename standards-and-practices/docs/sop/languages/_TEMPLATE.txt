@@ -1,0 +1,28 @@
+Language SOP Template
+=====================
+
+Language
+--------
+- Name:
+- Supported versions:
+
+Standards
+---------
+- Formatting:
+- Linting:
+- Static analysis:
+- Test strategy:
+
+Build and Run
+-------------
+- Bootstrap commands:
+- Local run commands:
+- CI parity notes:
+
+Common pitfalls
+---------------
+- 
+
+References
+----------
+- 

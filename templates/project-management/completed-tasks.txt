@@ -1,0 +1,5 @@
+Completed Tasks
+
+Record completed tasks with newest entries at the top. Use asterisk-plus-blank
+line formatting. Include concise outcomes, owners, blocker resolution notes,
+and ISO 8601 timestamps.

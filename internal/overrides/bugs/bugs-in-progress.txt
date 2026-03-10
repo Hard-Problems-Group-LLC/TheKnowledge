@@ -1,0 +1,5 @@
+Repository Maintenance Bugs in Progress
+
+Track TheKnowledge maintenance bugs currently being remediated here. Keep
+`templates/project-management/bugs/bugs-in-progress.txt` as starter material
+unless the template wording or examples are being revised.

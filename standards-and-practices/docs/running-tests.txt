@@ -1,0 +1,39 @@
+Running Tests
+============
+
+Prerequisites
+-------------
+- Python 3.9 or newer available on your PATH.
+- Project dependencies installed in an isolated environment.
+
+Standard check run
+------------------
+Run these commands from repository root:
+- `python scripts/run_tool_with_timeout.py black`
+- `python scripts/run_tool_with_timeout.py ruff`
+- `python scripts/run_tool_with_timeout.py compileall`
+- `python scripts/run_tool_with_timeout.py entropy_check`
+- `python scripts/run_tool_with_timeout.py entropy_tripwire_verify`
+- `python scripts/run_tool_with_timeout.py pytest`
+
+Focused execution
+-----------------
+- Run a subset with pytest pattern matching:
+  - `python scripts/run_tool_with_timeout.py pytest -- -k <pattern>`
+- Run a specific test module:
+  - `python scripts/run_tool_with_timeout.py pytest --`
+    `tests/test_entropy_check.py`
+
+Cross-platform notes
+--------------------
+- Linux-side Windows wrapper validation:
+  - `python scripts/run_tool_with_timeout.py windows_shims_linux`
+  - See `standards-and-practices/docs/testing/windows/`.
+- Windows-side Linux-validation planning and SOP:
+  - See `standards-and-practices/docs/testing/wsl2/`.
+
+Timeout policy
+--------------
+- Keep default timeouts short in `scripts/tool_timeouts.json`.
+- Raise a timeout only after confirming a shorter value truncates valid work.
+- Use per-invocation overrides only when justified.

@@ -1,0 +1,18 @@
+Repository Maintenance AI-Human Requests
+========================================
+
+Use this queue for non-blocking actions humans need to perform for
+TheKnowledge's own maintenance. Keep
+`templates/project-management/ai-human-requests.txt` as starter material
+unless the template wording or examples are being revised.
+
+------------------------------------------------------------------------------
+
+Pending Requests
+----------------
+
+Active Requests
+---------------
+
+Completed Requests
+------------------

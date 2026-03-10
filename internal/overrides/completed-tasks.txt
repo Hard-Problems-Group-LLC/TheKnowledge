@@ -1,0 +1,39 @@
+Repository Maintenance Completed Tasks
+
+Record completed maintenance work for TheKnowledge here. Keep
+`templates/project-management/completed-tasks.txt` as starter material unless
+the template wording or examples are being revised.
+
+*
+
+  2026-03-10T18:38:59+00:00 - Hardened `scripts/initial-setup.py` so it
+  removes all preexisting managed `AGENTS.md` header and footer sections
+  before rewriting the file, updated template documentation, and added a
+  regression test that normalizes an accidentally duplicated managed state.
+
+*
+
+  2026-03-10T18:36:19+00:00 - Added an idempotency test for
+  `scripts/initial-setup.py` so rerunning the installer does not duplicate the
+  managed `AGENTS.md` header or footer blocks.
+
+*
+
+  2026-03-10T18:10:11+00:00 - Added managed `templates/AGENTS-header.md` and
+  `templates/AGENTS-footer.md` support, updated `scripts/initial-setup.py` to
+  create or wrap consumer `AGENTS.md` files, and expanded installer tests to
+  cover the managed TheKnowledge guidance scaffold.
+
+*
+
+  2026-03-10T17:16:58+00:00 - Restructured the repository into
+  `standards-and-practices/`, `templates/`, and `internal/`; added
+  `scripts/initial-setup.py`; and updated tests so consuming projects can
+  install starter project-management files into their own roots while
+  TheKnowledge keeps its own maintenance state internal.
+
+*
+
+  2026-03-10T16:46:41+00:00 - Added `internal/overrides/` mirror records,
+  override guidance, and a structural test so repository maintenance can be
+  tracked without populating the starter templates.

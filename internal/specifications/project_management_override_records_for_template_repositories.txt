@@ -1,0 +1,40 @@
+Project-Management Override Records for Template Repositories
+=============================================================
+
+Scope
+-----
+Define how a repository that serves as a reusable process template may track
+its own maintenance work without polluting the clean template records that
+downstream projects are meant to copy.
+
+Problem Statement
+-----------------
+Template repositories need live backlog, task, bug, and completion records
+for their own maintenance. Writing those records directly into the template
+files makes the template look pre-populated and reduces its value as a clean
+starting point for downstream projects.
+
+Requirements
+------------
+- A template repository may define repository-local project-management record
+  locations under `internal/overrides/`.
+- `internal/README.md` must explain that material in and below `internal/` is
+  intended for development of the submodule itself.
+- When `internal/overrides/README.txt` exists, it is authoritative for the
+  repository's live project-management record locations.
+- The override tree must provide mirrored files for backlog, in-progress,
+  completed, deferred, AI-human request, and bug lifecycle tracking.
+- The starter files under `templates/project-management/` must remain clean
+  template examples unless the template text or examples themselves are being
+  revised.
+- Maintenance work on the template itself must still be tracked, but the
+  live records for that work must be written into the override files.
+- Human- and AI-facing workflow guidance must explain the override precedence
+  so operators use the correct files during normal maintenance.
+
+Non-Goals
+---------
+- Removing or renaming the starter templates under `templates/`.
+- Preventing intentional edits to template wording or examples.
+- Requiring downstream projects to adopt the override mechanism when they do
+  not need clean-template preservation.
