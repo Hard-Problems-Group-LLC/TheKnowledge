@@ -41,6 +41,51 @@ application business logic.
 4. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
 
+## Using as a submodule
+
+For an existing Git repository, add TheKnowledge at the path you want the
+team to keep stable:
+
+```bash
+git submodule add https://github.com/Hard-Problems-Group-LLC/TheKnowledge.git \
+  TheKnowledge
+git submodule update --init --recursive
+python TheKnowledge/scripts/initial-setup.py \
+  --project-root . \
+  --knowledge-root TheKnowledge
+```
+
+For a brand-new repository, initialize the repo first and then add the
+submodule:
+
+```bash
+mkdir TestProject
+cd TestProject
+git init -b trunk
+git submodule add https://github.com/Hard-Problems-Group-LLC/TheKnowledge.git \
+  TheKnowledge
+git submodule update --init --recursive
+python TheKnowledge/scripts/initial-setup.py \
+  --project-root . \
+  --knowledge-root TheKnowledge
+```
+
+After that setup, commit both the new `.gitmodules` file and the generated
+project-management and `AGENTS.md` files in the consuming project.
+
+When another developer clones the consuming project later, they should either
+clone with submodules enabled:
+
+```bash
+git clone --recurse-submodules <project-url>
+```
+
+or initialize them after clone:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## Submodule layout
 
 The consuming project chooses the submodule path at `git submodule add` time.
@@ -66,6 +111,8 @@ TestProject/
     completed-tasks.txt
     deferred.txt
     ai-human-requests.txt
+    state/
+      pending-commit-changes.txt
     proposals/
     bugs/
 ```

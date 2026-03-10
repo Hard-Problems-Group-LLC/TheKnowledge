@@ -42,20 +42,28 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     agents = project_root / "AGENTS.md"
     proposals_readme = project_root / "project-management" / "proposals" / "README.txt"
     git_flow = project_root / "project-management" / "git-flow.txt"
+    pending_queue = (
+        project_root / "project-management" / "state" / "pending-commit-changes.txt"
+    )
 
     assert agents.is_file()
     assert proposals_readme.is_file()
     assert git_flow.is_file()
+    assert pending_queue.is_file()
     assert "The Hard Problems Group's specifications and guidance" in (
         agents.read_text(encoding="utf-8")
     )
     assert "TheKnowledge/AGENTS.md" in agents.read_text(encoding="utf-8")
+    assert "project-management/state/pending-commit-changes.txt" in agents.read_text(
+        encoding="utf-8"
+    )
     assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.txt" in (
         proposals_readme.read_text(encoding="utf-8")
     )
     assert "python TheKnowledge/scripts/run_tool_with_timeout.py black" in (
         git_flow.read_text(encoding="utf-8")
     )
+    assert pending_queue.read_text(encoding="utf-8").strip() == ""
 
 
 def test_initial_setup_refuses_to_overwrite_without_force(tmp_path: Path) -> None:

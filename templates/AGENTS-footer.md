@@ -11,9 +11,14 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `project-management/completed-tasks.txt` with ISO 8601 timestamps.
 - Track operator actions for AI in `project-management/ai-human-requests.txt`.
 - Use `project-management/deferred.txt` for explicitly deferred work.
+- Queue brief commit-ready summaries in
+  `project-management/state/pending-commit-changes.txt`.
 - Maintain bug lifecycle files under `project-management/bugs/`.
 - Use `{$KNOWLEDGE_ROOT}/standards-and-practices/docs/`
   `AI-backlog-iteration.txt` when told to iterate the backlog.
 - Use the consuming project's own `project-management/git-flow.txt` for branch
   and merge operations.
+- Use `python {$KNOWLEDGE_ROOT}/scripts/git_standard_commit_push.py -m
+  "<subject>"` so queued commit summaries become commit body text and the
+  queue file is cleared after a successful local commit.
 <!-- THEKNOWLEDGE_MANAGED_FOOTER_END -->

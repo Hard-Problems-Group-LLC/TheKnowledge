@@ -78,9 +78,12 @@ The verifier enforces three conditions before push workflows can proceed:
 Git workflow integration
 ------------------------
 - Standard commit+push utility:
-  - `python scripts/git_standard_commit_push.py -m "<message>"`
+  - `python scripts/git_standard_commit_push.py -m "<subject>"`
   - Runs `run_quality_gate_cached.py`; this includes
     `entropy_tripwire_verify` and blocks push on failure.
+  - Uses `project-management/state/pending-commit-changes.txt` as commit body
+    text when that file is nonblank, then clears it after a successful local
+    commit.
 - Veteran pull utility:
   - `python scripts/git_veteran_pull.py`
   - Default behavior: clean-tree check, `fetch --all --prune`,

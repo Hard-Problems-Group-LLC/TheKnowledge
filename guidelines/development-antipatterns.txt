@@ -1,0 +1,48 @@
+Development Antipatterns
+========================
+
+Scope
+-----
+This file lists broad software-development antipatterns that routinely reduce
+delivery quality, traceability, and recoverability. It stays intentionally
+general and avoids language-specific prescriptions unless they reflect a
+cross-cutting engineering failure.
+
+Avoid
+-----
+- Starting implementation before requirements are captured in a specification,
+  proposal, or explicit operator direction. Hidden scope turns review and
+  testing into guesswork.
+- Depending on tribal knowledge, manual machine setup, or a specific
+  developer's shell history to build, test, deploy, or recover the system.
+- Mixing unrelated behavior changes, refactors, formatting churn, and tooling
+  migration in one large change set. Review quality collapses when the unit of
+  change stops being coherent.
+- Treating testing as a cleanup phase after implementation. Happy-path-only
+  validation leaves regressions and operational failure modes undiscovered.
+- Letting important state live outside the repository without an authoritative
+  record. If a decision, workflow, or recovery step matters, document it where
+  the team can version and review it.
+- Shipping automation, generated output, or AI-produced changes without human
+  verification against the actual specification and runtime behavior.
+- Coupling deployment, rollback, or backup strategy to one host or one
+  operator. Recovery should be designed, rehearsed, and documented before an
+  incident forces it.
+- Allowing documentation, issue state, or release notes to drift away from the
+  behavior that actually shipped.
+
+Repository recommendation
+-------------------------
+- Keep changes small enough to review with confidence.
+- Record requirements, decisions, and operational steps in versioned files.
+- Make build, test, and recovery paths repeatable on a clean machine.
+- Validate failure modes and edge cases before calling work complete.
+- Treat documentation and state tracking as part of delivery, not post-hoc
+  cleanup.
+
+References
+----------
+1. Martin Fowler, "Continuous Integration"
+2. Forsgren, Humble, and Kim, "Accelerate"
+3. Beyer, Jones, Petoff, and Murphy, "Site Reliability Engineering"
+4. Microsoft Well-Architected Framework, "Operational Excellence"

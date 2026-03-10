@@ -32,6 +32,8 @@ live state.
   `internal/overrides/completed-tasks.txt` with ISO 8601 timestamps.
 - Track operator actions for AI in `internal/overrides/ai-human-requests.txt`.
 - Use `internal/overrides/deferred.txt` for explicitly deferred work.
+- Queue brief commit-ready summaries in
+  `internal/overrides/state/pending-commit-changes.txt`.
 - Maintain bug lifecycle files under `internal/overrides/bugs/`.
 - Treat `templates/project-management/` as starter material for consuming
   projects, not as TheKnowledge's live state.
@@ -63,7 +65,10 @@ live state.
 6. `python scripts/run_tool_with_timeout.py pytest`
 
 Use standardized operations where available:
-- Commit/push: `python scripts/git_standard_commit_push.py -m "<message>"`
+- Commit/push: `python scripts/git_standard_commit_push.py -m "<subject>"`
+  The script uses
+  `internal/overrides/state/pending-commit-changes.txt` as commit body text
+  when it is nonblank, then clears the file after a successful local commit.
 - Pull: `python scripts/git_veteran_pull.py`
 
 ## Codex Log Handling

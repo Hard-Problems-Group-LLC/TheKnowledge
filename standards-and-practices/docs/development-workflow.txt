@@ -62,6 +62,12 @@ documentation standards and the required checks. Run
 ready. If progress stalls, move the entry back to the backlog with an
 explanation and timestamp.
 
+While work is in flight, append brief commit-ready summaries to
+`project-management/state/pending-commit-changes.txt`. Keep the entries short
+enough to serve as commit body text. The standardized commit/push helper uses
+the nonblank contents of that file as the commit body and clears the file
+after a successful local commit.
+
 For broad exploratory smoke runs, avoid ad hoc shell snippets. Implement
 repeatable checks as formal tests or reusable scripts under
 `standards-and-practices/dev-utils/`, and document usage in
@@ -72,9 +78,11 @@ The managed pre-commit hook installed by setup scripts runs
 and CI-adjacent sandboxes where commits are authored.
 
 For standardized git operations, use:
-- `python scripts/git_standard_commit_push.py -m "<message>"` for commits and
+- `python scripts/git_standard_commit_push.py -m "<subject>"` for commits and
   pushes with mandatory cached quality gate checks (including entropy
-  tripwire verification).
+  tripwire verification). It consumes
+  `project-management/state/pending-commit-changes.txt` as commit body text
+  when that file is nonblank.
 - `python scripts/git_veteran_pull.py` for guarded fast-forward pull updates.
 See `standards-and-practices/docs/security/git-tripwire-operations.txt` for
 failure diagnostics and maintenance guidance.

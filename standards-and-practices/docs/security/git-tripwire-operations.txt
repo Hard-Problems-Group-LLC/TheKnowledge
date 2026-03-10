@@ -17,14 +17,21 @@ Scripts
 Standard commit and push
 ------------------------
 Command:
-- `python scripts/git_standard_commit_push.py -m "<message>"`
+- `python scripts/git_standard_commit_push.py -m "<subject>"`
 
 Behavior:
 1. Resolve repository root.
 2. Run `python scripts/run_quality_gate_cached.py`.
 3. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
-4. Commit with provided message.
-5. Push to `origin <current-branch>` unless overridden.
+4. Read queued summary text from
+   `project-management/state/pending-commit-changes.txt` or a repository-
+   specific override path when present.
+5. Commit with the provided subject and queued body text when the queue is
+   nonblank.
+6. Push to `origin <current-branch>` unless overridden.
+7. After the local commit succeeds, truncate the queue file. The helper stages
+   the truncation so the queue clears with the committed state even when
+   `--no-stage-all` is set.
 
 Important options:
 - `--remote <name>`

@@ -61,7 +61,10 @@ Notes and expectations
   See `standards-and-practices/docs/security/entropy-checks.txt` for details
   and manual run commands.
 - Standardized git operation utilities are available after setup:
-  - `python scripts/git_standard_commit_push.py -m "<message>"`
+  - `python scripts/git_standard_commit_push.py -m "<subject>"`
+    Uses `project-management/state/pending-commit-changes.txt` as commit body
+    text when that file is nonblank, then clears it after a successful local
+    commit.
   - `python scripts/git_veteran_pull.py`
   - Cache file used by push quality gate: `.git/project-quality-cache.json`
   - Runbook:

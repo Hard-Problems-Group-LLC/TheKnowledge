@@ -1,0 +1,30 @@
+Pending Commit Change Queue
+===========================
+
+Scope
+-----
+Define the repository state file used to accumulate brief commit-ready
+summaries between commits, and define how the standardized commit workflow
+must consume that file.
+
+Requirements
+------------
+- Consuming projects must keep the queue at
+  `project-management/state/pending-commit-changes.txt`.
+- TheKnowledge itself must keep the queue at
+  `internal/overrides/state/pending-commit-changes.txt`.
+- Queue entries must be brief, commit-body-ready text. Use one bullet or short
+  paragraph per item and avoid secrets, scratch notes, or TODO lists.
+- Add queue entries as work lands after the last successful local commit so
+  the next commit records the full change set, not only the last interaction.
+- `scripts/git_standard_commit_push.py` must use the nonblank queue contents
+  as commit body text in addition to the required commit subject.
+- After the local commit succeeds, the queue file must be truncated.
+- If the local commit fails, the queue contents must remain available.
+- The queue file must be installed by template setup for consuming projects
+  and documented anywhere the standardized commit workflow is described.
+
+Non-Goals
+---------
+- Replacing detailed backlog, proposal, or completed-task records.
+- Storing long design notes or operational transcripts in the queue file.

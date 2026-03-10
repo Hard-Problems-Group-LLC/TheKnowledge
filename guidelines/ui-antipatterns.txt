@@ -1,0 +1,59 @@
+UI Antipatterns
+===============
+
+Scope
+-----
+This file lists common interface antipatterns that conflict with current
+platform and accessibility guidance. For item-count limits within one visible
+group, see `ui-complexity-limits.txt`.
+
+Avoid
+-----
+- Too many top-level peers in one flat navigation layer. Modern guidance keeps
+  bottom navigation small, recommends hierarchy when peer groups grow, and
+  treats large flat sets as an information-architecture problem.
+- Critical actions hidden behind ambiguous icons or unlabeled controls. If an
+  action matters, its meaning must be obvious visually and exposed
+  programmatically for assistive technology.
+- Context changes triggered by focus or routine input. Choosing a field or
+  changing a value should not unexpectedly navigate away, submit work, or
+  replace surrounding content.
+- Dialog-heavy flows, especially dialogs that launch more dialogs. Modal
+  interruption should be rare and justified; inline expansion or a child page
+  is often the better choice.
+- Help flows that add another decision instead of helping. If the user asks
+  for help, take them directly to relevant help content.
+- Invisible keyboard focus, broken tab order, or pointer-only navigation.
+  Users must be able to reach and understand the interface without a mouse.
+- Meaning conveyed only by color, or text with weak contrast. Status,
+  validation, and affordance need redundant cues, and readable contrast is a
+  baseline requirement rather than a visual polish task.
+- Inconsistent labels, locations, and navigation structures across related
+  surfaces. If the same concept moves around or changes names, users must keep
+  relearning the interface.
+
+Repository recommendation
+-------------------------
+- Keep navigation shallow but grouped.
+- Label important actions explicitly.
+- Prefer predictable state changes over surprising automation.
+- Treat accessibility failures as design failures, not optional cleanup.
+- When a surface feels crowded, split by task or workflow stage before adding
+  more peers.
+
+References
+----------
+1. Microsoft Learn, "Navigation basics for Windows apps"
+2. Microsoft Learn, "Navigation patterns for Office Add-ins"
+3. Microsoft Learn, "Recommendations for implementing an information
+   architecture"
+4. Microsoft Learn, "Expose basic accessibility information"
+5. Material Design, "Bottom navigation"
+6. Material Design, "Dialogs"
+7. Material Design, "Help & feedback"
+8. Apple Human Interface Guidelines, "Menus"
+9. Apple Human Interface Guidelines, "Accessibility"
+10. Apple Human Interface Guidelines, "VoiceOver"
+11. W3C WAI, "Understanding WCAG 2.2"
+12. W3C WAI, "Understanding Success Criterion 1.4.1: Use of Color"
+13. W3C WAI, "Understanding Success Criterion 1.4.3: Contrast (Minimum)"

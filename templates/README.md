@@ -15,3 +15,8 @@ The installer also manages `AGENTS.md` in the consuming project root. It uses
 so local project instructions can live between the managed sections. Before it
 rewrites `AGENTS.md`, it removes any existing managed header or footer blocks
 so rerunning the installer does not duplicate them.
+
+The `project-management/state/` template directory includes
+`pending-commit-changes.txt`, which is the short-lived queue for brief commit
+summary lines. The standardized commit helper consumes that file as commit
+body text and clears it after a successful local commit.

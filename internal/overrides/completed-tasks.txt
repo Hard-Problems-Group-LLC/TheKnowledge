@@ -6,6 +6,21 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-10T13:56:48-07:00 - Expanded `README.md` with concrete commands for
+  adding TheKnowledge as a submodule in either an existing project or a new
+  repository, running the initializer, and cloning or initializing submodules
+  correctly in downstream checkouts.
+
+*
+
+  2026-03-10T13:29:19-07:00 - Split the guideline antipattern material into
+  separate UI and development documents, added a pending-commit change queue
+  policy with template and internal state files, and updated the standardized
+  commit helper plus workflow documentation so queued summaries become commit
+  body text and clear after a successful local commit.
+
+*
+
   2026-03-10T20:07:08+00:00 - Added a `guidelines/` document and supporting
   specification for UI complexity limits, distilling Miller, Cowan, current
   platform guidance, and a brief rate-distortion justification into a

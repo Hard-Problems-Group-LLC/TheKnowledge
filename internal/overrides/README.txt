@@ -10,8 +10,8 @@ you are intentionally revising the templates themselves.
 Override Rules
 --------------
 1. Use the mirrored files in this directory for TheKnowledge's own backlog,
-   in-progress work, completed tasks, deferrals, AI-human requests, and bug
-   lifecycle state.
+   in-progress work, completed tasks, deferrals, AI-human requests,
+   pending-commit change queue state, and bug lifecycle state.
 2. Record work on the template itself in these override files, not in the
    template records.
 3. Update the template records only when you are changing their
@@ -26,6 +26,8 @@ Record Map
 - `completed-tasks.txt`
 - `deferred.txt`
 - `ai-human-requests.txt`
+- `state/README.txt`
+- `state/pending-commit-changes.txt`
 - `bugs/known-bugs.txt`
 - `bugs/bugs-in-progress.txt`
 - `bugs/closed-bugs.txt`

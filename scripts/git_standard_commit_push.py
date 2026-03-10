@@ -7,7 +7,13 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Optional, Sequence
+
+
+PENDING_COMMIT_CHANGES_PATHS = (
+    Path("internal/overrides/state/pending-commit-changes.txt"),
+    Path("project-management/state/pending-commit-changes.txt"),
+)
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
@@ -21,7 +27,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         "-m",
         "--message",
         required=True,
-        help="Commit message for `git commit -m`.",
+        help="Commit subject for `git commit -m`.",
     )
     parser.add_argument(
         "--remote",
@@ -121,12 +127,63 @@ def repo_root_from_cwd(cwd: Path, dry_run: bool = False) -> Path:
     return Path((result.stdout or "").strip()).resolve()
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def pending_commit_changes_path(repo_root: Path) -> Optional[Path]:
+    for relative_path in PENDING_COMMIT_CHANGES_PATHS:
+        candidate = repo_root / relative_path
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def pending_commit_changes_text(path: Optional[Path]) -> str:
+    if path is None:
+        return ""
+    return path.read_text(encoding="utf-8").strip()
+
+
+def build_commit_command(
+    message: str, pending_body: str, allow_empty: bool
+) -> list[str]:
+    command = ["git", "commit", "-m", message]
+    if pending_body:
+        command.extend(["-m", pending_body])
+    if allow_empty:
+        command.append("--allow-empty")
+    return command
+
+
+def stage_path(repo_root: Path, path: Path, dry_run: bool = False) -> None:
+    relative_path = path.relative_to(repo_root).as_posix()
+    ensure_ok(
+        run(["git", "add", relative_path], cwd=repo_root, dry_run=dry_run),
+        f"git add {relative_path}",
+    )
+
+
+def clear_pending_commit_changes(path: Path, dry_run: bool = False) -> str:
+    original = path.read_text(encoding="utf-8")
+    if not dry_run:
+        path.write_text("", encoding="utf-8")
+    return original
+
+
+def restore_pending_commit_changes(
+    repo_root: Path, path: Path, content: str, dry_run: bool = False
+) -> None:
+    if not dry_run:
+        path.write_text(content, encoding="utf-8")
+    stage_path(repo_root, path, dry_run=dry_run)
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     start_cwd = Path.cwd()
 
     try:
         repo_root = repo_root_from_cwd(start_cwd, dry_run=args.dry_run)
+        pending_path = pending_commit_changes_path(repo_root)
+        pending_body = pending_commit_changes_text(pending_path)
+        pending_backup = ""
         run_quality_gate(
             repo_root,
             no_cache=args.no_quality_cache,
@@ -139,15 +196,37 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "git add -A",
             )
 
+        if pending_path is not None and pending_body:
+            pending_backup = clear_pending_commit_changes(
+                pending_path, dry_run=args.dry_run
+            )
+            try:
+                stage_path(repo_root, pending_path, dry_run=args.dry_run)
+            except RuntimeError:
+                restore_pending_commit_changes(
+                    repo_root,
+                    pending_path,
+                    pending_backup,
+                    dry_run=args.dry_run,
+                )
+                raise
+
         if not args.allow_empty:
             ensure_staged_changes(repo_root, dry_run=args.dry_run)
 
-        commit_command = ["git", "commit", "-m", args.message]
-        if args.allow_empty:
-            commit_command.append("--allow-empty")
-        ensure_ok(
-            run(commit_command, cwd=repo_root, dry_run=args.dry_run), "git commit"
+        commit_command = build_commit_command(
+            args.message, pending_body, args.allow_empty
         )
+        commit_result = run(commit_command, cwd=repo_root, dry_run=args.dry_run)
+        if commit_result.returncode != 0:
+            if pending_path is not None and pending_body:
+                restore_pending_commit_changes(
+                    repo_root,
+                    pending_path,
+                    pending_backup,
+                    dry_run=args.dry_run,
+                )
+            ensure_ok(commit_result, "git commit")
 
         branch = args.branch or current_branch(repo_root, dry_run=args.dry_run)
         ensure_ok(

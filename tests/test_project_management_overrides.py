@@ -23,6 +23,8 @@ EXPECTED_FILES = [
     OVERRIDES / "completed-tasks.txt",
     OVERRIDES / "deferred.txt",
     OVERRIDES / "ai-human-requests.txt",
+    OVERRIDES / "state" / "README.txt",
+    OVERRIDES / "state" / "pending-commit-changes.txt",
     OVERRIDES / "bugs" / "known-bugs.txt",
     OVERRIDES / "bugs" / "bugs-in-progress.txt",
     OVERRIDES / "bugs" / "closed-bugs.txt",
@@ -47,9 +49,14 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "standards-and-practices/docs/development-workflow.txt" in agents_text
     assert "templates/project-management/git-flow.txt" in agents_text
     assert "internal/overrides/README.txt" in agents_text
+    assert "internal/overrides/state/pending-commit-changes.txt" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
+    assert "state/pending-commit-changes.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "pending-commit-changes.txt" in templates_text
     assert "{$KNOWLEDGE_ROOT}/AGENTS.md" in header_text
     assert "TheKnowledge Overrides" in footer_text
+    assert "project-management/state/pending-commit-changes.txt" in footer_text
     assert "project-management/backlog.txt" in workflow_text
+    assert "project-management/state/pending-commit-changes.txt" in workflow_text

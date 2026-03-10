@@ -59,9 +59,12 @@ Run all required checks via timeout wrapper:
 - `python {{THEKNOWLEDGE_ROOT}}/scripts/run_tool_with_timeout.py pytest`
 - Standardized push path:
   - `python {{THEKNOWLEDGE_ROOT}}/scripts/git_standard_commit_push.py -m
-    "<message>"`
+    "<subject>"`
   This command blocks push unless the cached quality gate passes, including
-  entropy tripwire verification.
+  entropy tripwire verification. When
+  `project-management/state/pending-commit-changes.txt` is nonblank, the
+  command uses it as commit body text and clears the file after a successful
+  local commit.
 - Standardized pull path:
   - `python {{THEKNOWLEDGE_ROOT}}/scripts/git_veteran_pull.py`
   This command enforces a guarded fast-forward pull workflow.
