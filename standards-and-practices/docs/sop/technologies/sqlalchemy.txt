@@ -1,0 +1,41 @@
+SQLAlchemy SOP
+==============
+
+Technology
+----------
+- Name: SQLAlchemy
+- Version policy: Stay on a current stable major supported by the chosen
+  Python version and database drivers.
+
+Operational standards
+---------------------
+- Configuration baseline: Centralize engine and session creation, expose
+  request-scoped dependencies, and keep connection URLs in environment
+  variables.
+- Security constraints: Do not hardcode credentials. Keep direct engine access
+  inside the data layer and avoid leaking raw models into external APIs.
+- Observability and logging: Enable SQL echo or statement logging only when
+  diagnosing issues. Keep application logs readable under normal operation.
+
+Validation
+----------
+- Local verification steps: Run integration tests against a real database
+  target, verify session lifecycle behavior, and confirm schema creation or
+  migrations still work.
+- CI verification steps: Run migration smoke tests and representative CRUD
+  coverage against the supported relational backend.
+- Failure handling and rollback: Use migrations for schema changes and keep
+  repository boundaries so relational storage can be swapped without rewriting
+  route or service code.
+
+Maintenance
+-----------
+- Update cadence: Upgrade SQLAlchemy with its driver stack and migration tool.
+- Known risks: Session leaks, N+1 queries, ORM models growing into domain
+  god-objects, and tight coupling between API code and persistence details.
+
+References
+----------
+- `alembic.txt`
+- `postgresql.txt`
+- `../techniques/new-web-service.txt`

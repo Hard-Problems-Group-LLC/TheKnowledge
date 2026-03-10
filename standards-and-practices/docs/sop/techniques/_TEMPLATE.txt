@@ -1,0 +1,28 @@
+Technique SOP Template
+======================
+
+Technique
+---------
+- Name:
+- Use when:
+
+Default stack
+-------------
+- Primary languages:
+- Primary technologies:
+- Storage approach:
+- Runtime model:
+
+Execution pattern
+-----------------
+- Repository layout:
+- Bootstrap sequence:
+- Validation sequence:
+
+Common pitfalls
+---------------
+- 
+
+References
+----------
+- 

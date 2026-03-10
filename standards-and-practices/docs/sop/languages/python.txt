@@ -1,0 +1,44 @@
+Python SOP
+==========
+
+Language
+--------
+- Name: Python
+- Supported versions: Prefer Python 3.12 for new development. Accept Python
+  3.9+ only when the repository baseline already requires it.  However, use
+  Python 3.9 for prerequisite installer and setup scripts.
+
+Standards
+---------
+- Formatting: `black`
+- Linting: `ruff`
+- Static analysis: Require explicit type hints on public interfaces. Add
+  `mypy` or `pyright` when a project commits to typed service boundaries.
+- Test strategy: `pytest` for unit, integration, and repeatable smoke tests.
+
+Build and Run
+-------------
+- Bootstrap commands: Create a virtual environment, upgrade packaging tools,
+  and install project dependencies with either editable installs or locked
+  requirements files.
+- Local run commands: Run services with module-aware entry points such as
+  `uvicorn package.main:app --reload` and run tests with `python -m pytest`.
+- CI parity notes: Use the same Python major and minor version in local
+  development, containers, and CI. Keep bootstrap commands equivalent across
+  all three paths.
+
+Common pitfalls
+---------------
+- Mixing blocking I/O into async request paths.
+- Hiding configuration in module globals instead of explicit settings objects.
+- Letting route handlers talk directly to storage adapters instead of service
+  or repository boundaries.
+- Treating migrations, seeders, and one-off repair scripts as ad hoc shell
+  snippets instead of maintained tooling.
+
+References
+----------
+- `../techniques/new-web-service.txt`
+- `../technologies/fastapi.txt`
+- `../technologies/sqlalchemy.txt`
+- `../technologies/alembic.txt`

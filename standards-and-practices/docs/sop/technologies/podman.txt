@@ -1,0 +1,40 @@
+Podman SOP
+==========
+
+Technology
+----------
+- Name: Podman
+- Version policy: Use the current stable Podman version supported by the host
+  operating system. Prefer rootless Podman when the platform supports it.
+
+Operational standards
+---------------------
+- Configuration baseline: Build and run containers through documented helper
+  scripts, keep environment variables explicit, and persist service data
+  through named volumes or mounted host directories.
+- Security constraints: Run containers rootless, prefer non-root users inside
+  the container, and use `--userns=keep-id` when host file ownership matters.
+- Observability and logging: Standardize `logs`, `status`, and `shell`
+  control paths so operators do not have to reconstruct container state by
+  hand.
+
+Validation
+----------
+- Local verification steps: Run `podman build`, start the container with the
+  intended runtime flags, check health endpoints, and inspect logs.
+- CI verification steps: Build the image in CI, run smoke tests against a
+  started container, and validate the same container command used locally.
+- Failure handling and rollback: Keep start, stop, restart, and clean-slate
+  recreation paths scripted. Preserve data volumes unless an operator has
+  explicitly approved destructive replacement.
+
+Maintenance
+-----------
+- Update cadence: Review the host Podman release alongside base image updates.
+- Known risks: Rootless permission-context failures, SELinux label issues on
+  mounted paths, port collisions, and stale containers masking startup errors.
+
+References
+----------
+- `../techniques/new-web-service.txt`
+- `fastapi.txt`

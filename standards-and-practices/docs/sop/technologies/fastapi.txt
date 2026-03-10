@@ -1,0 +1,40 @@
+FastAPI SOP
+===========
+
+Technology
+----------
+- Name: FastAPI
+- Version policy: Stay on a current stable release that matches the selected
+  Python baseline and Pydantic major version.
+
+Operational standards
+---------------------
+- Configuration baseline: Group routers by API area, keep an explicit app
+  entrypoint, and load settings from environment-backed configuration objects.
+- Security constraints: Do not hardcode secrets, passwords, or connection
+  URLs. Keep authentication and authorization logic outside route functions.
+- Observability and logging: Expose health endpoints, keep structured request
+  logs, and rely on `/docs` and `/redoc` for interactive API verification.
+
+Validation
+----------
+- Local verification steps: Run `pytest`, cover route tests with `TestClient`
+  or async clients, and start `uvicorn` locally before containerizing.
+- CI verification steps: Run the same test suite and fail builds on migration
+  drift, schema validation errors, or import-time side effects.
+- Failure handling and rollback: Keep route modules thin, revert faulty
+  releases with standard Git rollback procedures, and pair interface changes
+  with explicit migration or compatibility notes.
+
+Maintenance
+-----------
+- Update cadence: Review FastAPI and Pydantic compatibility regularly, then
+  upgrade in small steps.
+- Known risks: Blocking calls in async routes, startup work with hidden side
+  effects, and oversized route modules that mix transport and domain logic.
+
+References
+----------
+- `../languages/python.txt`
+- `../techniques/new-web-service.txt`
+- `sqlalchemy.txt`

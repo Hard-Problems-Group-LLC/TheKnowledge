@@ -1,0 +1,69 @@
+Internal Web Services SOP
+=========================
+
+Technique
+---------
+- Name: Internal web services
+- Use when: The service should stay private to a Tailscale tailnet while
+  still using real HTTPS certificates and a repeatable rootless container
+  deployment path.
+
+Default stack
+-------------
+- Primary languages: Reuse the backend and frontend language standards from
+  `new-web-service.txt`.
+- Primary technologies: Reuse the `new-web-service.txt` Podman application
+  stack, then add Tailscale and a small Caddy reverse-proxy sidecar.
+- Storage approach: Inherit the application storage pattern from
+  `new-web-service.txt`. This technique adds network exposure and TLS
+  management, not a new persistence model.
+- Runtime model: Run the application and proxy in a rootless Podman stack,
+  terminate TLS on an unprivileged high port such as `8443`, and publish
+  tailnet access through `tailscale serve`.
+
+Execution pattern
+-----------------
+- Start with the architecture in `new-web-service.txt`. Do not duplicate the
+  backend, frontend, repository, or test scaffolding here.
+- Add a reverse-proxy container that forwards to the internal application
+  listener and reads Tailscale-issued certificate material from a mounted cert
+  directory.
+- Keep the service private to the tailnet. Prefer:
+  - direct access at `https://<tailscale-fqdn>:8443`
+  - served access at `https://<tailscale-fqdn>`
+- Use `tailscale cert <fqdn>` to obtain the Tailscale-managed Let's Encrypt
+  certificate pair for the node, then mount the resulting files into the
+  proxy container.
+- Use `tailscale serve --https=443 https+insecure://127.0.0.1:8443` to map
+  tailnet HTTPS traffic onto the local proxy port while keeping the service
+  off the public Internet.
+- Restrict firewall exposure to the Tailscale interface or zone only. Do not
+  open the internal service port broadly on public interfaces.
+
+- Utility scripts:
+  - `../../../dev-utils/internal-web-services/`
+    `reissue_tailscale_caddy_certificate.py` requests or renews the
+    certificate, rewrites the Caddy config, restarts the proxy container,
+    configures `tailscale serve`, and verifies the certificate locally.
+  - `../../../dev-utils/internal-web-services/`
+    `check_tailscale_service_stack.py`
+    reports Podman, Tailscale, listener, certificate, and URL health for the
+    deployed stack.
+
+Common pitfalls
+---------------
+- Repeating public-web-service assumptions from generic deployment guides and
+  accidentally exposing the service outside the tailnet.
+- Depending on self-signed certificates when Tailscale-managed HTTPS
+  certificates are the expected baseline.
+- Mounting certificate files with the wrong ownership or SELinux labeling for
+  the rootless Podman user.
+- Forgetting that `tailscale serve` and the direct high-port URL are separate
+  paths that can fail independently.
+
+References
+----------
+- `new-web-service.txt`
+- `../technologies/podman.txt`
+- `../technologies/tailscale.txt`
+- `../technologies/caddy.txt`

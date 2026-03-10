@@ -6,6 +6,29 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-10T20:07:08+00:00 - Added a `guidelines/` document and supporting
+  specification for UI complexity limits, distilling Miller, Cowan, current
+  platform guidance, and a brief rate-distortion justification into a
+  practical 7-to-9-item recommendation with a references section.
+
+*
+
+  2026-03-10T19:50:40+00:00 - Added a generic `internal-web-services`
+  technique, added reusable `tailscale` and `caddy` technology SOPs, and
+  imported sanitized internal-service utility scripts for Tailscale-managed
+  HTTPS certificates, Caddy reverse-proxy configuration, and Podman and
+  tailnet health checks.
+
+*
+
+  2026-03-10T19:29:34+00:00 - Added reusable SOP material for language,
+  technology, and technique guidance, including a generic `new-web-service`
+  standard for Python 3.12, FastAPI, rootless Podman, React, Vite, and a
+  BerkeleyDB-to-PostgreSQL storage transition boundary, and added tests that
+  keep the SOP subtree free of project-specific naming.
+
+*
+
   2026-03-10T18:38:59+00:00 - Hardened `scripts/initial-setup.py` so it
   removes all preexisting managed `AGENTS.md` header and footer sections
   before rewriting the file, updated template documentation, and added a

@@ -1,0 +1,98 @@
+New Web Service SOP
+===================
+
+Technique
+---------
+- Name: New web service
+- Use when: A project needs a browser-facing service with an HTTP API, a
+  maintainable frontend, and a storage strategy that can start small and grow.
+
+Default stack
+-------------
+- Primary languages: Python 3.12 for the backend and TypeScript for the
+  frontend.
+- Primary technologies: FastAPI, Uvicorn, rootless Podman, React, and Vite.
+- Storage approach: Define a repository boundary at the application layer.
+  Start with a BerkeleyDB-backed adapter only for early-stage local
+  development or low-concurrency embedded storage. Promote PostgreSQL to the
+  system of record once relational queries, concurrent writers, or operational
+  durability become central requirements.
+- Runtime model: Support both direct local execution and a rootless Podman
+  container path that mirrors deployment behavior.
+
+Execution pattern
+-----------------
+- Repository layout:
+
+  ```text
+  project-root/
+    backend/
+      src/service_name/
+        api/
+        core/
+        domain/
+        repositories/
+        services/
+      tests/
+    frontend/
+      src/
+      public/
+    scripts/
+    containers/
+  ```
+
+- Bootstrap sequence:
+  1. Create a Python 3.12 backend with a FastAPI entrypoint, explicit settings
+     object, and versioned routers.
+  2. Create a React and Vite frontend in its own root directory. Keep API
+     proxy paths explicit in Vite config.
+  3. Define repository interfaces before implementing persistence. Keep
+     service logic storage-agnostic.
+  4. Implement the first persistence adapter behind that boundary. If a simple
+     embedded store is enough for early development, isolate the BerkeleyDB
+     adapter in one module tree.
+  5. Add a PostgreSQL-backed adapter with SQLAlchemy and Alembic before the
+     project needs multi-user scale, relational querying, or formal migration
+     history.
+  6. Containerize the service with rootless Podman. Run the backend process
+     as a non-root container user and persist data through a mounted path or
+     named volume.
+  7. Add wrapper scripts for build, start, stop, restart, status, logs, and
+     shell access so operators do not reconstruct runtime commands manually.
+
+- Validation sequence:
+  1. Backend: `pytest` for unit and integration coverage, including request
+     tests and repository adapter tests.
+  2. Frontend: `vitest` for component logic and `vite build` for production
+     bundle verification.
+  3. Container: build the Podman image, start the container with
+     production-like environment variables, wait for health checks, and run
+     smoke tests against the live service.
+  4. Storage transition: keep export and import tests so BerkeleyDB-backed
+     data can be promoted into PostgreSQL without rewriting service logic.
+
+Common pitfalls
+---------------
+- Letting FastAPI route handlers talk directly to SQLAlchemy sessions or
+  BerkeleyDB records instead of repository interfaces.
+- Treating BerkeleyDB as a drop-in relational database. It is an embedded
+  store and must remain an implementation detail.
+- Skipping the direct local run path and relying only on containers for
+  development feedback.
+- Building the frontend inside the backend tree so tooling and dependency
+  boundaries blur.
+- Hardcoding secrets, certificate paths, or connection strings in scripts or
+  config files.
+
+References
+----------
+- `../languages/python.txt`
+- `../languages/typescript.txt`
+- `../technologies/fastapi.txt`
+- `../technologies/podman.txt`
+- `../technologies/react.txt`
+- `../technologies/vite.txt`
+- `../technologies/sqlalchemy.txt`
+- `../technologies/alembic.txt`
+- `../technologies/postgresql.txt`
+- `../technologies/berkeleydb.txt`

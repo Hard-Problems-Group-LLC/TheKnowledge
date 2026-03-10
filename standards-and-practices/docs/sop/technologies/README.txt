@@ -2,9 +2,13 @@ Technology SOPs
 ===============
 
 Create one file per technology area, for example:
-- `docker-or-podman.txt`
+- `podman.txt`
+- `fastapi.txt`
+- `tailscale.txt`
+- `caddy.txt`
+- `react.txt`
+- `vite.txt`
 - `postgresql.txt`
-- `redis.txt`
-- `github-actions.txt`
+- `sqlalchemy.txt`
 
 Start from `_TEMPLATE.txt`.

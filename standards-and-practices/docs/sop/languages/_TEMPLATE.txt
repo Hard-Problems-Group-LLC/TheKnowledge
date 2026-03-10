@@ -19,6 +19,12 @@ Build and Run
 - Local run commands:
 - CI parity notes:
 
+Preferred Tooling
+-----------------
+
+Testing Strategies, Libraries, and Tools
+----------------------------------------
+
 Common pitfalls
 ---------------
 - 

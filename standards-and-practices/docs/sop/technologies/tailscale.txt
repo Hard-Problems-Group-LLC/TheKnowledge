@@ -1,0 +1,43 @@
+Tailscale SOP
+=============
+
+Technology
+----------
+- Name: Tailscale
+- Version policy: Stay on a current stable Tailscale release supported by the
+  host platform and enabled in the target tailnet.
+
+Operational standards
+---------------------
+- Configuration baseline: Use Tailscale for private service exposure when a
+  service must stay inside the tailnet. Detect the node FQDN through
+  `tailscale status --json` rather than hardcoding it.
+- Security constraints: Do not rely on public ingress when the service is
+  meant to remain internal. Keep HTTPS certificate issuance enabled in the
+  tailnet admin settings before depending on `tailscale cert`.
+- Observability and logging: Use `tailscale status --json` and
+  `tailscale netcheck --json` as the first-line diagnostics for service
+  reachability and relay behavior.
+
+Validation
+----------
+- Local verification steps: Confirm backend state is `Running`, confirm the
+  node has a Tailscale IP and DNS name, and verify `tailscale serve` or the
+  direct tailnet URL after deployment.
+- CI verification steps: Prefer script-level tests for config rendering and
+  argument handling. Full Tailscale end-to-end checks normally require trusted
+  infrastructure rather than generic CI.
+- Failure handling and rollback: Fail closed if tailnet certificates are not
+  available. Keep direct high-port access and served port exposure distinct so
+  operators can isolate proxy, certificate, and Tailscale issues quickly.
+
+Maintenance
+-----------
+- Update cadence: Review Tailscale release notes alongside host OS updates.
+- Known risks: DERP relay dependence, disabled HTTPS certificates in admin
+  settings, and firewall or MTU drift that breaks direct paths.
+
+References
+----------
+- `caddy.txt`
+- `../techniques/internal-web-services.txt`

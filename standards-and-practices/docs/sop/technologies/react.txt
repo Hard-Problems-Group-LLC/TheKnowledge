@@ -1,0 +1,39 @@
+React SOP
+=========
+
+Technology
+----------
+- Name: React
+- Version policy: Stay on the current stable major supported by the selected
+  Vite toolchain and frontend test stack.
+
+Operational standards
+---------------------
+- Configuration baseline: Use functional components, keep page-level routing
+  explicit, and separate reusable components from page orchestration.
+- Security constraints: Treat backend responses as untrusted input, keep auth
+  tokens out of component trees when possible, and centralize error handling.
+- Observability and logging: Use error boundaries for page or app shells and
+  keep user-visible failure states explicit.
+
+Validation
+----------
+- Local verification steps: Run component tests, launch the Vite dev server,
+  and verify layouts for portrait, landscape, and split-width views.
+- CI verification steps: Run the same test suite and production build used by
+  local developers.
+- Failure handling and rollback: Keep routing, state, and network boundaries
+  explicit so regressions can be isolated without reverting unrelated UI work.
+
+Maintenance
+-----------
+- Update cadence: Upgrade React together with the matching renderer and test
+  tooling.
+- Known risks: Overgrown component files, untyped DTO drift, and state logic
+  leaking across pages without a clear owner.
+
+References
+----------
+- `../languages/typescript.txt`
+- `vite.txt`
+- `../techniques/new-web-service.txt`

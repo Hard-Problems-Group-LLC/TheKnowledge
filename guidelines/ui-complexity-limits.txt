@@ -1,0 +1,54 @@
+UI Complexity Limits
+====================
+
+Guideline
+---------
+Treat roughly 7 to 9 items as the practical maximum size for one user
+interface group, such as a menu section, tab bar, button cluster, or tile
+set. If a group wants more than that, split it into meaningful subgroups and
+add a child navigation surface such as a submenu, drill-down, or child page.
+
+Why
+---
+Miller's 1956 paper is the origin of the familiar "seven, plus or minus two"
+idea, but the paper is really about limits in immediate judgment and memory,
+with heavy emphasis on chunking rather than a literal UI rule. Later work,
+especially Cowan's review, argues that the effective core working-memory
+limit may be closer to about four chunks. In practice, this means the exact
+number is disputed, but the broader lesson is stable: large flat choice sets
+become harder to scan, compare, remember, and revisit.
+
+Current design guidance points in the same direction. Microsoft recommends
+organizing related menu commands into groups of about seven or fewer items.
+Apple recommends using submenus sparingly and only when a simpler menu cannot
+work. Laws of UX also treats "7 +/- 2" as a heuristic, not a law, and notes
+that people chunk information to reduce cognitive load.
+
+Repository recommendation
+-------------------------
+- Use 7 to 9 items as a strong upper bound for one visible logical group.
+- Prefer fewer items when choices are unfamiliar, visually dense, or require
+  comparison.
+- When you exceed the bound, split by task, object type, or workflow stage
+  instead of appending more peers to the same surface.
+- Do not add hierarchy mechanically. If a submenu or child page makes items
+  harder to find, regroup the surface instead of making it deeper.
+
+Brief theoretical note
+----------------------
+Rate-distortion theory offers a useful analogy here. When a screen asks a
+person to compress too many alternatives into one quick decision, more signal
+is lost and more distortion is introduced. Smaller, semantically coherent
+groups reduce that loss by making the tradeoff between completeness and
+comprehension more favorable.
+
+References
+----------
+1. George A. Miller, "The Magical Number Seven, Plus or Minus Two: Some
+   Limits on Our Capacity for Processing Information," 1956.
+2. Nelson Cowan, "The Magical Number 4 in Short-Term Memory: A
+   Reconsideration of Mental Storage Capacity," 2001.
+3. Microsoft Learn, "Menus and commands layout."
+4. Apple Human Interface Guidelines, "Menus."
+5. Jon Yablonski, Laws of UX, "Miller's Law."
+6. Wikipedia, "Rate-distortion theory."

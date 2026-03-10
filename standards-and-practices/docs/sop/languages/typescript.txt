@@ -1,0 +1,42 @@
+TypeScript SOP
+==============
+
+Language
+--------
+- Name: TypeScript
+- Supported versions: Track the current stable TypeScript release supported by
+  the project's Node.js LTS baseline.
+
+Standards
+---------
+- Formatting: `prettier`
+- Linting: `eslint`
+- Static analysis: `tsc --noEmit`
+- Test strategy: `vitest` for unit and component tests, with browser-level
+  checks added when UI workflows carry significant risk.
+
+Build and Run
+-------------
+- Bootstrap commands: Install dependencies with the project's package manager
+  and keep lockfiles committed.
+- Local run commands: Use `npm run dev` for the Vite dev server, `npm run
+  test` for the test suite, and `npm run build` for production bundles.
+- CI parity notes: Keep Node.js, the package manager, and lockfile behavior
+  aligned between local development, containers, and CI.
+
+Common pitfalls
+---------------
+- Allowing `any` or implicit `unknown` handling to become the de facto API
+  contract.
+- Duplicating backend DTO shapes in multiple UI modules instead of sharing a
+  typed boundary.
+- Mixing component exports with utility-only exports in the same file, which
+  can interfere with React Fast Refresh.
+- Treating responsive behavior as a cosmetic concern instead of a functional
+  requirement.
+
+References
+----------
+- `../techniques/new-web-service.txt`
+- `../technologies/react.txt`
+- `../technologies/vite.txt`

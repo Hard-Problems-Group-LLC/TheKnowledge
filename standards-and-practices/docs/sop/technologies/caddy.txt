@@ -1,0 +1,45 @@
+Caddy SOP
+=========
+
+Technology
+----------
+- Name: Caddy
+- Version policy: Stay on a stable release compatible with the container image
+  and the TLS features in use.
+
+Operational standards
+---------------------
+- Configuration baseline: Use a small reverse-proxy config that forwards to
+  the internal application port and reads TLS material from a mounted cert
+  directory.
+- Security constraints: Keep certificate and key files outside the image,
+  mount them read-only when practical, and run the proxy behind a rootless
+  Podman stack.
+- Observability and logging: Keep proxy restarts scripted and make log access
+  a first-class operator action.
+
+Validation
+----------
+- Local verification steps: Render the Caddyfile deterministically, restart
+  the proxy container, and inspect the certificate served on the local TLS
+  port with `openssl s_client`.
+- CI verification steps: Validate config rendering and helper-script behavior.
+  Full TLS verification normally requires a live container and certificate
+  set.
+- Failure handling and rollback: Keep proxy config small enough that a known-
+  good file can be restored quickly when a certificate or upstream change
+  breaks service.
+
+Maintenance
+-----------
+- Update cadence: Upgrade the proxy image with the rest of the container
+  stack.
+- Known risks: Drift between mounted cert paths and rendered config, stale
+  proxy containers after config changes, and accidental exposure on public
+  interfaces.
+
+References
+----------
+- `podman.txt`
+- `tailscale.txt`
+- `../techniques/internal-web-services.txt`

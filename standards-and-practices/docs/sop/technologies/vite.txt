@@ -1,0 +1,41 @@
+Vite SOP
+========
+
+Technology
+----------
+- Name: Vite
+- Version policy: Stay on a stable release compatible with the selected React
+  plugin, Node.js LTS baseline, and test runner.
+
+Operational standards
+---------------------
+- Configuration baseline: Use Vite for local development and production
+  builds, define backend proxy rules explicitly, and keep frontend code in its
+  own root directory.
+- Security constraints: Do not embed secrets in Vite config or browser-side
+  environment files. Keep dev-only certificate or proxy exceptions scoped to
+  development.
+- Observability and logging: Use the Vite terminal output and browser overlay
+  as first-line diagnostics. Keep test commands quick enough for watch mode.
+
+Validation
+----------
+- Local verification steps: Run `npm run dev`, `npm run test`, and `npm run
+  build`. Confirm hot module replacement still works after structural changes.
+- CI verification steps: Run the same test and build commands with locked
+  dependencies.
+- Failure handling and rollback: Keep proxy paths, test setup, and build
+  plugins documented so a broken dev environment can be recovered quickly.
+
+Maintenance
+-----------
+- Update cadence: Upgrade Vite with the matching plugin and test tooling.
+- Known risks: Proxy drift between frontend and backend, React Fast Refresh
+  breakage from mixed exports, and hidden dependency updates through unlocked
+  package installs.
+
+References
+----------
+- `../languages/typescript.txt`
+- `react.txt`
+- `../techniques/new-web-service.txt`

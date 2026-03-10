@@ -1,0 +1,40 @@
+PostgreSQL SOP
+==============
+
+Technology
+----------
+- Name: PostgreSQL
+- Version policy: Stay on a currently supported PostgreSQL major release and
+  upgrade deliberately with backup and migration planning.
+
+Operational standards
+---------------------
+- Configuration baseline: Keep connection strings in environment variables,
+  manage schema through migrations, and use PostgreSQL as the system of record
+  once multi-user or relational demands outgrow embedded storage.
+- Security constraints: Never commit credentials, prefer least-privilege
+  service roles, and keep TLS expectations explicit for remote deployments.
+- Observability and logging: Monitor connection failures, migration status,
+  and slow queries through application and database logs.
+
+Validation
+----------
+- Local verification steps: Confirm connectivity, run migrations to head, and
+  execute integration tests against PostgreSQL before release.
+- CI verification steps: Start a disposable PostgreSQL instance, apply
+  migrations, and run representative API and data-layer tests.
+- Failure handling and rollback: Keep backups and tested restore procedures,
+  and pair schema changes with rollback notes when reversibility matters.
+
+Maintenance
+-----------
+- Update cadence: Review PostgreSQL version support and extension
+  compatibility regularly.
+- Known risks: Connection pool exhaustion, schema drift, and under-specified
+  indexes that perform acceptably in development but fail under load.
+
+References
+----------
+- `sqlalchemy.txt`
+- `alembic.txt`
+- `../techniques/new-web-service.txt`

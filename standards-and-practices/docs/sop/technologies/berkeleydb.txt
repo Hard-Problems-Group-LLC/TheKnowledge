@@ -1,0 +1,41 @@
+BerkeleyDB SOP
+==============
+
+Technology
+----------
+- Name: BerkeleyDB
+- Version policy: Use only a maintained BerkeleyDB binding that is compatible
+  with the selected Python version. Keep binding-specific code isolated.
+
+Operational standards
+---------------------
+- Configuration baseline: Use BerkeleyDB only through a narrow repository
+  adapter. Keep the database files under a dedicated data directory so they
+  can be replaced, archived, or exported without touching application code.
+- Security constraints: Treat BerkeleyDB as single-node embedded storage, not
+  a multi-tenant service. Enforce host file permissions and keep secrets out
+  of the data files.
+- Observability and logging: Add adapter-level logs for open, close, and
+  write-failure events. Keep import and export tooling explicit.
+
+Validation
+----------
+- Local verification steps: Run adapter tests that cover open, create, read,
+  update, delete, and recovery for the chosen binding.
+- CI verification steps: Run the same adapter tests and any export or import
+  checks that guarantee migration into a relational backend remains possible.
+- Failure handling and rollback: Keep export tools that can emit canonical
+  records for PostgreSQL import. Do not let application services depend on
+  BerkeleyDB-specific cursor or key-layout details.
+
+Maintenance
+-----------
+- Update cadence: Review binding compatibility whenever the Python version
+  changes.
+- Known risks: Python binding churn, limited concurrency, and application code
+  that accidentally treats BerkeleyDB as a permanent relational substitute.
+
+References
+----------
+- `../techniques/new-web-service.txt`
+- `postgresql.txt`

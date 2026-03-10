@@ -1,0 +1,25 @@
+Guideline Documents
+===================
+
+Scope
+-----
+Define the intent and minimum structure for files under the repository's
+top-level `guidelines/` directory.
+
+Requirements
+------------
+- Guideline files must be brief, practical, and scoped to cross-cutting
+  design or engineering decisions.
+- Each file must end with a `References` section when it relies on empirical,
+  theoretical, or standards-based claims.
+- Recommendations should be phrased as defaults or strong heuristics unless
+  the source material supports a strict rule.
+- When source material is mixed or disputed, the guideline must note that
+  briefly and still state the repository's recommended operating default.
+- File names should use lowercase, hyphen-separated words with a `.txt`
+  suffix.
+
+Non-Goals
+---------
+- Replacing detailed SOPs, specifications, or implementation tutorials.
+- Reproducing long literature reviews inside the guideline file itself.
