@@ -12,7 +12,9 @@ Problem Statement
 Template repositories need live backlog, task, bug, and completion records
 for their own maintenance. Writing those records directly into the template
 files makes the template look pre-populated and reduces its value as a clean
-starting point for downstream projects.
+starting point for downstream projects. Bug-resolution records also need a
+stable destination and enough structure to preserve why the bug existed and
+how it was fixed.
 
 Requirements
 ------------
@@ -24,6 +26,12 @@ Requirements
   repository's live project-management record locations.
 - The override tree must provide mirrored files for backlog, in-progress,
   completed, deferred, AI-human request, and bug lifecycle tracking.
+- Bug lifecycle tracking must use `known-bugs.txt`, `bugs-in-progress.txt`,
+  and `resolved-bugs.txt`.
+- Cleared bugs must move into `resolved-bugs.txt` rather than a generic
+  closed-state file.
+- Each resolved bug entry must include the recorded resolution timestamp, a
+  short symptom summary, `Root cause:` analysis, and `Resolution:` notes.
 - The starter files under `templates/project-management/` must remain clean
   template examples unless the template text or examples themselves are being
   revised.
@@ -34,7 +42,7 @@ Requirements
 
 Non-Goals
 ---------
-- Removing or renaming the starter templates under `templates/`.
+- Removing starter templates under `templates/` without replacement.
 - Preventing intentional edits to template wording or examples.
 - Requiring downstream projects to adopt the override mechanism when they do
   not need clean-template preservation.

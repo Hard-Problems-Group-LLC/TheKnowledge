@@ -45,11 +45,15 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     pending_queue = (
         project_root / "project-management" / "state" / "pending-commit-changes.txt"
     )
+    resolved_bugs = project_root / "project-management" / "bugs" / "resolved-bugs.txt"
+    closed_bugs = project_root / "project-management" / "bugs" / "closed-bugs.txt"
 
     assert agents.is_file()
     assert proposals_readme.is_file()
     assert git_flow.is_file()
     assert pending_queue.is_file()
+    assert resolved_bugs.is_file()
+    assert not closed_bugs.exists()
     assert "The Hard Problems Group's specifications and guidance" in (
         agents.read_text(encoding="utf-8")
     )
@@ -64,6 +68,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         git_flow.read_text(encoding="utf-8")
     )
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
+    resolved_text = resolved_bugs.read_text(encoding="utf-8")
+    assert "Root cause:" in resolved_text
+    assert "Resolution:" in resolved_text
 
 
 def test_initial_setup_refuses_to_overwrite_without_force(tmp_path: Path) -> None:

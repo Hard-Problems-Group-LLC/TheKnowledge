@@ -1,0 +1,40 @@
+Resolved Bug Records
+====================
+
+Scope
+-----
+Define the required destination and minimum content for bug records after a
+bug leaves active remediation.
+
+Problem Statement
+-----------------
+Bug records need a stable final location and enough structure to preserve
+both why the bug existed and how it was fixed. A generic "closed" label does
+not make that expectation explicit, and terse summaries alone do not retain
+useful debugging history.
+
+Requirements
+------------
+- Bug lifecycle tracking must use `known-bugs.txt`, `bugs-in-progress.txt`,
+  and `resolved-bugs.txt`.
+- When a bug is cleared from `known-bugs.txt` or `bugs-in-progress.txt`, move
+  it into `resolved-bugs.txt`.
+- `resolved-bugs.txt` must include explanatory header text that describes the
+  file's purpose and entry format.
+- Each resolved bug entry must include:
+  - the ISO 8601 timestamp for when the fix was recorded
+  - a short symptom summary
+  - `Root cause:` analysis
+  - `Resolution:` notes
+- Commit references, test references, or follow-up notes may be added when
+  they improve traceability, but they do not replace root-cause or
+  resolution fields.
+- Starter templates and repository-local override records must use the same
+  resolved-bug filename so guidance and installed project material stay
+  aligned.
+
+Non-Goals
+---------
+- Defining a universal bug ID format.
+- Requiring a separate postmortem document for every resolved bug.
+- Preventing repositories from adding extra resolved-bug fields when needed.

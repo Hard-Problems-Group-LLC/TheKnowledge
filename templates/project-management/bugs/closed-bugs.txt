@@ -1,4 +1,0 @@
-Closed Bugs
-
-Record resolved bugs with newest entries at the top. Include timestamps and
-brief resolution notes.

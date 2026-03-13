@@ -27,7 +27,7 @@ EXPECTED_FILES = [
     OVERRIDES / "state" / "pending-commit-changes.txt",
     OVERRIDES / "bugs" / "known-bugs.txt",
     OVERRIDES / "bugs" / "bugs-in-progress.txt",
-    OVERRIDES / "bugs" / "closed-bugs.txt",
+    OVERRIDES / "bugs" / "resolved-bugs.txt",
 ]
 
 
@@ -53,6 +53,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
     assert "state/pending-commit-changes.txt" in overrides_text
+    assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
     assert "pending-commit-changes.txt" in templates_text
     assert "{$KNOWLEDGE_ROOT}/AGENTS.md" in header_text

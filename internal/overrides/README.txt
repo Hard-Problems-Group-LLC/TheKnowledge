@@ -30,4 +30,4 @@ Record Map
 - `state/pending-commit-changes.txt`
 - `bugs/known-bugs.txt`
 - `bugs/bugs-in-progress.txt`
-- `bugs/closed-bugs.txt`
+- `bugs/resolved-bugs.txt`

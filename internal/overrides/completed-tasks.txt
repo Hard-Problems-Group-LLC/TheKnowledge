@@ -6,6 +6,15 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-13T09:08:05Z - Replaced `closed-bugs.txt` with
+  `resolved-bugs.txt` across TheKnowledge's bug lifecycle guidance, added a
+  resolved-bug record specification plus template and override files that
+  require `Root cause:` and `Resolution:` notes, and updated scaffold tests
+  so initial setup installs the new file instead of the old closed-bugs
+  name.
+
+*
+
   2026-03-13T00:46:38-07:00 - Removed consumer-specific names from generic
   sanitization tests so the public test suite stays aligned with
   distribution-neutral naming requirements.
