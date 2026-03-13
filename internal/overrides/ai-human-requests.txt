@@ -16,3 +16,11 @@ Active Requests
 
 Completed Requests
 ------------------
+
+*
+
+  2026-03-13T00:46:38-07:00
+  Requestor: operator
+  Action: Remove consumer-specific names from TheKnowledge's public
+  sanitization tests and publish the cleanup.
+  Status: completed by Codex on 2026-03-13.

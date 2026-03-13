@@ -8,8 +8,6 @@ SOP = ROOT / "standards-and-practices" / "docs" / "sop"
 TOOLS = ROOT / "standards-and-practices" / "dev-utils" / "internal-web-services"
 
 BANNED_TERMS = [
-    "Lighthouse",
-    "BuildQM",
     "HPG",
     "mheck",
     "kanboard",

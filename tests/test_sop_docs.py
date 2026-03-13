@@ -31,8 +31,6 @@ EXPECTED_FILES = [
 ]
 
 BANNED_TERMS = [
-    "Lighthouse",
-    "BuildQM",
     "HPG",
     "mheck",
     "Hard Problems Group",
