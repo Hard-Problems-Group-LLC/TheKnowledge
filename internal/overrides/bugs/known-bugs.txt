@@ -2,4 +2,5 @@ Repository Maintenance Known Bugs
 
 Track confirmed TheKnowledge maintenance bugs awaiting work here. Keep
 `templates/project-management/bugs/known-bugs.txt` as starter material unless
-the template wording or examples are being revised.
+the template wording or examples are being revised. Keep any expanded notes in
+`open/`.

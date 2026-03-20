@@ -2,4 +2,5 @@ Repository Maintenance Resolved Bugs
 
 Record resolved TheKnowledge maintenance bugs here. Keep
 `templates/project-management/bugs/resolved-bugs.txt` as starter material
-unless the template wording or examples are being revised.
+unless the template wording or examples are being revised. Keep any detailed
+closure records in `closed/`.

@@ -27,6 +27,10 @@ This repository includes:
 - `templates/`: starter material meant to be copied into consuming projects.
 - `scripts/`: reusable tooling plus setup helpers for submodule consumers.
 - `internal/`: repository-local state for maintaining TheKnowledge itself.
+  TheKnowledge's live project-management state lives under
+  `internal/overrides/`; the starter material under
+  `templates/project-management/` stays pristine unless the reusable framework
+  itself is being revised.
 
 This repository does **not** include product-specific source code or
 application business logic.
@@ -111,8 +115,15 @@ TestProject/
     completed-tasks.txt
     deferred.txt
     ai-human-requests.txt
+    proposals/
+      approved/
+      rejected/
+      deferred/
+      under-review/
     state/
       pending-commit-changes.txt
-    proposals/
     bugs/
+      open/
+      in-progress/
+      closed/
 ```

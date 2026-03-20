@@ -31,10 +31,15 @@ live state.
 - Record finished work at the top of
   `internal/overrides/completed-tasks.txt` with ISO 8601 timestamps.
 - Track operator actions for AI in `internal/overrides/ai-human-requests.txt`.
+- Track proposal records under `internal/overrides/proposals/` using the
+  status subdirectories `approved/`, `rejected/`, `deferred/`, and
+  `under-review/`.
 - Use `internal/overrides/deferred.txt` for explicitly deferred work.
 - Queue brief commit-ready summaries in
   `internal/overrides/state/pending-commit-changes.txt`.
-- Maintain bug lifecycle files under `internal/overrides/bugs/`.
+- Maintain bug lifecycle summary files under `internal/overrides/bugs/` and
+  keep detailed bug records in the status subdirectories `open/`,
+  `in-progress/`, and `closed/`.
 - Treat `templates/project-management/` as starter material for consuming
   projects, not as TheKnowledge's live state.
 

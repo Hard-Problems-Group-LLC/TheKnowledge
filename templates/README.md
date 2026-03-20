@@ -6,6 +6,11 @@ that consume TheKnowledge, usually as a Git submodule.
 Copy them into the consuming project root instead of editing them in place
 inside the submodule. Use `scripts/initial-setup.py` to install them.
 
+The `project-management/` starter tree includes proposal status directories
+(`approved/`, `rejected/`, `deferred/`, and `under-review/`) plus bug status
+directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
+project's live records in the installed copy, not inside this submodule.
+
 When templates contain `{{THEKNOWLEDGE_ROOT}}` or `{$KNOWLEDGE_ROOT}`, the
 setup script replaces that placeholder with the submodule path relative to
 the consuming project root.

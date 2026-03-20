@@ -11,7 +11,8 @@ Override Rules
 --------------
 1. Use the mirrored files in this directory for TheKnowledge's own backlog,
    in-progress work, completed tasks, deferrals, AI-human requests,
-   pending-commit change queue state, and bug lifecycle state.
+   pending-commit change queue state, proposal status records, and bug
+   lifecycle state.
 2. Record work on the template itself in these override files, not in the
    template records.
 3. Update the template records only when you are changing their
@@ -26,8 +27,17 @@ Record Map
 - `completed-tasks.txt`
 - `deferred.txt`
 - `ai-human-requests.txt`
+- `proposals/README.txt`
+- `proposals/approved/README.txt`
+- `proposals/rejected/README.txt`
+- `proposals/deferred/README.txt`
+- `proposals/under-review/README.txt`
 - `state/README.txt`
 - `state/pending-commit-changes.txt`
+- `bugs/README.txt`
 - `bugs/known-bugs.txt`
 - `bugs/bugs-in-progress.txt`
 - `bugs/resolved-bugs.txt`
+- `bugs/open/README.txt`
+- `bugs/in-progress/README.txt`
+- `bugs/closed/README.txt`

@@ -1,9 +1,13 @@
 Proposals Directory
 ===================
 
-Store discussion-stage proposals here before final specifications are drafted.
-Use the proposal format guide in
+Store proposal files in the matching status directory here before final
+specifications are drafted. Use the proposal format guide in
 `{{THEKNOWLEDGE_ROOT}}/standards-and-practices/docs/format-for-proposals.txt`
 and keep decision history append-only.
 
-Use `under-review/` for proposals intentionally held for decision.
+Status directories:
+- `under-review/`: proposals awaiting a decision.
+- `approved/`: proposals accepted for downstream specification and execution.
+- `rejected/`: proposals declined with rationale retained.
+- `deferred/`: proposals intentionally paused for later reconsideration.
