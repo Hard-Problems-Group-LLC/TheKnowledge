@@ -1,0 +1,41 @@
+Status Subdirectories for Proposal and Bug Records
+==================================================
+
+Scope
+-----
+Define the subordinate status-directory structure for proposal and bug record
+trees in TheKnowledge standards, starter templates, and repository-local
+override state.
+
+Problem Statement
+-----------------
+Repositories need stable locations for records that change status over time.
+Without named status directories, proposal outcomes and detailed bug notes are
+easy to scatter or leave implicit, and starter templates drift away from the
+maintainer repository's own working structure.
+
+Requirements
+------------
+- Proposal record trees must provide the subordinate status directories
+  `approved/`, `rejected/`, `deferred/`, and `under-review/`.
+- Proposal files must live in the status directory that matches their current
+  `Status:` metadata.
+- Proposal-tree root documentation must explain when proposals move between
+  the four status directories.
+- Bug record trees must provide the subordinate status directories `open/`,
+  `in-progress/`, and `closed/`.
+- Repositories may keep ordered bug summary files at the bug-tree root for
+  prioritization and history. When they do, those files must stay aligned with
+  any detailed records stored in the bug status directories.
+- Workflow guidance, starter templates, and repository-local override records
+  must describe the same status-directory names.
+- Empty starter directories must remain representable in Git through
+  explanatory placeholder files such as `README.txt`.
+
+Non-Goals
+---------
+- Defining a universal filename scheme for proposal or bug record files.
+- Replacing ordered backlog or bug summary files when those files remain
+  useful for prioritization.
+- Preventing repositories from adding extra supporting files inside a status
+  directory when a record needs attachments or deeper notes.

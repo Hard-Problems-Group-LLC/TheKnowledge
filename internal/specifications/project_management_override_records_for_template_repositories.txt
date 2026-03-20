@@ -25,9 +25,12 @@ Requirements
 - When `internal/overrides/README.txt` exists, it is authoritative for the
   repository's live project-management record locations.
 - The override tree must provide mirrored files for backlog, in-progress,
-  completed, deferred, AI-human request, and bug lifecycle tracking.
+  completed, deferred, AI-human request, and proposal and bug tracking.
+- Proposal tracking must provide `approved/`, `rejected/`, `deferred/`, and
+  `under-review/` status directories under `proposals/`.
 - Bug lifecycle tracking must use `known-bugs.txt`, `bugs-in-progress.txt`,
-  and `resolved-bugs.txt`.
+  and `resolved-bugs.txt`, plus the detailed-record status directories
+  `open/`, `in-progress/`, and `closed/` under `bugs/`.
 - Cleared bugs must move into `resolved-bugs.txt` rather than a generic
   closed-state file.
 - Each resolved bug entry must include the recorded resolution timestamp, a

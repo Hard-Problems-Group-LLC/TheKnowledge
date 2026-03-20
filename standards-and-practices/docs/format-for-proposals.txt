@@ -13,9 +13,13 @@ Include the following metadata at the top:
 - Title: A short, user-recognizable name.
 - Author: The primary drafter.
 - Date: ISO 8601 timestamp of authorship.
-- Status: Draft, Proposed, Accepted, or Rejected.
+- Status: Under Review, Approved, Rejected, or Deferred.
 - Reviewers: Names and roles of expected reviewers.
 - Related Work: Links to backlog items, bugs, or specifications.
+
+Store each proposal file in the matching status directory under
+`project-management/proposals/`: `under-review/`, `approved/`, `rejected/`,
+or `deferred/`.
 
 Problem Statement
 -----------------

@@ -17,10 +17,17 @@ Requirements
 ------------
 - Bug lifecycle tracking must use `known-bugs.txt`, `bugs-in-progress.txt`,
   and `resolved-bugs.txt`.
+- Bug tracking trees must also provide the subordinate status directories
+  `open/`, `in-progress/`, and `closed/` for detailed bug records and
+  supporting notes.
 - When a bug is cleared from `known-bugs.txt` or `bugs-in-progress.txt`, move
   it into `resolved-bugs.txt`.
+- When a bug changes status, move or update any corresponding detailed record
+  so it lives in the matching status directory.
 - `resolved-bugs.txt` must include explanatory header text that describes the
   file's purpose and entry format.
+- The `closed/` directory must document that detailed closed bug records keep
+  root-cause and resolution details aligned with the summary entry.
 - Each resolved bug entry must include:
   - the ISO 8601 timestamp for when the fix was recorded
   - a short symptom summary
@@ -30,8 +37,8 @@ Requirements
   they improve traceability, but they do not replace root-cause or
   resolution fields.
 - Starter templates and repository-local override records must use the same
-  resolved-bug filename so guidance and installed project material stay
-  aligned.
+  resolved-bug filename plus the same bug-status directory names so guidance
+  and installed project material stay aligned.
 
 Non-Goals
 ---------

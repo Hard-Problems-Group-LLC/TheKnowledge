@@ -10,16 +10,20 @@ Use the following command phrases in prompts to direct AI agents that follow
   target.
 - Iterate on the buglist: Apply the backlog-style iteration steps to the top
   entry in `/project-management/bugs/known-bugs.txt`, updating the bug
-  tracking files with ISO 8601 timestamps when moving items between lists.
+  tracking files with ISO 8601 timestamps when moving items between lists and
+  updating any corresponding detailed records under `/project-management/bugs/`
+  `open/`, `in-progress/`, or `closed/`.
 - Start bug triage: Review `/project-management/bugs/known-bugs.txt` for
-  completeness, reproductions, owners, and timestamps. Reorder or prune items
-  as needed while preserving the oldest entries at the bottom.
+  completeness, reproductions, owners, and timestamps. Review
+  `/project-management/bugs/open/` for detailed notes when present. Reorder or
+  prune items as needed while preserving the oldest entries at the bottom.
 - Start work on <item>: Move the named backlog or bug entry into the relevant
   in-progress file, adding the current ISO 8601 timestamp and owner details.
 - Resolve <item> or close <item>: Move the named task into the corresponding
   completed file, or move the named bug into
-  `/project-management/bugs/resolved-bugs.txt` with a timestamp,
-  `Root cause:` analysis, and concise `Resolution:` notes.
+  `/project-management/bugs/resolved-bugs.txt`, then move or update the
+  detailed bug record under `/project-management/bugs/closed/` with a
+  timestamp, `Root cause:` analysis, and concise `Resolution:` notes.
 - Verify Windows shims from Linux: run
   `python scripts/run_tool_with_timeout.py windows_shims_linux`, summarize
   whether local paths returned PASS or SKIP, and confirm Windows CI still acts

@@ -5,22 +5,29 @@ Start here to understand how work moves through the repository. Follow these
 stages in order: propose, backlog, execute, and clear. Keep every change
 traceable back to a proposal or explicit operator direction.
 
+Some repositories define override record locations for their own live state.
+When an override record map exists, use it instead of the default
+`project-management/` paths shown below.
+
 Proposals
 ---------
 
 Use proposals to drive discussion before drafting a full specification. Follow
 the template in `standards-and-practices/docs/format-for-proposals.txt` and
-store each file in
-`project-management/proposals/` with a descriptive name. Stamp every proposal
-with an ISO 8601 date, status, and reviewer list. Cross-reference backlog
+store each file in the matching status directory under
+`project-management/proposals/` with a descriptive name. Use
+`under-review/` while a proposal is awaiting a decision, then move the file
+to `approved/`, `rejected/`, or `deferred/` as the status changes. Stamp
+every proposal with an ISO 8601 date, status, and reviewer list. Keep the
+status metadata aligned with the directory name. Cross-reference backlog
 entries, bugs, and specifications in the metadata so readers can trace the
-request through the workflow. Keep revisions append-only: update the
-status and decision log instead of rewriting history, and record who accepted
-or rejected the proposal.
+request through the workflow. Keep revisions append-only: update the status
+and decision log instead of rewriting history, and record who approved,
+rejected, or deferred the proposal.
 
-Treat proposals as temporary while the team converges on scope. Close them as
-accepted, rejected, or superseded and capture the rationale in the decision
-log. Once accepted, draft the specification in
+Treat proposals as temporary while the team converges on scope. Move them into
+their final status directory and capture the rationale in the decision log.
+Once approved, draft the specification in
 `standards-and-practices/docs/specifications/` before writing code or tests.
 Reference the specification from the proposal so the
 chain of custody stays obvious.
@@ -28,7 +35,7 @@ chain of custody stays obvious.
 Backlogging
 -----------
 
-Convert accepted proposals and direct operator requests into backlog entries.
+Convert approved proposals and direct operator requests into backlog entries.
 Add new items to `project-management/backlog.txt` using the existing
 asterisk-plus-blank-line formatting. Capture the requestor, a short actionable
 summary, and an ISO 8601 timestamp showing when the item entered the queue.
