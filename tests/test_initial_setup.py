@@ -41,17 +41,49 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert result.returncode == 0
     agents = project_root / "AGENTS.md"
     proposals_readme = project_root / "project-management" / "proposals" / "README.txt"
+    approved_proposals = (
+        project_root / "project-management" / "proposals" / "approved" / "README.txt"
+    )
+    rejected_proposals = (
+        project_root / "project-management" / "proposals" / "rejected" / "README.txt"
+    )
+    deferred_proposals = (
+        project_root / "project-management" / "proposals" / "deferred" / "README.txt"
+    )
+    under_review_proposals = (
+        project_root
+        / "project-management"
+        / "proposals"
+        / "under-review"
+        / "README.txt"
+    )
     git_flow = project_root / "project-management" / "git-flow.txt"
     pending_queue = (
         project_root / "project-management" / "state" / "pending-commit-changes.txt"
+    )
+    bugs_readme = project_root / "project-management" / "bugs" / "README.txt"
+    open_bugs = project_root / "project-management" / "bugs" / "open" / "README.txt"
+    in_progress_bugs = (
+        project_root / "project-management" / "bugs" / "in-progress" / "README.txt"
+    )
+    closed_bugs_dir = (
+        project_root / "project-management" / "bugs" / "closed" / "README.txt"
     )
     resolved_bugs = project_root / "project-management" / "bugs" / "resolved-bugs.txt"
     closed_bugs = project_root / "project-management" / "bugs" / "closed-bugs.txt"
 
     assert agents.is_file()
     assert proposals_readme.is_file()
+    assert approved_proposals.is_file()
+    assert rejected_proposals.is_file()
+    assert deferred_proposals.is_file()
+    assert under_review_proposals.is_file()
     assert git_flow.is_file()
     assert pending_queue.is_file()
+    assert bugs_readme.is_file()
+    assert open_bugs.is_file()
+    assert in_progress_bugs.is_file()
+    assert closed_bugs_dir.is_file()
     assert resolved_bugs.is_file()
     assert not closed_bugs.exists()
     assert "The Hard Problems Group's specifications and guidance" in (
@@ -64,10 +96,12 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.txt" in (
         proposals_readme.read_text(encoding="utf-8")
     )
+    assert "approved/" in proposals_readme.read_text(encoding="utf-8")
     assert "python TheKnowledge/scripts/run_tool_with_timeout.py black" in (
         git_flow.read_text(encoding="utf-8")
     )
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
+    assert "open/" in bugs_readme.read_text(encoding="utf-8")
     resolved_text = resolved_bugs.read_text(encoding="utf-8")
     assert "Root cause:" in resolved_text
     assert "Resolution:" in resolved_text

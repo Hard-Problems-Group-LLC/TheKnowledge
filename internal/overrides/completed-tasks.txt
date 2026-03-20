@@ -6,6 +6,15 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-20T00:35:52-07:00 - Added required proposal status directories
+  (`approved/`, `rejected/`, `deferred/`, and `under-review/`) plus bug
+  status directories (`open/`, `in-progress/`, and `closed/`) across the
+  standards, starter templates, repository-local override records, and setup
+  coverage so TheKnowledge and downstream installs share the same status-tree
+  model.
+
+*
+
   2026-03-13T09:08:05Z - Replaced `closed-bugs.txt` with
   `resolved-bugs.txt` across TheKnowledge's bug lifecycle guidance, added a
   resolved-bug record specification plus template and override files that

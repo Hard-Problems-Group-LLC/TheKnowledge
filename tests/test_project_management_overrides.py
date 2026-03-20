@@ -16,18 +16,40 @@ EXPECTED_FILES = [
     TEMPLATES / "AGENTS-footer.md",
     TEMPLATES / "README.md",
     TEMPLATES / "project-management" / "git-flow.txt",
+    TEMPLATES / "project-management" / "proposals" / "README.txt",
+    TEMPLATES / "project-management" / "proposals" / "approved" / "README.txt",
+    TEMPLATES / "project-management" / "proposals" / "rejected" / "README.txt",
+    TEMPLATES / "project-management" / "proposals" / "deferred" / "README.txt",
+    TEMPLATES / "project-management" / "proposals" / "under-review" / "README.txt",
+    TEMPLATES / "project-management" / "bugs" / "README.txt",
+    TEMPLATES / "project-management" / "bugs" / "open" / "README.txt",
+    TEMPLATES / "project-management" / "bugs" / "in-progress" / "README.txt",
+    TEMPLATES / "project-management" / "bugs" / "closed" / "README.txt",
     STANDARDS / "docs" / "development-workflow.txt",
+    STANDARDS
+    / "docs"
+    / "specifications"
+    / "status_subdirectories_for_proposals_and_bugs.txt",
     OVERRIDES / "README.txt",
     OVERRIDES / "backlog.txt",
     OVERRIDES / "tasks-in-progress.txt",
     OVERRIDES / "completed-tasks.txt",
     OVERRIDES / "deferred.txt",
     OVERRIDES / "ai-human-requests.txt",
+    OVERRIDES / "proposals" / "README.txt",
+    OVERRIDES / "proposals" / "approved" / "README.txt",
+    OVERRIDES / "proposals" / "rejected" / "README.txt",
+    OVERRIDES / "proposals" / "deferred" / "README.txt",
+    OVERRIDES / "proposals" / "under-review" / "README.txt",
     OVERRIDES / "state" / "README.txt",
     OVERRIDES / "state" / "pending-commit-changes.txt",
+    OVERRIDES / "bugs" / "README.txt",
     OVERRIDES / "bugs" / "known-bugs.txt",
     OVERRIDES / "bugs" / "bugs-in-progress.txt",
     OVERRIDES / "bugs" / "resolved-bugs.txt",
+    OVERRIDES / "bugs" / "open" / "README.txt",
+    OVERRIDES / "bugs" / "in-progress" / "README.txt",
+    OVERRIDES / "bugs" / "closed" / "README.txt",
 ]
 
 
@@ -50,14 +72,22 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "templates/project-management/git-flow.txt" in agents_text
     assert "internal/overrides/README.txt" in agents_text
     assert "internal/overrides/state/pending-commit-changes.txt" in agents_text
+    assert "internal/overrides/proposals/" in agents_text
+    assert "internal/overrides/bugs/" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
+    assert "proposals/approved/README.txt" in overrides_text
     assert "state/pending-commit-changes.txt" in overrides_text
+    assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "approved/" in templates_text
+    assert "open/" in templates_text
     assert "pending-commit-changes.txt" in templates_text
     assert "{$KNOWLEDGE_ROOT}/AGENTS.md" in header_text
     assert "TheKnowledge Overrides" in footer_text
+    assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
+    assert "project-management/proposals/" in workflow_text
     assert "project-management/backlog.txt" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
