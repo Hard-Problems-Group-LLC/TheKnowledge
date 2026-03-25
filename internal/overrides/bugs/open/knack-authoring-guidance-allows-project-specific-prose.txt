@@ -1,0 +1,76 @@
+Knack Authoring Guidance Allows Project-Specific Prose
+======================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-25T15:58:54-07:00
+
+Scope
+-----
+This is a TheKnowledge documentation bug affecting knack authoring guidance
+for consuming projects that keep additional knacks in their own top-level
+`knacks/` tree.
+
+Summary
+-------
+The current knack documentation makes the storage location clear but not the
+content rule. It says consuming projects may keep "project-specific or third-
+party knacks" in their own `knacks/` directory, but it does not clearly say
+that knack prose should still stay generalized and potentially reusable as
+general-purpose guidance.
+
+Observed Failure Mode
+---------------------
+In this session, that wording gap led directly to local knack files written as
+project-named guidance documents. They were stored in the right place, but the
+content read like repository-specific notes rather than generalized knacks
+that could later be merged into stock TheKnowledge or reused elsewhere.
+
+Why The Current Wording Was Not Enough
+--------------------------------------
+- `knacks/authoring-guide.md` says consuming projects may keep "project-
+  specific or third-party knacks" in the consuming project's own top-level
+  `knacks/` directory.
+- `knacks/README.md` repeats that consuming projects may keep proprietary or
+  third-party knacks in their own `knacks/` directory.
+- Neither document says clearly enough that "project-specific" refers to
+  where the knack is stored and who currently has access to it, not to whether
+  the prose itself should name the project or hard-code project-specific
+  architecture.
+
+Intended Rule Clarified By Operator
+-----------------------------------
+Project-local knacks are "project-specific" only in the repository-management
+sense: they are available to that project and may not have been merged back
+into stock TheKnowledge yet. Their content should still be generalized and
+potentially reusable as general-purpose guidance.
+
+Impact
+------
+- Contributors can reasonably infer that a project-local knack is supposed to
+  read like project-specific notes.
+- General-purpose knowledge becomes harder to reuse and harder to upstream.
+- The distinction between a knack and an internal project memo becomes blurry.
+
+Recommended Documentation Change
+--------------------------------
+Update the knack authoring guidance to say explicitly that:
+
+1. consuming projects may keep additional knacks in their own `knacks/`
+   directory;
+2. those knacks may remain local because they are new, proprietary, or too
+   obscure for stock TheKnowledge; but
+3. knack prose should still stay generalized, reusable, and free of project-
+   named framing unless the document is intentionally something other than a
+   knack.
+
+Why This Matters
+----------------
+Knacks are supposed to package reusable know-how. Clarifying that locality is
+about storage and distribution, not about writing project-specific prose,
+would keep consuming-project knack libraries more reusable and make upstreaming
+new guidance easier.
