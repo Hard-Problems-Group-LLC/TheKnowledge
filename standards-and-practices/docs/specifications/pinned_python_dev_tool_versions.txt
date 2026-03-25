@@ -1,0 +1,60 @@
+Pinned Python Developer Tool Versions
+=====================================
+
+Scope
+-----
+Define the default pinned Python developer toolchain for TheKnowledge itself
+and for consuming projects that adopt TheKnowledge's managed starter setup.
+
+Problem Statement
+-----------------
+TheKnowledge currently defines Black, Ruff, and pytest with loose `>=`
+constraints. Over time that lets formatter, linter, and test-runner behavior
+drift across machines and across consuming projects. The resulting differences
+make validation less reproducible and can introduce broad formatting churn
+during otherwise narrow maintenance work.
+
+Requirements
+------------
+- `pyproject.toml` must pin TheKnowledge's default Python developer tool
+  versions exactly with `==`.
+- The pinned default toolchain must include, at minimum, Black, Ruff, pytest,
+  and `pytest-timeout`.
+- The initial pinned versions are:
+  - `black==26.3.1`
+  - `ruff==0.15.7`
+  - `pytest==9.0.2`
+  - `pytest-timeout==2.4.0`
+- `scripts/install_prerequisites.py` may keep using editable installs with dev
+  extras, but those extras must resolve to the exact pinned versions above.
+- `templates/requirements-dev.txt` must exist and must mirror the exact pinned
+  dev-tool versions from `pyproject.toml`.
+- `templates/scripts/dev_setup.py` must install the managed
+  `requirements-dev.txt` into a local virtual environment, upgrading `pip`,
+  `setuptools`, and `wheel` first.
+- `scripts/initial_setup.py` must install both `requirements-dev.txt` and
+  `scripts/dev_setup.py` into consuming projects by default.
+- `README.md` must explain that consuming projects receive starter toolchain
+  files and may run `python scripts/dev_setup.py` when they want the default
+  pinned setup.
+- `templates/README.md`, `templates/AGENTS-footer.md`, and
+  `templates/project-management/git-flow.txt` must explain how the managed
+  starter toolchain is refreshed in consuming projects.
+- `standards-and-practices/docs/development-workflow.txt` and
+  `standards-and-practices/docs/installation.txt` must explain how direct
+  TheKnowledge maintenance and consuming-project starter bootstraps keep the
+  toolchain pinned and reproducible.
+- Tests must verify that:
+  - the `pyproject.toml` dev dependencies remain exact pins;
+  - `templates/requirements-dev.txt` stays in sync with those pins; and
+  - `scripts/initial_setup.py` installs the managed starter toolchain files
+    into consuming projects.
+
+Non-Goals
+---------
+- Pinning every possible project runtime dependency that a consuming project
+  might need for its own application code.
+- Forcing mature consuming projects to abandon stricter or more specialized
+  local bootstrap flows.
+- Replacing project-local setup wrappers that intentionally extend the managed
+  starter.

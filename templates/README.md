@@ -11,6 +11,11 @@ The `project-management/` starter tree includes proposal status directories
 directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
 project's live records in the installed copy, not inside this submodule.
 
+The starter set also includes `requirements-dev.txt` and
+`scripts/dev_setup.py`. Together they install TheKnowledge's default pinned
+Black, Ruff, and pytest toolchain for consuming projects that have not yet
+defined a tighter local bootstrap policy.
+
 When templates contain `{{THEKNOWLEDGE_ROOT}}` or `{$KNOWLEDGE_ROOT}`, the
 setup script replaces that placeholder with the submodule path relative to
 the consuming project root.
@@ -27,6 +32,10 @@ from the TheKnowledge checkout to compare the consuming project's managed
 unified diffs that both human and AI developers can review before rerunning
 `scripts/initial-setup.py --force`, review `git diff`, and stage only the
 intended updates.
+
+If that rerun updates `requirements-dev.txt` or `scripts/dev_setup.py`,
+refresh the starter toolchain with `python scripts/dev_setup.py` unless the
+consuming project intentionally overrides those files.
 
 The `project-management/state/` template directory includes
 `pending-commit-changes.txt`, which is the short-lived queue for brief commit
