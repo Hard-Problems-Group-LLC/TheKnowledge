@@ -1,0 +1,149 @@
+Codex Sandbox Asyncio Wakeup Failure for Multi-file Static Analysis
+===================================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-25T14:12:36-07:00
+
+Scope
+-----
+This is primarily a Codex sandbox/runtime bug, not a TheKnowledge content
+bug. It materially affects TheKnowledge maintenance because formatter and
+linter workflows exercised through Codex's sandbox can hang indefinitely.
+
+Summary
+-------
+Inside the current Codex Linux sandbox on this host, Black hangs on
+multi-file runs even when the formatting work itself completes. Single-file
+Black runs exit normally. The best current explanation is that the sandboxed
+asyncio selector loop is not waking reliably when worker-thread completion is
+reported back into the loop.
+
+The problem is broader than Black's formatting logic. A minimal Python
+reproducer that uses `loop.call_soon_threadsafe()` from a worker thread also
+hangs inside the sandbox and completes immediately outside it. That points to
+the sandboxed runtime wakeup path rather than to Black's parser, formatter,
+or repository configuration.
+
+Symptoms
+--------
+- `python3 -m black some_file.py` exits normally in the sandbox.
+- `python3 -m black file1.py file2.py` hangs after listing its input files.
+- `python3 -m black -W 1 file1.py file2.py` also hangs, so merely reducing
+  worker count is not an effective workaround.
+- A timed multi-file run can print its normal success summary only after a
+  timeout signal arrives, which suggests the signal wakes the stuck loop.
+- The same Black-like asyncio wait loop works normally outside the Codex
+  sandbox.
+
+Confirmed Reproduction From This Session
+----------------------------------------
+1. `python3 -m black -v scripts/initial_setup.py --fast` in the TheKnowledge
+   checkout exited normally.
+2. `python3 -m black -v scripts/initial_setup.py
+   tests/test_initial_setup.py
+   tests/test_project_management_overrides.py
+   tests/test_install_prerequisites.py`
+   stalled after reporting the discovered input files.
+3. The same behavior reproduced on four scratch files with
+   `--target-version py312 --fast`, which removed the Python 3.14 parsing
+   warning as a confounder.
+4. `python3 -m black -W 1 -v ...` on those scratch files still hung.
+5. Process-state inspection from the same PID namespace showed the parent
+   Black process sleeping in `ep_poll`. With `-W 1`, it had one additional
+   thread waiting in `futex_wait_queue`, but no child worker processes.
+6. A minimal script that used `loop.call_soon_threadsafe(fut.set_result, 42)`
+   from a worker thread hung inside the sandbox and completed immediately when
+   rerun outside the sandbox.
+7. A Black-like loop using `asyncio.wait(..., FIRST_COMPLETED)` plus a
+   `ThreadPoolExecutor` likewise hung inside the sandbox and completed outside
+   it.
+
+What This Appears To Be
+-----------------------
+The strongest current explanation is a sandbox/runtime defect in Codex's
+Linux execution environment. The defect appears to break or delay the normal
+selector wakeup that should occur when another thread schedules work back onto
+the asyncio event loop.
+
+Black's multi-file path triggers that behavior because two or more files send
+execution through `black.concurrency.reformat_many()`. That path uses
+`asyncio.wait()` together with an executor. Single-file runs stay on Black's
+synchronous path and therefore avoid the failure.
+
+Because the minimal repro hangs without using Black at all, this report does
+not currently implicate TheKnowledge configuration or Black's formatting
+ruleset.
+
+Current Workaround
+------------------
+When running file-targeted static analysis or formatting inside the affected
+Codex sandbox, invoke the tool one file at a time where practical.
+
+Recommended workaround examples:
+- Use `python3 -m black file_a.py` and then `python3 -m black file_b.py`
+  instead of one multi-file Black invocation.
+- Do not rely on `black -W 1` or `BLACK_NUM_WORKERS=1`; those still route
+  multi-file runs through the hanging async path.
+- If a repository wrapper insists on multi-file or whole-repo dispatch,
+  either run it outside the affected sandbox or use an approved escalated
+  command path until the upstream sandbox fix lands.
+
+Note On Other Tools
+-------------------
+This session directly proved the behavior with Black and with minimal Python
+asyncio reproducers. Ruff was not independently reduced to the same minimal
+mechanism during this investigation. Still, the same sandbox bug is a
+plausible explanation for similar hangs in any tool whose execution path
+relies on asyncio wakeups from worker threads.
+
+Signal Experiment To Revisit Later
+----------------------------------
+One timed Black run printed `Aborted!`, then the normal per-file completion
+lines, and then `All done!` only after the timeout machinery had delivered a
+signal. That makes a "signal nudges the selector awake" theory plausible.
+
+However, raw `SIGUSR1` is not automatically a safe non-lethal nudge on Linux.
+Its default action is process termination, and Black explicitly registers
+signal handlers only for `SIGINT` and `SIGTERM` in its concurrency path.
+
+A safer future experiment would be:
+1. wrap the target process in a tiny launcher that installs a benign
+   `SIGUSR1` handler before Black starts;
+2. reproduce the hang; and then
+3. send `SIGUSR1` to see whether merely interrupting the selector wakes the
+   loop without cancelling the run.
+
+If that experiment works, it would still be a workaround rather than a fix,
+but it could explain the mechanism more clearly.
+
+Recommendation
+--------------
+Recommended near-term posture:
+1. Document the one-file-at-a-time workaround for sandboxed formatter and
+   linter runs.
+2. Avoid assuming `-W 1` is sufficient, because it is not.
+3. Report the sandbox wakeup defect upstream to Codex with the minimal
+   `call_soon_threadsafe()` reproducer.
+
+Recommended medium-term mitigation:
+- Adjust TheKnowledge guidance and wrapper strategy so file-safe static
+  analysis tools can run one file at a time in affected sandboxes while the
+  upstream bug remains open.
+
+References
+----------
+Local references:
+- `/home/mheck/codebase/HPG/actual/dufocom/TheKnowledge/`
+- `/home/mheck/.pyenv/versions/dufocom-3.12.11/lib/python3.12/`
+  `site-packages/black/__init__.py`
+- `/home/mheck/.pyenv/versions/dufocom-3.12.11/lib/python3.12/`
+  `site-packages/black/concurrency.py`
+
+Related TheKnowledge proposal:
+- `../../proposals/under-review/serial-file-safe-static-analysis-in-`
+  `affected-sandboxes.txt`

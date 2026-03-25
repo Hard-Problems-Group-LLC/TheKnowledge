@@ -7,6 +7,20 @@ the template wording or examples are being revised. Keep any expanded notes in
 
 *
 
+  2026-03-25T14:12:36-07:00
+  Summary: Codex sandboxed Black hangs on multi-file runs because the
+  sandboxed asyncio event loop does not wake reliably from worker-thread
+  completion, and other file-targeted static-analysis tools may be exposed to
+  the same runtime bug.
+  Impact: sandboxed formatter and linter wrappers can wedge after file
+  discovery, so AI maintenance work may need one-file-at-a-time tool
+  invocations, escalated fallbacks, or external shells until the sandbox
+  wakeup bug is fixed upstream.
+  Detailed record:
+  `open/codex-sandbox-asyncio-wakeup-fails-for-multi-file-static-analysis.txt`
+
+*
+
   2026-03-25T04:52:12-07:00
   Summary: The cached quality-gate helper assumes `.git/` is a directory and
   crashes in submodule checkouts, which breaks the standardized commit helper
