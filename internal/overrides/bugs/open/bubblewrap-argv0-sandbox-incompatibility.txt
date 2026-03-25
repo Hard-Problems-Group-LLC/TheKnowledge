@@ -23,6 +23,21 @@ expects a `bubblewrap` interface that includes `--argv0`. When Codex tries to
 run a non-escalated command through the Linux sandbox, the host binary exits
 immediately with `bwrap: Unknown option --argv0`.
 
+2026-03-25 Update
+-----------------
+After resuming on `codex-cli 0.117.0-alpha.17`, the local reproduction stopped
+occurring on this same host. Ordinary sandboxed commands such as `pwd` and
+`git status` now succeed again, and `functions.apply_patch` is usable again in
+the same environment that previously failed with `bwrap: Unknown option
+--argv0`.
+
+That strongly suggests the Codex alpha stream now includes a fix or a behavior
+change that avoids the earlier bubblewrap incompatibility. This record remains
+open anyway because the operator explicitly wants the bug tracked until the
+same fix ships in a non-alpha/mainline Codex release. The alpha result is
+encouraging, but it is not yet the stable release boundary we care about for
+closure.
+
 Symptoms
 --------
 - Non-escalated developer-tool commands fail before the requested shell

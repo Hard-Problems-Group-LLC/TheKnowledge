@@ -37,4 +37,7 @@ the template wording or examples are being revised. Keep any expanded notes in
   Impact: non-escalated `exec_command` and `apply_patch` paths fail with
   `bwrap: Unknown option --argv0`, forcing escalated-command fallbacks even
   after a newer user-local `bwrap` is installed earlier on `PATH`.
+  Current status: local reproduction is fixed under `codex-cli
+  0.117.0-alpha.17`, but this bug stays open until the same sandbox fix ships
+  in a non-alpha/mainline Codex release.
   Detailed record: `open/bubblewrap-argv0-sandbox-incompatibility.txt`
