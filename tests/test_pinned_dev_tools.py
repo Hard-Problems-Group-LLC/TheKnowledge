@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,9 +25,40 @@ def _requirements_lines(path: Path) -> list[str]:
     return lines
 
 
+def _pyproject_dev_dependencies(path: Path) -> list[str]:
+    in_optional_dependencies = False
+    in_dev_list = False
+    dependencies: list[str] = []
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if line.startswith("[") and line.endswith("]"):
+            in_optional_dependencies = line == "[project.optional-dependencies]"
+            if in_dev_list and not in_optional_dependencies:
+                break
+            continue
+
+        if not in_optional_dependencies:
+            continue
+
+        if not in_dev_list:
+            if line == "dev = [":
+                in_dev_list = True
+            continue
+
+        if line == "]":
+            return dependencies
+
+        dependencies.append(line.rstrip(",").strip('"'))
+
+    raise AssertionError("could not parse [project.optional-dependencies].dev")
+
+
 def test_pyproject_dev_dependencies_are_exact_pins() -> None:
-    data = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))
-    dev_dependencies = data["project"]["optional-dependencies"]["dev"]
+    dev_dependencies = _pyproject_dev_dependencies(PYPROJECT)
 
     assert dev_dependencies == EXPECTED_DEV_TOOLS
     assert all("==" in dependency for dependency in dev_dependencies)
