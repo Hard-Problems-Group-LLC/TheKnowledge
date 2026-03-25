@@ -1,0 +1,76 @@
+Feedback-Branch Submodule Workflow Is Underdocumented
+=====================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-25T04:05:18-07:00
+
+Scope
+-----
+This is a TheKnowledge documentation bug affecting contributors who discover
+TheKnowledge-focused feedback while working primarily in a consuming project
+that carries TheKnowledge as an active submodule.
+
+Summary
+-------
+The current Feedback-branch guidance says to record TheKnowledge-focused bugs,
+complaints, proposals, and notes on the `Feedback` branch, but it does not
+make the intended operating sequence explicit enough. It should say plainly
+that contributors are expected to use the active TheKnowledge submodule inside
+the consuming project, temporarily switch that checkout to `Feedback`, record
+the feedback there, commit and push it, and then switch the submodule back to
+the branch normally used by the consuming project.
+
+Observed Failure Mode
+---------------------
+In this session, the lack of explicit procedural wording led to an initial
+attempt to inspect and use a separate sibling checkout of TheKnowledge instead
+of the active submodule inside the consuming repository. That added avoidable
+correction work and a follow-up clarification from the operator before the
+reporting flow matched expectations.
+
+Why The Current Wording Was Not Enough
+--------------------------------------
+- The consuming-project managed footer says to record discovered TheKnowledge
+  bugs, proposals, complaints, or notes on the TheKnowledge `Feedback`
+  branch, but it does not say which checkout to use when TheKnowledge is a
+  submodule.
+- TheKnowledge's own `AGENTS.md` explains the purpose of `Feedback`, but it
+  does not spell out the temporary branch-switch workflow for contributors who
+  are operating from a consuming project's active submodule.
+- Neither location says explicitly to switch the submodule back after the
+  report is committed and pushed.
+
+Impact
+------
+- AI agents can reasonably interpret "TheKnowledge `Feedback` branch" as any
+  convenient local checkout of TheKnowledge rather than the active submodule.
+- Human contributors can also lose confidence about whether the submodule
+  should be touched directly or whether a separate checkout is preferred.
+- The ambiguity adds correction churn to feedback filing and makes the
+  intended workflow harder to learn from the documentation alone.
+
+Recommended Documentation Change
+--------------------------------
+Add an explicit operational note in both the managed consuming-project footer
+and TheKnowledge's own Feedback guidance. The note should say that when
+TheKnowledge feedback is discovered while working in a consuming project, the
+contributor should:
+
+1. use the active `TheKnowledge/` submodule checkout in that project;
+2. capture the currently checked-out branch or detached state;
+3. temporarily check out the `Feedback` branch in that same submodule;
+4. record, commit, and push the feedback on `Feedback`; and
+5. switch the submodule back to its previous branch or detached state before
+   resuming project work.
+
+Why This Matters
+----------------
+The current policy explains *where feedback belongs* but not clearly enough
+*how to route it through the active project checkout*. Making that sequence
+explicit would reduce operator corrections, prevent misfiled feedback, and
+give both humans and AI agents a more reliable cross-project reporting path.

@@ -39,42 +39,46 @@ Live Reproduction From This Session
 1. Non-escalated `pwd` failed immediately with:
    `bwrap: Unknown option --argv0`
 2. The same `pwd` command succeeded when rerun with escalation and printed:
-   `/home/mheck/codebase/HPG/actual/TheKnowledge`
-3. Local host package information:
-   - `/usr/bin/bwrap`
-   - `bubblewrap 0.6.3`
-   - `bubblewrap-0.6.3-1.el9.x86_64`
-4. Local `bwrap --help` output lists many options but does not list `--argv0`.
+   `/home/mheck/codebase/HPG/actual/dufocom`
+3. `command -v bwrap` in the normal shell resolved to:
+   `/home/mheck/.local/bin/bwrap`
+4. `~/.local/bin/bwrap --version` reported:
+   `bubblewrap 0.11.1`
+5. `~/.local/bin/bwrap --help` listed `--argv0`.
+6. `/usr/bin/bwrap --version` reported:
+   `bubblewrap 0.6.3`
+7. `/usr/bin/bwrap --help` did not list `--argv0`.
+8. Ordinary sandboxed commands still failed even after the newer
+   `~/.local/bin/bwrap` was installed earlier on `PATH`.
 
 Confirmed Local Evidence
 ------------------------
 - The Codex launcher is `@openai/codex` version `0.116.0` installed under:
-  `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
-- The package was installed or updated on 2026-03-24 at approximately
-  `16:43:09 -0700`, based on the local `package.json` timestamps.
+  `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex/`
+- The active shell resolves `codex` to the consuming project's local install
+  under `node_modules/.bin/codex`.
 - The platform package selector in
-  `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
-  `bin/codex.js` maps Linux x64 to `@openai/codex-linux-x64` and then resolves
-  a vendored `vendor/x86_64-unknown-linux-musl/` tree.
+  `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex/`
+  `bin/codex.js` prepends only a vendored `path/` directory that contains
+  `rg`, not `bwrap`.
 - The vendored Linux Codex binary contains strings showing both:
-  - explicit knowledge of `--argv0`; and
-  - logic for system versus vendored bubblewrap.
-- Relevant extracted strings from the vendored binary include:
-  - `failed to exec system bubblewrap`
-  - `Codex could not find system bubblewrap ... Codex will use the vendored`
-    `bubblewrap in the meantime.`
-  - `--argv0`
-  - `--argv0 VALUE                Set argv[0] to the value VALUE before`
-    `running the program`
+  - explicit knowledge of `--argv0`;
+  - explicit knowledge of `/usr/bin/bwrap`; and
+  - Linux sandbox helper code under `linux-sandbox/src/vendored_bwrap.rs`.
+- The helper invoked as `codex-linux-sandbox --help` says bubblewrap is the
+  default filesystem sandbox and Landlock is only the legacy fallback.
+- That helper help does not expose a documented `bwrap` path override.
 
 What The Problem Is
 -------------------
 The failure is a host-tool compatibility mismatch between the Codex Linux
 sandbox launcher and the system `bubblewrap` package shipped on this machine.
-The sandbox launcher is attempting to invoke a bubblewrap feature that was not
-available in the installed `0.6.3` binary. Because the command fails before
-Codex can enter its normal sandboxed execution path, routine non-escalated
-shell commands and patch operations abort at startup.
+The launcher is attempting to invoke a bubblewrap feature that was not
+available in the installed `0.6.3` binary, and the newer user-local `bwrap`
+installed earlier on `PATH` does not help because this Codex build appears to
+target `/usr/bin/bwrap` directly. Because the command fails before Codex can
+enter its normal sandboxed execution path, routine non-escalated shell
+commands and patch operations abort at startup.
 
 Why We Did Not Notice Earlier
 -----------------------------
@@ -92,7 +96,8 @@ real, but it is still an inference. This report does not yet prove the exact
 Codex version boundary where `--argv0` became required.
 
 In short: the strongest evidence is that we started exercising the broken
-sandbox path more often, and the recent Codex upgrade may also have contributed.
+sandbox path more often, and the recent Codex upgrade may also have
+contributed.
 
 Why Other Projects Are Not Complaining
 --------------------------------------
@@ -130,42 +135,40 @@ Options
    Pros:
    - Fast to test.
    - Can live entirely outside the repository.
-   - Avoids system package replacement.
+   - Avoids immediate system package replacement.
    Cons:
    - Potentially changes process behavior in subtle ways because `argv[0]`
      can matter to shell startup and mode detection.
    - Easy to forget, hard to support, and fragile across Codex updates.
    - Treat this as a debugging aid, not a clean fix.
 
-3. Install a newer user-local `bubblewrap` and make Codex use it first on
-   `PATH`.
+3. Upgrade or replace `/usr/bin/bwrap` with a newer compatible build.
    Pros:
-   - Closest local match to what Codex appears to expect.
-   - Keeps the workaround outside repository content.
-   - Potentially restores the sandboxed workflow without waiting for upstream.
+   - Directly addresses the binary this Codex build appears to call.
+   - Keeps repository content free of host-specific shims.
+   - Has a straightforward success criterion: sandboxed commands work again.
    Cons:
-   - Introduces host-specific drift and maintenance burden.
-   - Needs careful rollout so it does not accidentally affect unrelated tools.
-   - Still a local workaround rather than a principled product fix.
+   - Changes a system-visible executable.
+   - Requires host-level package management or a carefully managed wrapper.
+   - May not be desirable on conservative enterprise systems.
 
 4. Determine whether Codex can be configured to prefer its vendored
-   `bubblewrap` instead of the system binary.
+   bubblewrap or another supported backend instead of `/usr/bin/bwrap`.
    Pros:
-   - Uses the toolchain bundled with the installed Codex package.
-   - Could avoid host-package drift if a supported switch exists.
+   - Could avoid system-package drift if a supported switch exists.
+   - Could restore sandbox ergonomics without replacing the host package.
    Cons:
-   - This session confirmed the binary contains a vendored path and fallback
-     strings, but it did not identify a documented user-facing switch for
-     forcing that path.
+   - This session did not identify a documented user-facing switch for that
+     behavior.
+   - The helper help text did not expose a path override.
    - Behavior remains partly inferential until verified in documentation or
      upstream code.
 
 5. Pursue an upstream Codex fix.
    Pros:
    - Most principled long-term solution.
-   - Could detect `bubblewrap` feature support or version before adding
-     `--argv0`.
-   - Could fall back automatically to vendored `bubblewrap` when the system
+   - Could detect bubblewrap capability or version before adding `--argv0`.
+   - Could fall back automatically to vendored bubblewrap when the system
      binary is too old.
    - Would benefit other users on older enterprise Linux streams.
    Cons:
@@ -178,9 +181,9 @@ Option 1 is the safest immediate posture but preserves the slowdown.
 Option 2 is the quickest hack, but it is the least trustworthy because it
 changes the command line in a way that may matter semantically.
 Option 3 is the most practical local repair if we need relief soon and are
-comfortable with a host-only workaround.
+comfortable changing the system-visible binary Codex appears to target.
 Option 4 could be better than Option 3 if Codex already supports it, but this
-report does not yet prove the necessary switch or configuration.
+report did not find a documented switch or configuration surface for it.
 Option 5 is the right product-level fix and should happen regardless of which
 local workaround we choose.
 
@@ -189,8 +192,9 @@ Recommendation
 Recommended near-term path:
 1. Keep repository changes free of environment-specific hacks.
 2. Continue using escalated fallbacks for urgent work on this host.
-3. In parallel, test either a supported vendored-bubblewrap path or a newer
-   user-local `bubblewrap` install outside the repository.
+3. In parallel, either replace `/usr/bin/bwrap` with a newer compatible build
+   or verify a supported Codex configuration that truly bypasses the system
+   binary.
 4. Report the bug upstream to Codex with the reproduction, local version data,
    and the fact that EL9 ships `bubblewrap 0.6.3` without `--argv0`.
 
@@ -203,15 +207,15 @@ References
 ----------
 Local references:
 - `/usr/bin/bwrap`
-- `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
+- `/home/mheck/.local/bin/bwrap`
+- `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex/`
   `package.json`
-- `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
+- `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex/`
   `bin/codex.js`
-- `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
-  `node_modules/@openai/codex-linux-x64/package.json`
-- `/home/mheck/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/`
-  `node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/`
-  `codex/codex`
+- `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex-linux-x64/`
+  `package.json`
+- `/home/mheck/codebase/HPG/actual/dufocom/node_modules/@openai/codex-linux-x64/`
+  `vendor/x86_64-unknown-linux-musl/codex/codex`
 
 External references for further investigation:
 - Bubblewrap releases page:
