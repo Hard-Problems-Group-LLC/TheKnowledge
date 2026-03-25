@@ -6,6 +6,16 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T15:15:56-07:00 - Resolved the outstanding `Feedback` intake by
+  closing the underdocumented active-submodule reporting bug, approving the
+  incoming proposals, adding specifications for TheKnowledge submodule
+  workflows and the Codex-sandbox static-analysis fallback, updating the
+  direct-checkout and downstream docs to make those workflows explicit, and
+  keeping the upstream sandbox wakeup defect open with a documented
+  one-file-at-a-time mitigation.
+
+*
+
   2026-03-25T14:28:19-07:00 - Fixed the cached quality-gate helper so a
   `.git/...` cache path resolves through the real git dir in submodule and
   separate-git-dir checkouts, added regression coverage for the cache-path

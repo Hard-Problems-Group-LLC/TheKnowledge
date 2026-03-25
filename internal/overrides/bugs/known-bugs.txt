@@ -6,16 +6,20 @@ the template wording or examples are being revised. Keep any expanded notes in
 `open/`.
 
 *
-
-  2026-03-25T04:05:18-07:00
-  Summary: Feedback-branch guidance does not clearly tell contributors to use
-  the active TheKnowledge submodule checkout, commit and push there, and then
-  switch the submodule back to its normal branch.
-  Impact: agents can misfile Feedback items in a sibling checkout or hesitate
-  over the intended workflow, which adds avoidable correction churn to
-  cross-project reporting.
+  2026-03-25T14:12:36-07:00
+  Summary: Codex sandboxed Black hangs on multi-file runs because the
+  sandboxed asyncio event loop does not wake reliably from worker-thread
+  completion, and other file-targeted static-analysis tools may be exposed to
+  the same runtime bug.
+  Impact: sandboxed formatter and linter wrappers can wedge after file
+  discovery, so AI maintenance work may need one-file-at-a-time tool
+  invocations, escalated fallbacks, or external shells until the sandbox
+  wakeup bug is fixed upstream.
+  Current status: TheKnowledge now documents a one-file-at-a-time fallback
+  for explicit file lists, but the upstream sandbox wakeup defect remains
+  open.
   Detailed record:
-  `open/feedback-branch-submodule-workflow-underdocumented.txt`
+  `open/codex-sandbox-asyncio-wakeup-fails-for-multi-file-static-analysis.txt`
 
 *
 

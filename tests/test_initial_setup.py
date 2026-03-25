@@ -97,6 +97,7 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         encoding="utf-8"
     )
     assert "TheKnowledge `Feedback` branch" in agents.read_text(encoding="utf-8")
+    assert "`TheKnowledge/` submodule checkout" in agents.read_text(encoding="utf-8")
     assert "normal internal trees on `trunk`" in agents.read_text(encoding="utf-8")
     assert "top-level `knacks/` directory" in agents.read_text(encoding="utf-8")
     assert "python scripts/dev_setup.py" in agents.read_text(encoding="utf-8")
@@ -105,6 +106,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         encoding="utf-8"
     )
     assert "report_managed_agents_drift.py" in agents.read_text(encoding="utf-8")
+    assert "incoming upstream `trunk` delta" in agents.read_text(encoding="utf-8")
+    assert "one file at a time" in agents.read_text(encoding="utf-8")
+    assert "`black -W 1`" in agents.read_text(encoding="utf-8")
     assert (
         "Before any `git add`, list the files about to be staged"
         in agents.read_text(encoding="utf-8")

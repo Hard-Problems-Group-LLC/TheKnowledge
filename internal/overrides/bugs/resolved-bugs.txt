@@ -7,6 +7,20 @@ closure records in `closed/`.
 
 *
 
+  2026-03-25T15:15:56-07:00
+  Summary: Feedback-branch guidance was underdocumented for active
+  submodule users, so contributors could mistake a sibling checkout for the
+  intended reporting path and skip restoring the submodule afterward.
+  Root cause: TheKnowledge documented the purpose of `Feedback` but not the
+  exact active-submodule operating sequence for capturing the current state,
+  switching to `Feedback`, reporting there, and switching back afterward.
+  Resolution: added a submodule-workflows specification, updated TheKnowledge
+  and downstream docs to spell out the active-submodule `Feedback` flow and
+  the review-before-adopt submodule-upgrade flow, and revalidated the
+  documentation wiring plus the full required check suite.
+
+*
+
   2026-03-25T14:28:19-07:00
   Summary: The cached quality-gate helper crashed in active submodule
   checkouts because its default `.git/...` cache path was resolved against

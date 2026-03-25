@@ -116,11 +116,14 @@ git submodule update --init --recursive
 
 ## Updating a submodule copy
 
-When a consuming project wants newer TheKnowledge changes, update the
-submodule first, then reconcile any managed-file drift before staging the
-result:
+When a consuming project wants newer TheKnowledge changes, first review the
+incoming upstream delta in the submodule checkout, then adopt that reviewed
+version and reconcile any managed-file drift before staging the result:
 
 ```bash
+(cd TheKnowledge && git fetch origin trunk)
+(cd TheKnowledge && git log --oneline HEAD..origin/trunk)
+(cd TheKnowledge && git diff --stat HEAD..origin/trunk)
 (cd TheKnowledge && python scripts/git_veteran_pull.py)
 python TheKnowledge/scripts/report_managed_agents_drift.py \
   --project-root . \
@@ -138,10 +141,13 @@ python TheKnowledge/scripts/initial-setup.py \
 git diff
 ```
 
-That flow keeps the submodule pointer update, any managed `AGENTS.md` changes,
-and any related project adjustments visible in one reviewable diff. Commit the
-updated submodule pointer and the resulting project-file changes together when
-they belong to the same upgrade.
+A brief summary review is enough for routine upgrades so long as the incoming
+change set is not being adopted blindly. That flow keeps the submodule
+pointer update, any managed `AGENTS.md` changes, and any related project
+adjustments visible in one reviewable diff. Commit and push the updated
+submodule pointer plus the resulting project-file changes together when they
+belong to the same upgrade so the reviewed version becomes the project's new
+shared baseline.
 
 If the upgrade also changes the starter `requirements-dev.txt` or
 `scripts/dev_setup.py`, rerun `python scripts/dev_setup.py` in the consuming
@@ -244,6 +250,11 @@ primarily inside some other project that uses TheKnowledge and wants to
 check bugs, proposals, general notes, or complaints about TheKnowledge
 back into the TheKnowledge checkout without interrupting the consuming
 project's main work.
+
+When that happens, use the active `TheKnowledge/` submodule checkout inside
+the consuming project. Capture its current branch or detached state, switch
+that same checkout to `Feedback`, record, commit, and push the feedback
+there, and then switch the submodule back before resuming project work.
 
 While maintaining TheKnowledge itself, periodically inspect `Feedback`.
 Items there should either become evaluation tasks backlogged on `trunk`,

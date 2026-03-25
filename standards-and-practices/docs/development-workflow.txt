@@ -99,6 +99,12 @@ the pinned repository defaults. In consuming projects that adopt the managed
 starter bootstrap, rerun `python scripts/dev_setup.py` after
 `requirements-dev.txt` changes or when the local tool versions drift.
 
+If a file-safe formatter or linter hangs inside a Codex sandbox on a
+multi-file run, retry the explicit file list one file at a time instead of
+assuming `black -W 1` is sufficient. Keep that workaround narrow to explicit
+file lists or other clearly file-safe modes, and rerun the full required
+checks outside the affected sandbox or in CI before clearing the work.
+
 For standardized git operations, use:
 - Before any `git add`, list the files about to be staged and ask whether to
   review them.

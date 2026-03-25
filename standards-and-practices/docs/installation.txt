@@ -76,13 +76,18 @@ Notes and expectations
   - Cache file used by push quality gate: `.git/project-quality-cache.json`
   - Runbook:
     `standards-and-practices/docs/security/git-tripwire-operations.txt`
-- Consuming projects that update a TheKnowledge submodule should then run
+- Consuming projects that update a TheKnowledge submodule should first fetch
+  and briefly review the incoming upstream `trunk` delta in the submodule
+  checkout, then adopt that reviewed version with
+  `python TheKnowledge/scripts/git_veteran_pull.py`.
+- After the submodule update, run
   `python TheKnowledge/scripts/report_managed_agents_drift.py --project-root`
   `. --knowledge-root TheKnowledge` to compare managed `AGENTS.md` sections
   with the updated templates. If drift is reported, rerun
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
   `--knowledge-root TheKnowledge --force`, review `git diff`, and then stage
-  only the intended updates.
+  the resulting submodule-pointer update plus only the intended project-file
+  changes as one reviewable upgrade when they belong together.
 - The managed starter for consuming projects also includes
   `requirements-dev.txt` and `scripts/dev_setup.py`, which install the same
   pinned Black, Ruff, and pytest toolchain by default unless a project adopts

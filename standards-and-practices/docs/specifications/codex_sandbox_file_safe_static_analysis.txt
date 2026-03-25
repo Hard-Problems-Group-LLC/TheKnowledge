@@ -1,0 +1,43 @@
+Codex Sandbox Fallback for File-safe Static Analysis
+===================================================
+
+Scope
+-----
+Define the temporary workflow guidance for file-safe formatting and
+static-analysis commands when a Codex sandbox exhibits the known multi-file
+asyncio wakeup failure.
+
+Problem Statement
+-----------------
+On this host, Codex's Linux sandbox can hang Black's multi-file execution
+path, and similar file-targeted tools may hit the same runtime defect when
+their work depends on asyncio wakeups from worker threads. TheKnowledge needs
+a narrow, honest workaround so maintainers do not waste time retrying unsafe
+or ineffective knobs such as `black -W 1`.
+
+Requirements
+------------
+- Guidance must state that when a file-safe formatter or linter hangs inside
+  a Codex sandbox on a multi-file run, maintainers should retry the explicit
+  file list one file at a time.
+- Guidance must state that `black -W 1` or similar worker-count flags are not
+  sufficient to avoid the known multi-file hang.
+- Guidance must keep the workaround narrow: use it for explicit file lists
+  and other clearly file-safe modes, not as a blanket claim that every tool
+  is safely serializable.
+- Guidance must keep whole-repository validation as the final standard. The
+  full required check suite still needs to run outside the affected sandbox or
+  in CI before work is cleared.
+- `AGENTS.md`, `templates/AGENTS-footer.md`, and
+  `standards-and-practices/docs/development-workflow.txt` must document this
+  temporary workaround.
+- Documentation tests must verify that the one-file-at-a-time fallback and
+  the whole-repository validation caveat remain wired into TheKnowledge and
+  the managed downstream guidance.
+
+Non-Goals
+---------
+- Proving that every third-party formatter or linter is file-safe.
+- Replacing upstream Codex sandbox fixes.
+- Lowering the repository's final validation requirements.
+- Forcing one-file-at-a-time execution in unaffected shells or CI.

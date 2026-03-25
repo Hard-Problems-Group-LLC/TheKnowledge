@@ -57,6 +57,11 @@ project needs behavior different from TheKnowledge's own repository setup. -->
 - When working primarily in the consuming project and discovering bugs,
   proposals, complaints, or general notes about TheKnowledge itself,
   record them on the TheKnowledge `Feedback` branch.
+- When filing that feedback from a consuming project, use the active
+  `{$KNOWLEDGE_ROOT}/` submodule checkout in that project, capture its
+  current branch or detached state, switch that same checkout to
+  `Feedback`, record, commit, and push there, and then switch the
+  submodule back before resuming project work.
 - The `Feedback` branch is only for cross-project feedback flowing back
   into TheKnowledge. Direct maintenance of TheKnowledge itself should keep
   using its normal internal trees on `trunk`.
@@ -77,4 +82,13 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `python {$KNOWLEDGE_ROOT}/scripts/initial-setup.py --project-root .`
   `--knowledge-root {$KNOWLEDGE_ROOT} --force`, review the resulting
   `git diff`, and then stage only the intended updates.
+- When updating the TheKnowledge submodule itself, first fetch and briefly
+  review the incoming upstream `trunk` delta, then adopt that reviewed
+  version, run the drift report, and commit the resulting submodule-pointer
+  update plus related project changes together when they belong to the same
+  upgrade.
+- If a file-safe formatter or linter hangs inside a Codex sandbox on a
+  multi-file run, retry the explicit file list one file at a time. Do not
+  assume `black -W 1` is enough, and rerun the full required checks outside
+  the affected sandbox or in CI before clearing the work.
 <!-- THEKNOWLEDGE_MANAGED_FOOTER_END -->

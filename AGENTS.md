@@ -79,6 +79,11 @@ live state.
 - The `Feedback` branch is for TheKnowledge-focused bugs, proposals,
   complaints, and general notes discovered while working primarily inside
   some other project that uses TheKnowledge.
+- When that feedback is discovered from a consuming project, use the active
+  `TheKnowledge/` submodule in that project, capture its current branch or
+  detached state, switch that same checkout to `Feedback`, record, commit,
+  and push the feedback there, and then switch the submodule back before
+  resuming project work.
 - When maintaining TheKnowledge directly as its own checkout, keep using
   the normal `trunk` workflow plus `internal/overrides/`, proposal
   records, and bug tracking. Do not route routine direct-checkout
@@ -113,6 +118,10 @@ live state.
 - Cover edge cases, failure modes, and regressions.
 - Keep reusable fixtures deterministic.
 - Prefer reusable scripted smoke checks over one-off shell snippets.
+- If a file-safe formatter or linter hangs in a Codex sandbox on a multi-file
+  run, retry the explicit file list one file at a time. Do not assume
+  `black -W 1` is sufficient, and rerun the full required checks outside the
+  affected sandbox or in CI before clearing the work.
 
 ## Cross-platform Validation Expectations
 - Keep Linux-side Windows wrapper validation aligned with

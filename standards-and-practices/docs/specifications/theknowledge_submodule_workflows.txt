@@ -1,0 +1,61 @@
+TheKnowledge Submodule Update and Feedback Workflows
+===================================================
+
+Scope
+-----
+Define the required review-and-adopt flow for consuming projects that update
+a TheKnowledge submodule and the required workflow for filing TheKnowledge
+feedback from an active consuming-project submodule checkout.
+
+Problem Statement
+-----------------
+TheKnowledge already explains how to install itself as a submodule and how to
+reconcile managed-file drift after an update. However, the current guidance
+still leaves two operational expectations too implicit.
+
+First, when a consuming project is told to update TheKnowledge, maintainers
+should briefly review the incoming upstream delta before adopting it as the
+project's new baseline. Second, when contributors discover TheKnowledge
+feedback while working in a consuming project, they should file that feedback
+from the active submodule checkout in that project, not from an unrelated
+sibling checkout.
+
+Requirements
+------------
+- When a consuming project is told to update TheKnowledge, the workflow must
+  first fetch the latest upstream `trunk` in the submodule checkout and review
+  the incoming delta relative to the project's current submodule commit.
+- The review may be brief and proportional. `git log --oneline`,
+  `git diff --stat`, or targeted file inspection is sufficient for routine
+  upgrades.
+- After that review, the workflow must adopt the reviewed upstream version in
+  the same submodule checkout, run
+  `scripts/report_managed_agents_drift.py`, rerun
+  `scripts/initial-setup.py --force` if managed `AGENTS.md` drift is
+  reported, review `git diff`, and commit the resulting submodule-pointer
+  update with any related project-file changes as one reviewable changeset
+  when they belong together.
+- `README.md`, `standards-and-practices/docs/installation.txt`,
+  `templates/README.md`, `templates/AGENTS-footer.md`, and
+  `templates/project-management/git-flow.txt` must document the review-before-
+  adopt update sequence.
+- TheKnowledge's own `AGENTS.md` and `README.md` must explain that feedback
+  discovered while working in a consuming project must be filed from the
+  active `TheKnowledge/` submodule checkout in that project, not from an
+  unrelated sibling checkout.
+- The Feedback workflow must tell contributors to capture the current branch
+  or detached state, switch that same submodule checkout to `Feedback`,
+  record, commit, and push the feedback there, and then switch the submodule
+  back before resuming project work.
+- Managed downstream guidance must mirror that Feedback workflow in
+  `templates/AGENTS-footer.md`.
+- Documentation tests must verify that the review-before-adopt and active-
+  submodule Feedback guidance remain wired into TheKnowledge and the managed
+  downstream templates.
+
+Non-Goals
+---------
+- Requiring exhaustive per-file review for every routine submodule upgrade.
+- Forcing consuming projects to adopt every new upstream change immediately.
+- Replacing project-local judgment about whether an upgrade should be merged.
+- Routing direct maintenance of TheKnowledge itself through `Feedback`.

@@ -3,7 +3,11 @@ Feedback-Branch Submodule Workflow Is Underdocumented
 
 Status
 ------
-Open.
+Closed.
+
+Date Closed
+-----------
+2026-03-25T15:15:56-07:00
 
 Date Opened
 -----------
@@ -74,3 +78,20 @@ The current policy explains *where feedback belongs* but not clearly enough
 *how to route it through the active project checkout*. Making that sequence
 explicit would reduce operator corrections, prevent misfiled feedback, and
 give both humans and AI agents a more reliable cross-project reporting path.
+
+Root Cause
+----------
+TheKnowledge documented the purpose of the `Feedback` branch but not the
+active-submodule operating sequence that contributors should follow from a
+consuming project. That left the intended checkout, temporary branch switch,
+and restoration step implicit.
+
+Resolution
+----------
+TheKnowledge now has a dedicated submodule-workflows specification, updated
+direct-checkout guidance in `AGENTS.md` and `README.md`, and matching
+downstream guidance in `templates/AGENTS-footer.md` plus the submodule-update
+docs. The new wording explicitly tells contributors to use the active
+submodule checkout, switch that same checkout to `Feedback`, record, commit,
+and push there, and then restore the previous branch or detached state before
+resuming project work.
