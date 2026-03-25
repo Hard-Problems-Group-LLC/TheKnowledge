@@ -1,0 +1,180 @@
+Engineering Change Request: Serial File-safe Static Analysis in Affected
+Sandboxes
+========================================================================
+
+Title: Engineering Change Request: Serial File-safe Static Analysis in
+Affected Sandboxes
+Author: Codex
+Date: 2026-03-25T14:12:36-07:00
+Status: Under Review
+Reviewers: operator (repository maintainer), AI maintainers
+Related Work: Direct operator request on 2026-03-25;
+internal/overrides/bugs/open/codex-sandbox-asyncio-wakeup-fails-for-multi-
+file-static-analysis.txt; AGENTS.md guidance in consuming projects
+
+Problem Statement
+-----------------
+Codex's current Linux sandbox on this host can hang Black's multi-file path
+because the sandboxed asyncio loop does not wake reliably when work completes
+on another thread. A minimal Python reproducer shows the same stuck wakeup
+behavior even without Black, which means tools that rely on similar
+executor-to-event-loop wakeups may also hang in the same environment.
+
+TheKnowledge currently encourages broad quality-gate commands and ordinary
+tool invocations without distinguishing between file-safe tools and tools that
+require a repository-wide view. In affected sandboxes, that makes AI-assisted
+maintenance brittle: the formatter or linter may wedge after discovering
+files, even though each file would succeed if invoked separately.
+
+Goals
+-----
+- Reduce sandbox-induced hangs for file-safe static-analysis tools.
+- Preserve useful automated validation inside affected Codex sandboxes.
+- Make the workaround explicit so maintainers do not waste time trying
+  ineffective knobs such as `black -W 1`.
+- Keep whole-repository validation available for humans, CI, and unaffected
+  execution environments.
+
+Non-Goals
+---------
+- Fix the upstream Codex sandbox wakeup bug from within TheKnowledge.
+- Force one-file-at-a-time execution for tools whose semantics depend on a
+  global repository view.
+- Replace CI or normal human-maintainer validation with sandbox-only policy.
+- Guarantee that every third-party static-analysis tool is file-safe.
+
+Use Cases
+---------
+1. An AI maintainer formats a small changed-file set inside Codex's sandbox
+   and needs the work to complete reliably.
+2. A consuming project wants documented guidance that avoids known sandbox
+   hangs without requiring escalated command approval for every edit.
+3. A repository wrapper receives an explicit list of changed Python files and
+   can safely dispatch Black or Ruff one file at a time.
+4. A human maintainer outside the affected sandbox still wants the ordinary
+   whole-repo commands for final validation.
+
+Constraints and Assumptions
+---------------------------
+- Some tools are file-safe only in certain modes. TheKnowledge should make
+  those boundaries explicit instead of assuming every command can be safely
+  serialized.
+- Launching one process per file is slower, so the workaround should be used
+  where it buys reliability rather than as a blanket performance regression.
+- TheKnowledge cannot reliably test Codex's private sandbox implementation in
+  its normal repository test suite, so some validation will remain manual.
+- Whole-repo validation is still important for final integration and CI.
+
+Proposed Approach
+-----------------
+Adopt a shared guidance pattern: when a static-analysis or formatting tool is
+file-safe for the requested mode, and the work is running inside a known-
+affected sandbox, prefer one-file-at-a-time invocation over multi-file
+dispatch.
+
+Initial scope should focus on tools that are both common and plausibly safe to
+serialize:
+- Black when formatting explicit files.
+- Ruff when checking explicit files, subject to a final confirmation of any
+  rule classes that require broader context.
+
+TheKnowledge should reflect this in two layers:
+- documentation and AGENTS guidance that explain the workaround; and
+- wrapper/helper behavior where a file list is already available and serial
+  dispatch preserves the tool's intended semantics.
+
+The guidance should also state explicitly that `black -W 1` is not enough,
+because Black still uses its async multi-file path whenever more than one file
+is supplied.
+
+Risks and Mitigations
+---------------------
+- Risk: one-file-at-a-time execution is slower.
+  Mitigation: limit the behavior to explicit file lists or known-affected
+  sandbox contexts instead of penalizing all workflows.
+- Risk: some Ruff checks or future tool modes may not be safely composable per
+  file.
+  Mitigation: document tool-specific boundaries and keep the proposal scoped
+  to "where plausible" rather than claiming universal safety.
+- Risk: maintainers may mistake the workaround for a permanent fix.
+  Mitigation: keep the upstream Codex bug open and document this behavior as a
+  temporary reliability measure.
+- Risk: wrapper complexity grows.
+  Mitigation: start with narrow helpers for explicit file lists and add tests
+  around dispatch behavior.
+
+Testing and Validation
+----------------------
+- Add tests around any wrapper logic that splits explicit file lists into
+  serial invocations.
+- Confirm that the helper preserves combined exit behavior and reports per-
+  file failures clearly.
+- Perform manual sandbox verification on an affected Codex environment:
+  multi-file Black hangs, single-file Black succeeds, and the serial wrapper
+  completes.
+- Re-run the normal whole-repo commands outside the affected sandbox or in CI
+  before treating the work as fully validated.
+
+Alternatives Considered
+-----------------------
+1. Wait only for an upstream Codex fix.
+   Rejected because it leaves current AI maintenance flows brittle in the
+   meantime.
+2. Use `black -W 1` or similar single-worker flags.
+   Rejected because the investigation showed that Black still hangs on
+   multi-file runs with `-W 1`.
+3. Force all validation through escalated or external-shell commands.
+   Rejected because it adds friction and loses the normal ergonomics of the
+   sandboxed workflow.
+4. Apply one-file-at-a-time dispatch universally.
+   Rejected because some tools are not safely composable per file and because
+   the performance cost would be unnecessary outside affected sandboxes.
+
+Open Questions
+--------------
+1. What is the best reliable signal that a process is running in a known-
+   affected Codex sandbox?
+2. Which Ruff modes, if any, should stay on whole-repo dispatch even when an
+   explicit file list is available?
+3. Should TheKnowledge wrappers expose an override flag or environment
+   variable so operators can force serial dispatch during investigation?
+
+Milestones
+----------
+1. Review and approve or revise this ECR.
+   Target date: 2026-03-26.
+   Owners: operator, AI maintainers.
+   Dependencies: review of the bug record and workaround language.
+   Entry criteria: proposal exists under review.
+   Exit criteria: operator decision recorded in the proposal.
+2. Define tool-specific scope.
+   Target date: 2026-03-27.
+   Owners: AI maintainers.
+   Dependencies: proposal approval.
+   Entry criteria: approved direction to serialize file-safe tools.
+   Exit criteria: the eligible commands and excluded commands are documented.
+3. Implement and validate helper changes.
+   Target date: 2026-03-28.
+   Owners: AI maintainers.
+   Dependencies: defined scope.
+   Entry criteria: wrapper targets are identified.
+   Exit criteria: helper/docs updates land with passing validation.
+
+Adoption and Rollout
+--------------------
+If approved, roll this out in stages.
+
+First, update AGENTS guidance and relevant workflow docs so operators and AI
+agents know the workaround immediately.
+
+Second, adjust wrapper scripts only where file-by-file dispatch is already
+natural and semantically safe.
+
+Third, keep whole-repo validation in CI and normal non-affected shells so the
+temporary sandbox workaround does not quietly lower the final quality bar.
+
+Decision Log
+------------
+- 2026-03-25T14:12:36-07:00 - Drafted by Codex in response to an operator
+  request after reproducing a Codex-sandbox wakeup bug that hangs Black's
+  multi-file path.
