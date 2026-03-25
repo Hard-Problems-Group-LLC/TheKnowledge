@@ -3,3 +3,29 @@ Repository Maintenance Backlog
 Use this backlog for TheKnowledge's own maintenance work. Keep
 `templates/project-management/backlog.txt` as starter material unless the
 template wording or examples are being revised.
+
+*
+
+  2026-03-24T20:01:33-07:00
+  Requestor: operator
+  Summary: Draft the initial terminal knack documents under
+  `knacks/UI/terminal/` after the knack format discussion settles.
+  Planned files:
+  `knacks/UI/terminal/curses.knack.md`
+  `knacks/UI/terminal/ncurses.knack.md`
+  `knacks/UI/terminal/vt100.knack.md`
+  `knacks/UI/terminal/ansi.knack.md`
+  `knacks/UI/terminal/xterms.knack.md`
+  Dependencies: confirm the individual knack-document structure, shared
+  cross-reference conventions, and any prerequisite ordering before
+  authoring the files.
+  2026-03-24T20:32:28-07:00 update: recorded the knack size targets,
+  per-file ceiling, naming pattern, fileset-directory option, and source
+  expectations in the knack guidance. Remaining open questions are the
+  internal section template and any front-matter or metadata rules.
+  2026-03-24T20:54:31-07:00 update: knack validation now uses a dedicated
+  changed-file cache, treats malformed Markdown and high-entropy findings
+  as errors, treats word-count overruns as warnings, adds consumer
+  top-level `knacks/` guidance, and warns while evaluating both files on
+  stock-vs-project path collisions. Remaining open questions are the
+  internal section template and any front-matter or metadata rules.

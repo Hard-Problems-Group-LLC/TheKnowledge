@@ -93,6 +93,14 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "project-management/state/pending-commit-changes.txt" in agents.read_text(
         encoding="utf-8"
     )
+    assert "TheKnowledge `Feedback` branch" in agents.read_text(encoding="utf-8")
+    assert "normal internal trees on `trunk`" in agents.read_text(encoding="utf-8")
+    assert "top-level `knacks/` directory" in agents.read_text(encoding="utf-8")
+    assert "scripts/validate_knacks.py --project-root ." in agents.read_text(
+        encoding="utf-8"
+    )
+    assert "report_managed_agents_drift.py" in agents.read_text(encoding="utf-8")
+    assert "Run `git diff` before any `git add`" in agents.read_text(encoding="utf-8")
     assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.txt" in (
         proposals_readme.read_text(encoding="utf-8")
     )

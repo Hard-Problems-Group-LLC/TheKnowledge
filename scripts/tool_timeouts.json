@@ -59,6 +59,15 @@
         "standards-and-practices/dev-utils/security/verify_entropy_tripwire.py"
       ]
     },
+    "knack_check": {
+      "timeout_seconds": 90,
+      "command": [
+        "python",
+        "scripts/validate_knacks.py",
+        "--project-root",
+        "."
+      ]
+    },
     "windows_shims_linux": {
       "timeout_seconds": 150,
       "timeout_retries": 0,

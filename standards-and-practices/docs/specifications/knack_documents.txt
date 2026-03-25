@@ -1,0 +1,85 @@
+Knack Documents
+===============
+
+Scope
+-----
+Define the repository-level structure, loading model, and lightweight
+validation rules for reusable knowledge units stored under the top-level
+`knacks/` directory.
+
+Problem Statement
+-----------------
+TheKnowledge needs a focused way to capture reusable, task-oriented know-how
+that is narrower than an SOP and more durable than ad hoc notes. Without a
+standard location, naming convention, size guidance, and lightweight
+validation model, these knowledge units are hard to discover, hard to backlog
+before drafting, and easy to let bloat past the point where an agent can load
+and use them cleanly.
+
+Requirements
+------------
+- Reusable stock knack content must live under the repository's top-level
+  `knacks/` directory.
+- Consuming projects may keep additional proprietary or third-party knacks in
+  their own top-level `knacks/` directory, separate from the stock knacks
+  shipped inside the TheKnowledge subtree.
+- Knack-aware tooling must inspect both the consuming project's top-level
+  `knacks/` directory and the stock TheKnowledge `knacks/` directory when the
+  two roots are distinct.
+- When a project-local knack path collides with a stock knack path, tooling
+  must warn the operator and still evaluate both files.
+- Single-file knacks may live directly in a topical directory and must use the
+  `.knack.md` suffix.
+- When a topic spans multiple documents, the fileset must use the basename
+  pattern `<basename>.overview.knack.md` plus `<basename>.api.knack.md`.
+- `<basename>.api.knack.md` may either hold the full API reference for a
+  small API or act as an index for subordinate API section documents.
+- Large knack filesets may move into a sibling subdirectory named
+  `<basename>.knack/`.
+- Overview documents should target roughly 1,250 words each.
+- API-reference documents and large API section documents should target
+  roughly 2,500 words each when practical.
+- No individual knack file should normally exceed 5,000 words.
+- The 5,000-word guidance applies per file, not per multi-file knack set.
+- Empty tracked knack directories must include explanatory placeholder files
+  such as `README.md` so the scaffold remains visible in Git.
+- `knacks/README.md` must explain the purpose of the subtree, the core naming
+  convention, and the location of the detailed authoring guide.
+- `knacks/authoring-guide.md` must explain the size targets, file-layout
+  patterns, source requirements, consumer-project layout, lightweight
+  validation rules, and the rationale behind those choices.
+- Each knack must include at least five authoritative, high-longevity URLs for
+  further information whenever the topic offers that many durable sources.
+- Individual knack files do not require dedicated unit tests beyond the
+  lightweight validation checks defined here unless a separate project-specific
+  requirement explicitly demands more.
+- Lightweight knack validation must treat malformed Markdown documents as
+  errors.
+- Lightweight knack validation must treat high-entropy findings in knack files
+  as errors.
+- Lightweight knack validation must treat word-count recommendation overruns as
+  warnings rather than hard failures.
+- Lightweight knack validation should run only for knack files whose content
+  changed, using a hash cache when practical.
+- The default knack-validation hash cache path should be
+  `.git/knack-validation-cache.json`, and that cache path should be ignored by
+  Git.
+- Failing unit tests for knack naming or size violations must be recorded in
+  bug tracking so the issue is not lost.
+- Knack naming and size-test bugs should not default to serious or
+  high-priority triage unless broader impact or delivery risk is shown.
+- Repositories may backlog specific knack filenames before drafting the
+  corresponding files when the topic area is known but the exact contents are
+  still under discussion.
+- The initial public knack scaffold in TheKnowledge must provide
+  `knacks/UI/terminal/` as a home for foundational terminal-related knacks.
+
+Non-Goals
+---------
+- Defining the full body format of every individual knack document.
+- Replacing SOPs, specifications, or project-management records.
+- Capping the total size of a multi-file knack set when each file remains
+  within the per-file guidance.
+- Requiring exhaustive Markdown linting or broad project test suites for
+  knack-only edits.
+- Requiring every discussed knack to be created immediately.

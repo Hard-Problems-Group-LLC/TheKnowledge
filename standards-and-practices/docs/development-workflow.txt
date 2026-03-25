@@ -85,11 +85,12 @@ The managed pre-commit hook installed by setup scripts runs
 and CI-adjacent sandboxes where commits are authored.
 
 For standardized git operations, use:
+- Run `git diff` before any `git add` so staged content is reviewed first.
 - `python scripts/git_standard_commit_push.py -m "<subject>"` for commits and
   pushes with mandatory cached quality gate checks (including entropy
-  tripwire verification). It consumes
-  `project-management/state/pending-commit-changes.txt` as commit body text
-  when that file is nonblank.
+  tripwire verification). The helper runs `git diff` before its own staging
+  steps and consumes `project-management/state/pending-commit-changes.txt`
+  as commit body text when that file is nonblank.
 - `python scripts/git_veteran_pull.py` for guarded fast-forward pull updates.
 See `standards-and-practices/docs/security/git-tripwire-operations.txt` for
 failure diagnostics and maintenance guidance.

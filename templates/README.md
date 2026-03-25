@@ -21,6 +21,13 @@ so local project instructions can live between the managed sections. Before it
 rewrites `AGENTS.md`, it removes any existing managed header or footer blocks
 so rerunning the installer does not duplicate them.
 
+After updating the submodule, run `scripts/report_managed_agents_drift.py`
+from the TheKnowledge checkout to compare the consuming project's managed
+`AGENTS.md` header and footer with the updated templates. The helper prints
+unified diffs that both human and AI developers can review before rerunning
+`scripts/initial-setup.py --force`, review `git diff`, and stage only the
+intended updates.
+
 The `project-management/state/` template directory includes
 `pending-commit-changes.txt`, which is the short-lived queue for brief commit
 summary lines. The standardized commit helper consumes that file as commit

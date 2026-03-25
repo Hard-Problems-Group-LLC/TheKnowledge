@@ -90,6 +90,9 @@ mandatory.
 
 Operational Notes
 -----------------
+- Run `git diff` before any `git add` so staged content is reviewed first.
+  The standardized commit helper does this automatically before its own
+  staging steps.
 - Use the repository's configured SSH host alias for remote operations, as
   documented in local operator notes.
 - Keep the managed git pre-commit hook installed; setup scripts maintain it

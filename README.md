@@ -22,6 +22,8 @@ submodule that other projects can import. The goal is consistent execution:
 ## Scope
 
 This repository includes:
+- `knacks/`: reusable knack documents: focused `.knack.md` knowledge units
+  that may build on one another.
 - `standards-and-practices/`: reusable workflows, standards, security
   practices, runbooks, and dev utilities.
 - `templates/`: starter material meant to be copied into consuming projects.
@@ -44,6 +46,8 @@ application business logic.
    inside the submodule.
 4. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
+5. Add focused knack documents under `knacks/` when a reusable body of
+   know-how deserves a dedicated `.knack.md` file.
 
 ## Using as a submodule
 
@@ -90,6 +94,35 @@ or initialize them after clone:
 git submodule update --init --recursive
 ```
 
+## Updating a submodule copy
+
+When a consuming project wants newer TheKnowledge changes, update the
+submodule first, then reconcile any managed-file drift before staging the
+result:
+
+```bash
+(cd TheKnowledge && python scripts/git_veteran_pull.py)
+python TheKnowledge/scripts/report_managed_agents_drift.py \
+  --project-root . \
+  --knowledge-root TheKnowledge
+```
+
+If the drift helper reports differences in the managed `AGENTS.md` header or
+footer, rerun the installer and review the resulting changes before staging:
+
+```bash
+python TheKnowledge/scripts/initial-setup.py \
+  --project-root . \
+  --knowledge-root TheKnowledge \
+  --force
+git diff
+```
+
+That flow keeps the submodule pointer update, any managed `AGENTS.md` changes,
+and any related project adjustments visible in one reviewable diff. Commit the
+updated submodule pointer and the resulting project-file changes together when
+they belong to the same upgrade.
+
 ## Submodule layout
 
 The consuming project chooses the submodule path at `git submodule add` time.
@@ -98,6 +131,7 @@ For example:
 ```text
 TestProject/
   TheKnowledge/
+    knacks/
     standards-and-practices/
     templates/
     scripts/
@@ -109,6 +143,7 @@ stateful files outside the submodule:
 ```text
 TestProject/
   TheKnowledge/
+  knacks/
   project-management/
     backlog.txt
     tasks-in-progress.txt
@@ -127,3 +162,30 @@ TestProject/
       in-progress/
       closed/
 ```
+
+That top-level `knacks/` directory is where consuming projects can keep
+proprietary or third-party knacks beside the stock knacks that ship inside the
+TheKnowledge subtree. When a project-local knack path collides with a stock
+TheKnowledge knack path, tooling should warn and evaluate both.
+
+## Feedback Branch
+
+When TheKnowledge is being maintained directly as its own checkout, keep
+using the normal `trunk` workflow and the usual internal trees such as
+`internal/overrides/`, bug tracking, and proposal records. Do not route
+ordinary TheKnowledge maintenance through `Feedback`.
+
+The `Feedback` branch exists for a different situation: a team is working
+primarily inside some other project that uses TheKnowledge and wants to
+check bugs, proposals, general notes, or complaints about TheKnowledge
+back into the TheKnowledge checkout without interrupting the consuming
+project's main work.
+
+While maintaining TheKnowledge itself, periodically inspect `Feedback`.
+Items there should either become evaluation tasks backlogged on `trunk`,
+remain in `Feedback` with additional discussion, or be dropped from
+`Feedback` by collaborative human-and-AI agreement. Evaluation work that
+starts from `Feedback` should result in recommendations on `trunk`; if the
+recommendation is approved, the resulting fix should be backlogged or the
+proposal should be merged on `trunk`, and the originating `Feedback` item
+should then be removed or updated accordingly.

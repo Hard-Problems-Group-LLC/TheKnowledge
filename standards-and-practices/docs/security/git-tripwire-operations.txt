@@ -22,14 +22,15 @@ Command:
 Behavior:
 1. Resolve repository root.
 2. Run `python scripts/run_quality_gate_cached.py`.
-3. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
-4. Read queued summary text from
+3. Run `git diff` before any staging step so the pending changes are visible.
+4. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
+5. Read queued summary text from
    `project-management/state/pending-commit-changes.txt` or a repository-
    specific override path when present.
-5. Commit with the provided subject and queued body text when the queue is
+6. Commit with the provided subject and queued body text when the queue is
    nonblank.
-6. Push to `origin <current-branch>` unless overridden.
-7. After the local commit succeeds, truncate the queue file. The helper stages
+7. Push to `origin <current-branch>` unless overridden.
+8. After the local commit succeeds, truncate the queue file. The helper stages
    the truncation so the queue clears with the committed state even when
    `--no-stage-all` is set.
 
@@ -54,7 +55,7 @@ Quality-gate cache behavior
 ---------------------------
 - Cache file location: `.git/project-quality-cache.json`
 - Cache keys are per check (`black`, `ruff`, `compileall`, `entropy_check`,
-  `entropy_tripwire_verify`, `pytest`).
+  `entropy_tripwire_verify`, `knack_check`, `pytest`).
 - Each check fingerprint hashes both relative path names and file contents for
   that check's scope.
 - A check is skipped only when its previous run passed and the fingerprint is

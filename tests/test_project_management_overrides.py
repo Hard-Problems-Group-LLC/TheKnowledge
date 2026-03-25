@@ -60,6 +60,7 @@ def test_override_record_tree_exists() -> None:
 
 def test_override_guidance_is_wired_into_repository_docs() -> None:
     agents_text = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    repo_text = (ROOT / "README.md").read_text(encoding="utf-8")
     internal_text = (INTERNAL / "README.md").read_text(encoding="utf-8")
     overrides_text = (OVERRIDES / "README.txt").read_text(encoding="utf-8")
     templates_text = (TEMPLATES / "README.md").read_text(encoding="utf-8")
@@ -74,6 +75,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "internal/overrides/state/pending-commit-changes.txt" in agents_text
     assert "internal/overrides/proposals/" in agents_text
     assert "internal/overrides/bugs/" in agents_text
+    assert "Prefer patch-style edits when possible" in agents_text
+    assert "Run `git diff` before any `git add`" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
     assert "proposals/approved/README.txt" in overrides_text
@@ -81,13 +84,25 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "report_managed_agents_drift.py" in templates_text
+    assert "review `git diff`" in templates_text
     assert "approved/" in templates_text
     assert "open/" in templates_text
     assert "pending-commit-changes.txt" in templates_text
     assert "{$KNOWLEDGE_ROOT}/AGENTS.md" in header_text
     assert "TheKnowledge Overrides" in footer_text
+    assert "Feedback` branch" in footer_text
+    assert "Prefer patch-style edits when possible" in footer_text
+    assert "Run `git diff` before any `git add`" in footer_text
+    assert "report_managed_agents_drift.py" in footer_text
+    assert "normal internal trees on `trunk`" in footer_text
+    assert "top-level `knacks/` directory" in footer_text
+    assert "scripts/validate_knacks.py --project-root ." in footer_text
+    assert ".git/knack-validation-cache.json" in footer_text
     assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
+    assert "report_managed_agents_drift.py" in repo_text
+    assert "git diff" in repo_text
     assert "project-management/proposals/" in workflow_text
     assert "project-management/backlog.txt" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text

@@ -28,14 +28,20 @@ def _make_fake_repo(tmp_path: Path) -> Path:
     (repo / "scripts").mkdir(parents=True)
     (repo / "standards-and-practices" / "dev-utils").mkdir(parents=True)
     (repo / "resources").mkdir(parents=True)
+    (repo / "knacks").mkdir(parents=True)
 
     (repo / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
     (repo / "tests" / "test_app.py").write_text(
-        "def test_ok():\n    assert 1\n", encoding="utf-8"
+        "def test_ok():\n    assert 1\n",
+        encoding="utf-8",
     )
-    (repo / "resources" / "fixture.txt").write_text("fixture\n", encoding="utf-8")
+    (repo / "resources" / "fixture.txt").write_text(
+        "fixture\n",
+        encoding="utf-8",
+    )
     (repo / "pyproject.toml").write_text(
-        "[tool.black]\nline-length = 88\n", encoding="utf-8"
+        "[tool.black]\nline-length = 88\n",
+        encoding="utf-8",
     )
 
     stub = repo / "scripts" / "run_tool_with_timeout.py"
@@ -105,3 +111,35 @@ def test_quality_gate_cache_invalidates_when_inputs_change(tmp_path: Path) -> No
 
     calls = _read_calls(repo)
     assert calls == ["black", "black"]
+
+
+def test_quality_gate_cache_excludes_knacks_from_entropy_but_runs_knack_check(
+    tmp_path: Path,
+) -> None:
+    repo = _make_fake_repo(tmp_path)
+    (repo / "knacks" / "demo.knack.md").write_text(
+        "# Demo\n\nplain prose content\n",
+        encoding="utf-8",
+    )
+
+    first = _run_cached(repo, "--checks", "entropy_check", "knack_check")
+    assert first.returncode == 0
+    assert "RUN entropy_check: cache miss" in first.stdout
+    assert "RUN knack_check: cache miss" in first.stdout
+
+    second = _run_cached(repo, "--checks", "entropy_check", "knack_check")
+    assert second.returncode == 0
+    assert "SKIP entropy_check: cache hit" in second.stdout
+    assert "SKIP knack_check: cache hit" in second.stdout
+
+    (repo / "knacks" / "demo.knack.md").write_text(
+        "# Demo\n\nplain prose content updated\n",
+        encoding="utf-8",
+    )
+    third = _run_cached(repo, "--checks", "entropy_check", "knack_check")
+    assert third.returncode == 0
+    assert "SKIP entropy_check: cache hit" in third.stdout
+    assert "RUN knack_check: cache miss" in third.stdout
+
+    calls = _read_calls(repo)
+    assert calls == ["entropy_check", "knack_check", "knack_check"]

@@ -25,6 +25,12 @@ live state.
 - Keep standards and process docs concise, actionable, and testable.
 - Preserve append-only history in project-management records.
 
+## Git Safety
+- Prefer patch-style edits when possible so intended changes stay easy to
+  review. Use full-file rewrites only for new files, clearly corrupted files,
+  or true total overhauls.
+- Run `git diff` before any `git add` so staged content is reviewed first.
+
 ## Project Management Orders
 - Keep `internal/overrides/backlog.txt` as ordered pending work.
 - Keep `internal/overrides/tasks-in-progress.txt` minimal and current.
@@ -48,6 +54,39 @@ live state.
   from `standards-and-practices/docs/AI-backlog-iteration.txt` unless another
   list is specified.
 
+## Feedback Branch
+- The `Feedback` branch is for TheKnowledge-focused bugs, proposals,
+  complaints, and general notes discovered while working primarily inside
+  some other project that uses TheKnowledge.
+- When maintaining TheKnowledge directly as its own checkout, keep using
+  the normal `trunk` workflow plus `internal/overrides/`, proposal
+  records, and bug tracking. Do not route routine direct-checkout
+  maintenance through `Feedback`.
+- Periodically inspect `Feedback` while maintaining TheKnowledge itself.
+- Backlog evaluation tasks for `Feedback` items on `trunk`. That
+  evaluation should produce recommendations.
+- If a recommendation is approved, backlog the resulting fix on `trunk` or
+  merge the resulting proposal on `trunk`, then remove or update the
+  originating `Feedback` entry.
+- If an item is not yet resolved, keep it on `Feedback` with additional
+  discussion, or drop it from `Feedback` by collaborative human-and-AI
+  agreement.
+
+## Knack Validation
+- Knack-specific validation should stay lightweight.
+- When `.knack.md` files change, run
+  `python scripts/run_tool_with_timeout.py knack_check`.
+- The validator checks changed knack files for basic Markdown
+  well-formedness and high-entropy findings as errors, and reports word-count
+  recommendation overruns as warnings.
+- The validator uses `.git/knack-validation-cache.json` so unchanged knack
+  files can be skipped.
+- Projects that use TheKnowledge may keep additional proprietary or
+  third-party knacks in the consuming project's top-level `knacks/`
+  directory.
+- When a project-local knack path collides with a stock TheKnowledge knack
+  path, warn and evaluate both files.
+
 ## Testing Expectations
 - Use pessimistic, defense-in-depth tests.
 - Cover edge cases, failure modes, and regressions.
@@ -69,11 +108,14 @@ live state.
 5. `python scripts/run_tool_with_timeout.py entropy_tripwire_verify`
 6. `python scripts/run_tool_with_timeout.py pytest`
 
+When `.knack.md` files change, also run
+`python scripts/run_tool_with_timeout.py knack_check`.
+
 Use standardized operations where available:
 - Commit/push: `python scripts/git_standard_commit_push.py -m "<subject>"`
-  The script uses
+  The script runs `git diff` before its own staging steps, uses
   `internal/overrides/state/pending-commit-changes.txt` as commit body text
-  when it is nonblank, then clears the file after a successful local commit.
+  when it is nonblank, and clears the file after a successful local commit.
 - Pull: `python scripts/git_veteran_pull.py`
 
 ## Codex Log Handling

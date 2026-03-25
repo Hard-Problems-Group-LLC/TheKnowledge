@@ -63,9 +63,16 @@ Notes and expectations
 - Standardized git operation utilities are available after setup:
   - `python scripts/git_standard_commit_push.py -m "<subject>"`
     Uses `project-management/state/pending-commit-changes.txt` as commit body
-    text when that file is nonblank, then clears it after a successful local
-    commit.
+    text when that file is nonblank, runs `git diff` before its own staging
+    steps, and clears the queue after a successful local commit.
   - `python scripts/git_veteran_pull.py`
   - Cache file used by push quality gate: `.git/project-quality-cache.json`
   - Runbook:
     `standards-and-practices/docs/security/git-tripwire-operations.txt`
+- Consuming projects that update a TheKnowledge submodule should then run
+  `python TheKnowledge/scripts/report_managed_agents_drift.py --project-root`
+  `. --knowledge-root TheKnowledge` to compare managed `AGENTS.md` sections
+  with the updated templates. If drift is reported, rerun
+  `python TheKnowledge/scripts/initial-setup.py --project-root .`
+  `--knowledge-root TheKnowledge --force`, review `git diff`, and then stage
+  only the intended updates.

@@ -6,6 +6,48 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-24T22:40:40-07:00 - Added `git diff`-before-staging guidance
+  to TheKnowledge and consumer workflow docs, taught the standardized
+  commit helper to show diffs before its own `git add` steps, added an
+  `AGENTS.md` drift-report helper plus submodule-update guidance for
+  consuming projects, and revalidated the full required check suite.
+
+
+*
+
+  2026-03-24T21:12:51-07:00 - Created a local `Feedback` branch and
+  documented that it is only for TheKnowledge feedback discovered while
+  working primarily in consuming projects, while direct TheKnowledge
+  maintenance continues to use the normal internal trees on `trunk`.
+
+
+*
+
+  2026-03-24T20:54:31-07:00 - Added lightweight knack validation with a
+  changed-file hash cache, wired the check into the cached quality gate,
+  documented standalone-versus-submodule knack roots plus collision handling,
+  and updated AGENTS templates so consuming projects know how to validate
+  top-level knacks.
+
+
+*
+
+  2026-03-24T20:32:28-07:00 - Defined knack authoring guidance for overview
+  and API word-count targets, a 5,000-word per-file ceiling, multi-file
+  naming and directory patterns, and durable-source expectations, then added
+  tests so the new guidance stays wired into the repository.
+
+
+*
+
+  2026-03-24T20:01:33-07:00 - Added a public `knacks/` scaffold with
+  placeholder README files for `UI/terminal/`, documented the new
+  `.knack.md` convention in a specification and the top-level README, added
+  structural test coverage, and backlogged the first terminal knack
+  documents for later drafting.
+
+*
+
   2026-03-20T00:35:52-07:00 - Added required proposal status directories
   (`approved/`, `rejected/`, `deferred/`, and `under-review/`) plus bug
   status directories (`open/`, `in-progress/`, and `closed/`) across the

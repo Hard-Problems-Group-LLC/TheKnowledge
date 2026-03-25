@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import scripts.git_standard_commit_push as git_standard_commit_push
 from scripts.git_standard_commit_push import (
     build_commit_command,
     pending_commit_changes_path,
@@ -40,6 +41,29 @@ def test_git_veteran_pull_rejects_branch_without_remote() -> None:
 def test_git_standard_commit_push_dry_run_succeeds() -> None:
     result = _run(COMMIT_PUSH, "--dry-run", "-m", "test message")
     assert result.returncode == 0
+    assert result.stdout.index("git diff") < result.stdout.index("git add -A")
+
+
+def test_stage_path_runs_git_diff_before_git_add(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    file_path = tmp_path / "example.txt"
+    file_path.write_text("example\n", encoding="utf-8")
+    calls: list[list[str]] = []
+
+    def fake_run(command, cwd, dry_run=False):
+        calls.append(list(command))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(git_standard_commit_push, "run", fake_run)
+
+    git_standard_commit_push.stage_path(tmp_path, file_path)
+
+    assert calls == [
+        ["git", "diff", "--", "example.txt"],
+        ["git", "add", "example.txt"],
+    ]
 
 
 def test_pending_commit_changes_path_prefers_internal_override(

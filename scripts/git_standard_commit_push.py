@@ -109,6 +109,24 @@ def run_quality_gate(
     ensure_ok(result, "quality gate")
 
 
+def show_diff(
+    repo_root: Path,
+    relative_paths: Sequence[str] | None = None,
+    dry_run: bool = False,
+) -> None:
+    command = ["git", "diff"]
+    if relative_paths:
+        command.extend(["--", *relative_paths])
+    result = run(command, cwd=repo_root, dry_run=dry_run)
+    if dry_run:
+        return
+    if result.stdout:
+        print(result.stdout.rstrip())
+    if result.stderr:
+        print(result.stderr.rstrip(), file=sys.stderr)
+    ensure_ok(result, "git diff")
+
+
 def ensure_staged_changes(repo_root: Path, dry_run: bool = False) -> None:
     result = run(["git", "diff", "--cached", "--quiet"], cwd=repo_root, dry_run=dry_run)
     if dry_run:
@@ -154,6 +172,7 @@ def build_commit_command(
 
 def stage_path(repo_root: Path, path: Path, dry_run: bool = False) -> None:
     relative_path = path.relative_to(repo_root).as_posix()
+    show_diff(repo_root, [relative_path], dry_run=dry_run)
     ensure_ok(
         run(["git", "add", relative_path], cwd=repo_root, dry_run=dry_run),
         f"git add {relative_path}",
@@ -191,6 +210,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         )
 
         if not args.no_stage_all:
+            show_diff(repo_root, dry_run=args.dry_run)
             ensure_ok(
                 run(["git", "add", "-A"], cwd=repo_root, dry_run=args.dry_run),
                 "git add -A",

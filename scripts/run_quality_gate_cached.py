@@ -32,34 +32,56 @@ CHECK_ORDER = [
     "compileall",
     "entropy_check",
     "entropy_tripwire_verify",
+    "knack_check",
     "pytest",
 ]
 
 CHECK_SCOPE: Dict[str, Dict[str, object]] = {
     "black": {
-        "roots": ["src", "tests", "scripts", "standards-and-practices/dev-utils"],
+        "roots": [
+            "src",
+            "tests",
+            "scripts",
+            "standards-and-practices/dev-utils",
+        ],
         "extensions": [".py", ".pyi"],
         "extra_files": ["pyproject.toml"],
+        "exclude_patterns": [],
     },
     "ruff": {
-        "roots": ["src", "tests", "scripts", "standards-and-practices/dev-utils"],
+        "roots": [
+            "src",
+            "tests",
+            "scripts",
+            "standards-and-practices/dev-utils",
+        ],
         "extensions": [".py", ".pyi"],
         "extra_files": ["pyproject.toml"],
+        "exclude_patterns": [],
     },
     "compileall": {
         "roots": ["src", "tests"],
         "extensions": [".py"],
         "extra_files": [],
+        "exclude_patterns": [],
     },
     "entropy_check": {
         "roots": ["."],
         "extensions": None,
         "extra_files": [],
+        "exclude_patterns": ["knacks"],
     },
     "entropy_tripwire_verify": {
         "roots": ["."],
         "extensions": None,
         "extra_files": [],
+        "exclude_patterns": ["knacks"],
+    },
+    "knack_check": {
+        "roots": ["knacks"],
+        "extensions": [".md"],
+        "extra_files": [],
+        "exclude_patterns": [],
     },
     "pytest": {
         "roots": [
@@ -71,13 +93,14 @@ CHECK_SCOPE: Dict[str, Dict[str, object]] = {
         ],
         "extensions": None,
         "extra_files": ["pyproject.toml"],
+        "exclude_patterns": [],
     },
 }
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run standard quality checks using per-check content hash cache."
+        description=("Run standard quality checks using per-check content hash cache.")
     )
     parser.add_argument(
         "--repo-root",
@@ -127,9 +150,10 @@ def iter_scope_files(
     roots: Sequence[str],
     extensions: Sequence[str] | None,
     extra_files: Sequence[str],
+    exclude_patterns: Sequence[str] | None,
 ) -> List[Path]:
     files: List[Path] = []
-    excludes = list(DEFAULT_EXCLUDES)
+    excludes = list(DEFAULT_EXCLUDES) + list(exclude_patterns or [])
     extension_set = set(extensions) if extensions is not None else None
 
     for root_name in roots:
@@ -169,12 +193,13 @@ def iter_scope_files(
         if extra_path.exists() and extra_path.is_file():
             files.append(extra_path)
 
-    unique_sorted = sorted(set(files))
-    return unique_sorted
+    return sorted(set(files))
 
 
 def fingerprint_files(
-    repo_root: Path, files: Iterable[Path], check_name: str
+    repo_root: Path,
+    files: Iterable[Path],
+    check_name: str,
 ) -> tuple[str, int]:
     digest = hashlib.sha256()
     digest.update(f"schema:{SCHEMA_VERSION}\ncheck:{check_name}\n".encode("utf-8"))
@@ -214,11 +239,15 @@ def save_cache(path: Path, data: Dict[str, object]) -> None:
         "checks": data.get("checks", {}),
     }
     path.write_text(
-        json.dumps(ordered, indent=2, sort_keys=False) + "\n", encoding="utf-8"
+        json.dumps(ordered, indent=2, sort_keys=False) + "\n",
+        encoding="utf-8",
     )
 
 
-def run_check(repo_root: Path, check_name: str) -> subprocess.CompletedProcess[str]:
+def run_check(
+    repo_root: Path,
+    check_name: str,
+) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, "scripts/run_tool_with_timeout.py", check_name]
     return subprocess.run(
         command,
@@ -248,7 +277,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     for check_name in requested_checks:
         if check_name not in CHECK_SCOPE:
             print(
-                f"[quality-gate] FAIL: unknown check '{check_name}'.", file=sys.stderr
+                f"[quality-gate] FAIL: unknown check '{check_name}'.",
+                file=sys.stderr,
             )
             return 2
 
@@ -263,6 +293,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             roots=scope["roots"],  # type: ignore[index]
             extensions=scope["extensions"],  # type: ignore[index]
             extra_files=scope["extra_files"],  # type: ignore[index]
+            exclude_patterns=scope["exclude_patterns"],  # type: ignore[index]
         )
         fingerprint, file_count = fingerprint_files(repo_root, files, check_name)
 
