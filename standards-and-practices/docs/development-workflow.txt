@@ -85,12 +85,26 @@ The managed pre-commit hook installed by setup scripts runs
 and CI-adjacent sandboxes where commits are authored.
 
 For standardized git operations, use:
-- Run `git diff` before any `git add` so staged content is reviewed first.
+- Before any `git add`, list the files about to be staged and ask whether to
+  review them.
+- Offer `1` review at least one file in the changeset, `2` proceed without
+  review for this changeset, and `3` proceed and suppress review prompts for
+  the rest of the current session until they are resumed.
+- If review is requested, prefer changeset review in Meld when
+  available as the default visual review path. Otherwise offer
+  file-by-file review in the conversation or abort the staging
+  step.
+- Run `git diff` before any `git add` and `git diff --cached` before any
+  commit.
 - `python scripts/git_standard_commit_push.py -m "<subject>"` for commits and
   pushes with mandatory cached quality gate checks (including entropy
-  tripwire verification). The helper runs `git diff` before its own staging
-  steps and consumes `project-management/state/pending-commit-changes.txt`
-  as commit body text when that file is nonblank.
+  tripwire verification). The helper lists files about to stage, asks for
+  review unless `--assume-reviewed` is passed or prompts were disabled
+  earlier in the current shell session, consumes
+  `project-management/state/pending-commit-changes.txt` as commit body text
+  when that file is nonblank, and clears it after a successful local commit.
+  Use `--resume-review-prompts` to re-enable prompts for the current shell
+  session.
 - `python scripts/git_veteran_pull.py` for guarded fast-forward pull updates.
 See `standards-and-practices/docs/security/git-tripwire-operations.txt` for
 failure diagnostics and maintenance guidance.

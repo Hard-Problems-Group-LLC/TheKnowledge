@@ -41,7 +41,9 @@ def test_git_veteran_pull_rejects_branch_without_remote() -> None:
 def test_git_standard_commit_push_dry_run_succeeds() -> None:
     result = _run(COMMIT_PUSH, "--dry-run", "-m", "test message")
     assert result.returncode == 0
+    assert "Files about to stage:" in result.stdout
     assert result.stdout.index("git diff") < result.stdout.index("git add -A")
+    assert result.stdout.index("git diff --cached") < result.stdout.index("git commit")
 
 
 def test_stage_path_runs_git_diff_before_git_add(
@@ -58,12 +60,89 @@ def test_stage_path_runs_git_diff_before_git_add(
 
     monkeypatch.setattr(git_standard_commit_push, "run", fake_run)
 
-    git_standard_commit_push.stage_path(tmp_path, file_path)
+    git_standard_commit_push.stage_path(
+        tmp_path,
+        file_path,
+        prompt_for_review=False,
+    )
 
     assert calls == [
         ["git", "diff", "--", "example.txt"],
         ["git", "add", "example.txt"],
     ]
+
+
+def test_review_prompt_can_pause_for_external_review(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    (tmp_path / ".git").mkdir()
+    monkeypatch.setattr(
+        git_standard_commit_push,
+        "git_dir",
+        lambda repo_root, dry_run=False: tmp_path / ".git",
+    )
+    answers = iter(["1", "1"])
+    monkeypatch.setattr("builtins.input", lambda prompt: next(answers))
+
+    try:
+        git_standard_commit_push.maybe_prompt_for_staging_review(
+            tmp_path,
+            ["M example.txt"],
+        )
+    except RuntimeError as error:
+        assert "--assume-reviewed" in str(error)
+    else:
+        raise AssertionError("expected review pause")
+
+
+def test_review_prompt_can_disable_for_current_session(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    (tmp_path / ".git").mkdir()
+    monkeypatch.setattr(
+        git_standard_commit_push,
+        "git_dir",
+        lambda repo_root, dry_run=False: tmp_path / ".git",
+    )
+    monkeypatch.setattr(
+        git_standard_commit_push,
+        "shell_session_token",
+        lambda: "session-1",
+    )
+    monkeypatch.setattr("builtins.input", lambda prompt: "3")
+
+    git_standard_commit_push.maybe_prompt_for_staging_review(
+        tmp_path,
+        ["M example.txt"],
+    )
+
+    assert (tmp_path / ".git" / "review-prompts-disabled-session-1").is_file()
+
+
+def test_clear_review_prompt_state_removes_current_session_marker(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    git_dir = tmp_path / ".git"
+    git_dir.mkdir()
+    marker = git_dir / "review-prompts-disabled-session-1"
+    marker.write_text("disabled\n", encoding="utf-8")
+    monkeypatch.setattr(
+        git_standard_commit_push,
+        "git_dir",
+        lambda repo_root, dry_run=False: git_dir,
+    )
+    monkeypatch.setattr(
+        git_standard_commit_push,
+        "shell_session_token",
+        lambda: "session-1",
+    )
+
+    git_standard_commit_push.clear_review_prompt_state(tmp_path)
+
+    assert not marker.exists()
 
 
 def test_pending_commit_changes_path_prefers_internal_override(

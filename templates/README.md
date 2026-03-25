@@ -32,3 +32,11 @@ The `project-management/state/` template directory includes
 `pending-commit-changes.txt`, which is the short-lived queue for brief commit
 summary lines. The standardized commit helper consumes that file as commit
 body text and clears it after a successful local commit.
+
+The standardized commit helper also defaults to a review-first staging path.
+It lists files about to be staged, asks whether to review them, and
+prefers launching Meld when available as the default visual review
+path. It can also pause for file-by-file review and runs
+`git diff --cached` before commit. Use `--assume-reviewed` only
+after an explicit review decision made outside the helper, and use
+`--resume-review-prompts` to re-enable prompts for the current shell session.

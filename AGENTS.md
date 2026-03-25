@@ -26,10 +26,18 @@ live state.
 - Preserve append-only history in project-management records.
 
 ## Git Safety
-- Prefer patch-style edits when possible so intended changes stay easy to
-  review. Use full-file rewrites only for new files, clearly corrupted files,
-  or true total overhauls.
-- Run `git diff` before any `git add` so staged content is reviewed first.
+- Before any `git add`, list the files about to be staged and ask the
+  operator whether to review them.
+- Offer these staging-review choices: `1.` review at least one file in the
+  changeset, `2.` proceed without review for this changeset, `3.` proceed and
+  suppress review prompts for the rest of the current session until the
+  operator asks to resume them.
+- If review is requested, prefer changeset review in Meld when
+  available as the default visual review path. Otherwise offer
+  file-by-file review in the conversation or abort the staging
+  step.
+- Run `git diff` before any `git add`.
+- Run `git diff --cached` before any commit.
 
 ## Project Management Orders
 - Keep `internal/overrides/backlog.txt` as ordered pending work.
@@ -113,9 +121,14 @@ When `.knack.md` files change, also run
 
 Use standardized operations where available:
 - Commit/push: `python scripts/git_standard_commit_push.py -m "<subject>"`
-  The script runs `git diff` before its own staging steps, uses
+  The script lists files about to stage, asks for review unless
+  `--assume-reviewed` is passed or prompts were disabled earlier in the
+  current shell session, runs `git diff` before its own staging steps, runs
+  `git diff --cached` before commit, uses
   `internal/overrides/state/pending-commit-changes.txt` as commit body text
   when it is nonblank, and clears the file after a successful local commit.
+  Use `--resume-review-prompts` to re-enable prompts for the current shell
+  session.
 - Pull: `python scripts/git_veteran_pull.py`
 
 ## Codex Log Handling

@@ -62,9 +62,15 @@ Notes and expectations
   and manual run commands.
 - Standardized git operation utilities are available after setup:
   - `python scripts/git_standard_commit_push.py -m "<subject>"`
-    Uses `project-management/state/pending-commit-changes.txt` as commit body
-    text when that file is nonblank, runs `git diff` before its own staging
-    steps, and clears the queue after a successful local commit.
+    Lists files about to stage, asks whether to review them unless
+    `--assume-reviewed` is passed or prompts were disabled earlier in the
+    current shell session, prefers Meld review when available as the
+    default visual review path, runs `git diff` before its own
+    staging steps, runs `git diff --cached` before commit, uses
+    `project-management/state/pending-commit-changes.txt`
+    as commit body text when that file is nonblank, and clears the queue
+    after a successful local commit. Use `--resume-review-prompts` to
+    re-enable prompts for the current shell session.
   - `python scripts/git_veteran_pull.py`
   - Cache file used by push quality gate: `.git/project-quality-cache.json`
   - Runbook:

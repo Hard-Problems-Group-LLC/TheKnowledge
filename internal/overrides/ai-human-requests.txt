@@ -19,6 +19,16 @@ Completed Requests
 
 *
 
+  2026-03-24T23:52:46-07:00
+  Requestor: operator
+  Action: Make review-first staging the default workflow for
+  TheKnowledge and consuming projects, including Meld as the default
+  visual review path before staging and `git diff --cached` before
+  commits.
+  Status: completed by Codex on 2026-03-24T23:52:46-07:00.
+
+*
+
   2026-03-13T00:46:38-07:00
   Requestor: operator
   Action: Remove consumer-specific names from TheKnowledge's public

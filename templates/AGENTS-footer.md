@@ -21,14 +21,24 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `AI-backlog-iteration.txt` when told to iterate the backlog.
 - Use the consuming project's own `project-management/git-flow.txt` for branch
   and merge operations.
-- Prefer patch-style edits when possible so intended changes stay easy
-  to review. Use full-file rewrites only for new files, clearly corrupted
-  files, or true total overhauls.
-- Run `git diff` before any `git add`. The standardized commit helper does
-  this automatically before its own staging steps.
+- Before any `git add`, list the files about to be staged and ask the
+  operator whether to review them.
+- Offer these staging-review choices: `1.` review at least one file in the
+  changeset, `2.` proceed without review for this changeset, `3.` proceed and
+  suppress review prompts for the rest of the current session until the
+  operator asks to resume them.
+- If review is requested, prefer changeset review in Meld when
+  available as the default visual review path. Otherwise offer
+  file-by-file review in the conversation or abort the staging
+  step.
+- Run `git diff` before any `git add` and `git diff --cached` before any
+  commit. The standardized commit helper does both automatically.
 - Use `python {$KNOWLEDGE_ROOT}/scripts/git_standard_commit_push.py -m
-  "<subject>"` so queued commit summaries become commit body text and the
-  queue file is cleared after a successful local commit.
+  "<subject>"` after the operator has either reviewed the changes or
+  explicitly approved proceeding. Pass `--assume-reviewed` only after an
+  explicit review decision made outside the helper. Use
+  `--resume-review-prompts` to re-enable prompts for the current shell
+  session.
 - When working primarily in the consuming project and discovering bugs,
   proposals, complaints, or general notes about TheKnowledge itself,
   record them on the TheKnowledge `Feedback` branch.

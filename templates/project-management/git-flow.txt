@@ -90,9 +90,16 @@ mandatory.
 
 Operational Notes
 -----------------
-- Run `git diff` before any `git add` so staged content is reviewed first.
-  The standardized commit helper does this automatically before its own
-  staging steps.
+- Before any `git add`, list the files about to be staged and ask whether to
+  review them. Offer `1` review at least one file, `2` proceed without
+  review for this changeset, and `3` proceed and suppress review prompts for
+  the rest of the current session until resumed.
+- If review is requested, prefer changeset review in Meld when
+  available as the default visual review path. Otherwise offer
+  file-by-file review in the conversation or abort the staging
+  step.
+- Run `git diff` before any `git add` and `git diff --cached` before any
+  commit. The standardized commit helper does both automatically.
 - Use the repository's configured SSH host alias for remote operations, as
   documented in local operator notes.
 - Keep the managed git pre-commit hook installed; setup scripts maintain it

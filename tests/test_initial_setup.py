@@ -100,7 +100,14 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         encoding="utf-8"
     )
     assert "report_managed_agents_drift.py" in agents.read_text(encoding="utf-8")
-    assert "Run `git diff` before any `git add`" in agents.read_text(encoding="utf-8")
+    assert (
+        "Before any `git add`, list the files about to be staged"
+        in agents.read_text(encoding="utf-8")
+    )
+    assert "git diff --cached" in agents.read_text(encoding="utf-8")
+    assert "review in Meld" in agents.read_text(encoding="utf-8")
+    assert "default visual review path" in agents.read_text(encoding="utf-8")
+    assert "--resume-review-prompts" in agents.read_text(encoding="utf-8")
     assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.txt" in (
         proposals_readme.read_text(encoding="utf-8")
     )

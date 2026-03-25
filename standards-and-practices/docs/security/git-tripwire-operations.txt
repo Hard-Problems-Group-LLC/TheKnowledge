@@ -22,23 +22,32 @@ Command:
 Behavior:
 1. Resolve repository root.
 2. Run `python scripts/run_quality_gate_cached.py`.
-3. Run `git diff` before any staging step so the pending changes are visible.
-4. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
-5. Read queued summary text from
+3. List the files about to be staged and ask whether to review them.
+4. Offer `1` review at least one file in the changeset, `2` proceed without
+   review for this changeset, and `3` proceed and suppress review prompts
+   for the rest of the current session until resumed.
+5. If review is requested, offer file-by-file review outside the helper,
+   changeset review in Meld when available, or aborting the staging step.
+6. Run `git diff` before any staging step so the pending changes are visible.
+7. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
+8. Read queued summary text from
    `project-management/state/pending-commit-changes.txt` or a repository-
    specific override path when present.
-6. Commit with the provided subject and queued body text when the queue is
-   nonblank.
-7. Push to `origin <current-branch>` unless overridden.
-8. After the local commit succeeds, truncate the queue file. The helper stages
-   the truncation so the queue clears with the committed state even when
-   `--no-stage-all` is set.
+9. Run `git diff --cached` before commit so the staged changes are visible.
+10. Commit with the provided subject and queued body text when the queue is
+    nonblank.
+11. Push to `origin <current-branch>` unless overridden.
+12. After the local commit succeeds, truncate the queue file. The helper
+    stages the truncation so the queue clears with the committed state even
+    when `--no-stage-all` is set.
 
 Important options:
 - `--remote <name>`
 - `--branch <name>`
 - `--no-stage-all`
 - `--allow-empty`
+- `--assume-reviewed`
+- `--resume-review-prompts`
 - `--no-quality-cache` (forces uncached quality gate)
 - `--dry-run`
 

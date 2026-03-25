@@ -123,6 +123,29 @@ and any related project adjustments visible in one reviewable diff. Commit the
 updated submodule pointer and the resulting project-file changes together when
 they belong to the same upgrade.
 
+## Review-first staging
+
+Projects that use TheKnowledge should treat review as part of staging, not
+just of committing. Before any `git add`, list the files about to be staged
+and ask whether to review them. Offer `1` review at least one file,
+`2` proceed without review for this changeset, and `3` proceed and suppress
+review prompts for the rest of the current session until resumed.
+
+If review is requested, prefer reviewing the changeset in Meld when
+available. That is the default recommended visual review path for
+TheKnowledge because the folder comparison stays open in one tab while
+file comparisons open in additional tabs. Install Meld from the
+official project page: https://gnome.pages.gitlab.gnome.org/meld/
+
+If Meld is unavailable, either review files one by one in the
+surrounding conversation or abort the staging step. Run `git diff`
+before any `git add` and `git diff --cached` before any commit. The
+standardized helper
+`python TheKnowledge/scripts/git_standard_commit_push.py -m "<subject>"`
+supports this flow; use `--assume-reviewed` only after an explicit review
+decision, and `--resume-review-prompts` to re-enable prompts for the current
+shell session.
+
 ## Submodule layout
 
 The consuming project chooses the submodule path at `git submodule add` time.

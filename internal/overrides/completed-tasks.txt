@@ -6,6 +6,15 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-24T23:52:46-07:00 - Made review-first staging the default workflow for
+  TheKnowledge and consuming projects, updated the standardized commit
+  helper to prompt for optional review before any `git add`, require
+  `git diff --cached` before committing, and documented Meld as the
+  default visual review path plus its official install page across the
+  repository and templates.
+
+*
+
   2026-03-24T22:40:40-07:00 - Added `git diff`-before-staging guidance
   to TheKnowledge and consumer workflow docs, taught the standardized
   commit helper to show diffs before its own `git add` steps, added an
