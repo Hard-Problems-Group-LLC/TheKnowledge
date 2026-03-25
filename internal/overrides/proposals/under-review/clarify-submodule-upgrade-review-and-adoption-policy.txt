@@ -1,0 +1,171 @@
+Engineering Change Request: Clarify Submodule Upgrade Review And Adoption
+Policy
+========================================================================
+
+Title: Engineering Change Request: Clarify Submodule Upgrade Review And
+Adoption Policy
+Author: Codex
+Date: 2026-03-25T14:38:39-07:00
+Status: Under Review
+Reviewers: operator (repository maintainer), AI maintainers
+Related Work: Direct operator request on 2026-03-25; README.md section
+"Updating a submodule copy"; templates/AGENTS-footer.md;
+standards-and-practices/docs/installation.txt
+
+Problem Statement
+-----------------
+TheKnowledge now explains how a consuming project should pull newer submodule
+content and reconcile managed-file drift afterward. That is helpful, but it
+still leaves an important operational expectation implicit: before adopting a
+new TheKnowledge version, maintainers should fetch the latest upstream
+`trunk`, briefly review what changed relative to the project's current
+submodule commit, and then treat that reviewed upstream version as the new
+local and remote baseline for the consuming project.
+
+Without that explicit policy, an agent may interpret "update TheKnowledge" too
+narrowly as "pull whatever the submodule remote gives me and reconcile AGENTS
+drift" without first reviewing the incoming delta. That weakens situational
+awareness and makes it easier to miss new knacks, workflow changes, or starter
+tooling updates that should influence the surrounding project work.
+
+Goals
+-----
+- Make TheKnowledge submodule upgrade expectations explicit for consuming
+  projects.
+- Require a quick review of upstream changes before a project adopts a new
+  submodule version.
+- Clarify that the reviewed upstream version should become the consuming
+  project's new baseline locally and on its remote after validation.
+- Keep the documented workflow concise and compatible with existing drift-
+  reconciliation steps.
+
+Non-Goals
+---------
+- Redesign the mechanics of submodule checkout or merge operations.
+- Require a heavyweight release-note process for every TheKnowledge change.
+- Replace project-local judgment about whether an update should be committed
+  immediately.
+- Change the Feedback-branch workflow for reporting TheKnowledge issues.
+
+Use Cases
+---------
+1. An operator says "update TheKnowledge" in a consuming project and expects
+   the agent to inspect the latest upstream delta before moving the submodule
+   pointer.
+2. A project upgrade brings in new knacks, starter-tooling changes, or
+   workflow guidance that should be noticed before the maintainer resumes
+   unrelated project work.
+3. A consuming project wants one reviewable diff that shows the submodule
+   pointer update together with any AGENTS refresh or local follow-on changes.
+4. A future maintainer needs a clear answer to "what does it mean to update
+   TheKnowledge correctly?"
+
+Constraints and Assumptions
+---------------------------
+- TheKnowledge is often consumed as a submodule inside another active project.
+- Upgrade instructions should stay lightweight enough for routine maintenance.
+- The documentation should not assume a specific transport such as HTTPS or
+  SSH, but it should still talk about the latest upstream `trunk`.
+- The drift-reconciliation steps already documented should remain part of the
+  flow rather than being replaced.
+
+Proposed Approach
+-----------------
+Extend TheKnowledge's submodule-upgrade guidance so it explicitly says:
+1. fetch the latest upstream `trunk` for the submodule;
+2. review the incoming changes relative to the consuming project's current
+   submodule commit, at least at a brief summary level;
+3. fast-forward or otherwise adopt that reviewed upstream version in the
+   submodule checkout;
+4. reconcile managed-file drift and any related local adjustments; and then
+5. commit and push the consuming project's resulting submodule-pointer update
+   so that the reviewed version becomes the project's new shared baseline.
+
+The wording should make the review step visible but lightweight. A commit-log
+summary, diffstat, or targeted file review is enough for routine upgrades so
+long as the maintainer is not blindly moving the pointer.
+
+Relevant documentation targets likely include:
+- `README.md`
+- `standards-and-practices/docs/installation.txt`
+- `templates/AGENTS-footer.md`
+- any local or template git-flow note that already discusses submodule
+  updates
+
+Risks and Mitigations
+---------------------
+- Risk: the policy sounds heavier than intended.
+  Mitigation: describe the review step as brief and proportional, not as a
+  mandatory full audit.
+- Risk: projects confuse "review upstream delta" with "merge every upstream
+  change immediately."
+  Mitigation: state that adoption still depends on the operator's direction,
+  but when an update is requested the incoming version should be reviewed
+  before it becomes the new baseline.
+- Risk: duplicated instructions drift across multiple docs.
+  Mitigation: choose one canonical explanation and keep the other surfaces
+  short, with references back to it where appropriate.
+
+Testing and Validation
+----------------------
+- Update the relevant docs and managed template text.
+- Add or refresh tests that assert the new policy language appears in the
+  expected managed surfaces when applicable.
+- Perform a consuming-project smoke check: fetch newer TheKnowledge trunk,
+  review the delta, update the submodule, reconcile AGENTS drift, and confirm
+  the resulting project diff is reviewable as one upgrade changeset.
+
+Alternatives Considered
+-----------------------
+1. Keep the review step implicit.
+   Rejected because the operator expectation is important and easy to miss.
+2. Require full per-file review for every submodule update.
+   Rejected because that is heavier than necessary for routine maintenance.
+3. Leave the policy entirely to consuming-project local docs.
+   Rejected because TheKnowledge itself is the source of truth for how its
+   submodule upgrades are supposed to work.
+
+Open Questions
+--------------
+1. Which single document should become the canonical home for the complete
+   submodule-upgrade sequence?
+2. Should the guidance mention common review tools such as `git log --oneline`
+   plus `git diff --stat`, or keep the wording tool-agnostic?
+
+Milestones
+----------
+1. Review and approve or revise this ECR.
+   Target date: 2026-03-26.
+   Owners: operator, AI maintainers.
+   Dependencies: review of the current README and template wording.
+   Entry criteria: proposal exists under review.
+   Exit criteria: operator decision recorded in the proposal.
+2. Update canonical docs and managed template text.
+   Target date: 2026-03-27.
+   Owners: AI maintainers.
+   Dependencies: proposal approval.
+   Entry criteria: approved policy language.
+   Exit criteria: the review-and-adopt upgrade sequence is documented.
+3. Validate the consuming-project upgrade flow.
+   Target date: 2026-03-27.
+   Owners: AI maintainers.
+   Dependencies: documentation changes complete.
+   Entry criteria: updated docs land on trunk.
+   Exit criteria: a project-level smoke check confirms the guidance is usable.
+
+Adoption and Rollout
+--------------------
+If approved, land the documentation updates on `trunk`, refresh any managed
+AGENTS footer text that mirrors the upgrade guidance, and mention the clarified
+upgrade sequence in future submodule-update notes.
+
+The goal is not to create ceremony. It is to make sure "update TheKnowledge"
+consistently means "review the latest upstream change set, then adopt that
+reviewed version as the project's new baseline."
+
+Decision Log
+------------
+- 2026-03-25T14:38:39-07:00 - Drafted by Codex after a consuming-project
+  maintenance session revealed that the current TheKnowledge docs still imply,
+  rather than clearly state, the expected review-and-adopt workflow for
+  submodule upgrades.
