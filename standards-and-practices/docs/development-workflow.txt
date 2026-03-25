@@ -93,6 +93,12 @@ The managed pre-commit hook installed by setup scripts runs
 `entropy_check` automatically. Keep that hook installed on developer machines
 and CI-adjacent sandboxes where commits are authored.
 
+Keep the Python toolchain reproducible. In TheKnowledge itself, rerun
+`./scripts/install_prerequisites.sh` when Black, Ruff, or pytest drift from
+the pinned repository defaults. In consuming projects that adopt the managed
+starter bootstrap, rerun `python scripts/dev_setup.py` after
+`requirements-dev.txt` changes or when the local tool versions drift.
+
 For standardized git operations, use:
 - Before any `git add`, list the files about to be staged and ask whether to
   review them.

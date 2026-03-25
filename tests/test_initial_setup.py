@@ -6,7 +6,6 @@ from pathlib import Path
 
 from scripts.initial_setup import infer_knowledge_root
 
-
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "initial-setup.py"
 
@@ -61,6 +60,8 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     pending_queue = (
         project_root / "project-management" / "state" / "pending-commit-changes.txt"
     )
+    requirements_dev = project_root / "requirements-dev.txt"
+    dev_setup = project_root / "scripts" / "dev_setup.py"
     bugs_readme = project_root / "project-management" / "bugs" / "README.txt"
     open_bugs = project_root / "project-management" / "bugs" / "open" / "README.txt"
     in_progress_bugs = (
@@ -80,6 +81,8 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert under_review_proposals.is_file()
     assert git_flow.is_file()
     assert pending_queue.is_file()
+    assert requirements_dev.is_file()
+    assert dev_setup.is_file()
     assert bugs_readme.is_file()
     assert open_bugs.is_file()
     assert in_progress_bugs.is_file()
@@ -96,6 +99,8 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "TheKnowledge `Feedback` branch" in agents.read_text(encoding="utf-8")
     assert "normal internal trees on `trunk`" in agents.read_text(encoding="utf-8")
     assert "top-level `knacks/` directory" in agents.read_text(encoding="utf-8")
+    assert "python scripts/dev_setup.py" in agents.read_text(encoding="utf-8")
+    assert "requirements-dev.txt" in agents.read_text(encoding="utf-8")
     assert "scripts/validate_knacks.py --project-root ." in agents.read_text(
         encoding="utf-8"
     )
@@ -117,7 +122,11 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "python TheKnowledge/scripts/run_tool_with_timeout.py black" in (
         git_flow.read_text(encoding="utf-8")
     )
+    assert "python scripts/dev_setup.py" in git_flow.read_text(encoding="utf-8")
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
+    assert "black==26.3.1" in requirements_dev.read_text(encoding="utf-8")
+    assert "pytest-timeout==2.4.0" in requirements_dev.read_text(encoding="utf-8")
+    assert "requirements-dev.txt" in dev_setup.read_text(encoding="utf-8")
     assert "open/" in bugs_readme.read_text(encoding="utf-8")
     resolved_text = resolved_bugs.read_text(encoding="utf-8")
     assert "Root cause:" in resolved_text

@@ -42,11 +42,13 @@ application business logic.
 1. Import this repository (or a subtree thereof) into active projects.
 2. Run `scripts/initial-setup.py` from the submodule to install starter files
    from `templates/` into the consuming project root.
-3. Keep project state in the consuming project's own directories rather than
+3. Use the starter `scripts/dev_setup.py` when you want the default pinned
+   Black, Ruff, and pytest toolchain in the consuming project.
+4. Keep project state in the consuming project's own directories rather than
    inside the submodule.
-4. Add language/technology SOPs under
+5. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
-5. Add focused knack documents under `knacks/` when a reusable body of
+6. Add focused knack documents under `knacks/` when a reusable body of
    know-how deserves a dedicated `.knack.md` file.
 
 ## Using as a submodule
@@ -63,6 +65,17 @@ python TheKnowledge/scripts/initial-setup.py \
   --knowledge-root TheKnowledge
 ```
 
+For new or lightly customized consuming projects, then run:
+
+```bash
+python scripts/dev_setup.py
+```
+
+The starter installs `requirements-dev.txt` plus `scripts/dev_setup.py`, which
+provide TheKnowledge's default pinned Black, Ruff, and pytest toolchain.
+Projects with tighter local environment policy may replace or extend those
+files instead of using the starter unchanged.
+
 For a brand-new repository, initialize the repo first and then add the
 submodule:
 
@@ -78,8 +91,15 @@ python TheKnowledge/scripts/initial-setup.py \
   --knowledge-root TheKnowledge
 ```
 
+Then optionally install the default pinned Python developer toolchain:
+
+```bash
+python scripts/dev_setup.py
+```
+
 After that setup, commit both the new `.gitmodules` file and the generated
-project-management and `AGENTS.md` files in the consuming project.
+project-management files, `AGENTS.md`, and any adopted starter setup files in
+the consuming project.
 
 When another developer clones the consuming project later, they should either
 clone with submodules enabled:
@@ -122,6 +142,11 @@ That flow keeps the submodule pointer update, any managed `AGENTS.md` changes,
 and any related project adjustments visible in one reviewable diff. Commit the
 updated submodule pointer and the resulting project-file changes together when
 they belong to the same upgrade.
+
+If the upgrade also changes the starter `requirements-dev.txt` or
+`scripts/dev_setup.py`, rerun `python scripts/dev_setup.py` in the consuming
+project before the next validation pass, unless the project intentionally uses
+its own bootstrap flow instead.
 
 ## Review-first staging
 

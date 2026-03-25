@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
 INTERNAL = ROOT / "internal"
 OVERRIDES = INTERNAL / "overrides"
@@ -15,6 +14,8 @@ EXPECTED_FILES = [
     TEMPLATES / "AGENTS-header.md",
     TEMPLATES / "AGENTS-footer.md",
     TEMPLATES / "README.md",
+    TEMPLATES / "requirements-dev.txt",
+    TEMPLATES / "scripts" / "dev_setup.py",
     TEMPLATES / "project-management" / "git-flow.txt",
     TEMPLATES / "project-management" / "proposals" / "README.txt",
     TEMPLATES / "project-management" / "proposals" / "approved" / "README.txt",
@@ -26,6 +27,7 @@ EXPECTED_FILES = [
     TEMPLATES / "project-management" / "bugs" / "in-progress" / "README.txt",
     TEMPLATES / "project-management" / "bugs" / "closed" / "README.txt",
     STANDARDS / "docs" / "development-workflow.txt",
+    STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt",
     STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt",
     STANDARDS
     / "docs"
@@ -70,6 +72,12 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     workflow_text = (STANDARDS / "docs" / "development-workflow.txt").read_text(
         encoding="utf-8"
     )
+    git_flow_text = (TEMPLATES / "project-management" / "git-flow.txt").read_text(
+        encoding="utf-8"
+    )
+    pinning_spec_text = (
+        STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt"
+    ).read_text(encoding="utf-8")
     timing_spec_text = (
         STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt"
     ).read_text(encoding="utf-8")
@@ -91,6 +99,10 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "requirements-dev.txt" in templates_text
+    assert "scripts/dev_setup.py" in templates_text
+    assert "default pinned" in templates_text
+    assert "Black, Ruff, and pytest toolchain" in templates_text
     assert "report_managed_agents_drift.py" in templates_text
     assert "review `git diff`" in templates_text
     assert "timestamped" in templates_text
@@ -103,6 +115,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "{$KNOWLEDGE_ROOT}/AGENTS.md" in header_text
     assert "TheKnowledge Overrides" in footer_text
     assert "Feedback` branch" in footer_text
+    assert "python scripts/dev_setup.py" in footer_text
+    assert "requirements-dev.txt" in footer_text
     assert "Before any `git add`, list the files about to be staged" in footer_text
     assert "inline bracketed ISO 8601 timestamp" in footer_text
     assert "workflow profiling" in footer_text
@@ -118,6 +132,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
     assert "Timestamped Intermediary Updates" in repo_text
+    assert "scripts/dev_setup.py" in repo_text
+    assert "requirements-dev.txt" in repo_text
     assert "workflow profiling" in repo_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in repo_text
     assert "Review-first staging" in repo_text
@@ -129,10 +145,17 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "workflow profiling" in workflow_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in workflow_text
     assert "project-management/backlog.txt" in workflow_text
+    assert "python scripts/dev_setup.py" in workflow_text
+    assert "./scripts/install_prerequisites.sh" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
     assert "review in Meld" in workflow_text
     assert "default visual review path" in workflow_text
     assert "git diff --cached" in workflow_text
+    assert "python scripts/dev_setup.py" in git_flow_text
+    assert "requirements-dev.txt" in git_flow_text
+    assert "pyproject.toml" in pinning_spec_text
+    assert "templates/requirements-dev.txt" in pinning_spec_text
+    assert "templates/scripts/dev_setup.py" in pinning_spec_text
     assert "[YYYY-MM-DDThh:mm:ss+hh:mm] Message text." in timing_spec_text
     assert "Final summary messages do not need timestamp prefixes" in timing_spec_text
     assert "workflow profiling" in timing_spec_text

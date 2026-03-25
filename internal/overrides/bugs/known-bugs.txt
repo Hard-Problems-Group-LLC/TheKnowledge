@@ -7,9 +7,37 @@ the template wording or examples are being revised. Keep any expanded notes in
 
 *
 
+  2026-03-25T04:52:12-07:00
+  Summary: The cached quality-gate helper assumes `.git/` is a directory and
+  crashes in submodule checkouts, which breaks the standardized commit helper
+  in active consuming-project submodules.
+  Impact: `python scripts/git_standard_commit_push.py` cannot complete in an
+  active submodule checkout even after review and validation are done, so the
+  intended Feedback-branch workflow falls back to manual git commands.
+  Detailed record: `open/quality-gate-cache-helper-fails-in-submodules.txt`
+
+*
+
+  2026-03-25T04:05:18-07:00
+  Summary: Feedback-branch guidance does not clearly tell contributors to use
+  the active TheKnowledge submodule checkout, commit and push there, and then
+  switch the submodule back to its normal branch.
+  Impact: agents can misfile Feedback items in a sibling checkout or hesitate
+  over the intended workflow, which adds avoidable correction churn to
+  cross-project reporting.
+  Detailed record:
+  `open/feedback-branch-submodule-workflow-underdocumented.txt`
+
+*
+
   2026-03-25T01:30:58-07:00
   Summary: Codex sandboxed commands fail on this EL9 host because the system
-  `bubblewrap 0.6.3` binary does not support `--argv0`.
+  `bubblewrap 0.6.3` binary does not support `--argv0`, and this Codex build
+  appears to call `/usr/bin/bwrap` directly instead of honoring `PATH`.
   Impact: non-escalated `exec_command` and `apply_patch` paths fail with
-  `bwrap: Unknown option --argv0`, forcing escalated-command fallbacks.
+  `bwrap: Unknown option --argv0`, forcing escalated-command fallbacks even
+  after a newer user-local `bwrap` is installed earlier on `PATH`.
+  Current status: local reproduction is fixed under `codex-cli
+  0.117.0-alpha.17`, but this bug stays open until the same sandbox fix ships
+  in a non-alpha/mainline Codex release.
   Detailed record: `open/bubblewrap-argv0-sandbox-incompatibility.txt`

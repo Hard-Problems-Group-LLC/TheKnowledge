@@ -1,0 +1,83 @@
+Cached Quality-Gate Helper Fails In Submodule Checkouts
+========================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-25T04:52:12-07:00
+
+Scope
+-----
+This is a TheKnowledge tooling bug in the standardized validation and
+commit workflow. It affects contributors who follow the intended practice of
+filing TheKnowledge feedback from the active `TheKnowledge/` submodule inside a
+consuming project.
+
+Summary
+-------
+`python scripts/git_standard_commit_push.py` currently fails in active
+submodule checkouts because `scripts/run_quality_gate_cached.py` stores its
+default cache at `.git/project-quality-cache.json` and then assumes `.git` is
+a directory. In a git submodule checkout, `.git` is normally a file that points
+to the real git directory, so the helper crashes with `FileExistsError` before
+it can finish the standardized commit workflow.
+
+Live Reproduction
+-----------------
+1. Work inside the active submodule checkout:
+   `/home/mheck/codebase/HPG/actual/dufocom/TheKnowledge`
+2. Prepare a normal Feedback-branch changeset and complete the required review
+   decision outside the helper.
+3. Run:
+   `python scripts/git_standard_commit_push.py -m "Refine Feedback branch bug reports" --assume-reviewed`
+4. Observe the helper fail before staging and commit completion with:
+
+   `FileExistsError: [Errno 17] File exists:`
+   ``/home/mheck/codebase/HPG/actual/dufocom/TheKnowledge/.git``
+
+Confirmed Local Evidence
+------------------------
+- `git rev-parse --git-dir` in the active submodule returns:
+  `/home/mheck/codebase/HPG/actual/dufocom/.git/modules/TheKnowledge`
+- `ls -ld` shows:
+  - `/home/mheck/codebase/HPG/actual/dufocom/TheKnowledge/.git` is a file
+  - `/home/mheck/codebase/HPG/actual/dufocom/.git/modules/TheKnowledge` is the
+    real git directory
+- `scripts/run_quality_gate_cached.py` defines the default cache file as
+  `.git/project-quality-cache.json`
+- `save_cache()` calls:
+  `path.parent.mkdir(parents=True, exist_ok=True)`
+- In a submodule checkout, `path.parent` for that default path resolves to the
+  `.git` file in the worktree, not the real git directory, so `mkdir` raises
+  `FileExistsError`.
+
+Impact
+------
+- The standardized commit helper cannot complete in active submodule checkouts.
+- The failure affects the exact workflow TheKnowledge currently expects for
+  cross-project feedback filing.
+- Contributors are forced to fall back to manual `git add`, `git commit`, and
+  `git push` sequences after already satisfying review and validation steps.
+- The error message is low-level enough that the root cause is not obvious
+  unless the contributor inspects the helper implementation.
+
+Recommendation
+--------------
+Update the quality-gate cache path handling so it respects the real git
+directory in submodules. A good fix would be to resolve the cache location via
+`git rev-parse --git-dir` when the configured cache path begins with `.git/`,
+or otherwise normalize the path before calling `mkdir`.
+
+The commit helper should then inherit that fix automatically. If a full fix is
+not immediately available, the helper should at least emit a clearer error that
+explains the submodule `.git` file versus git-dir mismatch.
+
+Why This Matters
+----------------
+TheKnowledge's documentation currently points contributors toward a
+submodule-based Feedback workflow. If the standardized commit helper cannot run
+in that environment, the intended process remains partly broken even when the
+branch guidance itself is clarified.

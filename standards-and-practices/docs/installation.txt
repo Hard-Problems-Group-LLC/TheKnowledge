@@ -16,8 +16,9 @@ From the repository root:
 ```
 
 The script defaults to installing project in editable mode with development
-extras. Pass `--production` through to the Python installer when you want to
-skip developer dependencies:
+extras. Those extras pin the repository's default Black, Ruff, and pytest tool
+versions exactly so local validation stays reproducible. Pass `--production`
+through to the Python installer when you want to skip developer dependencies:
 
 ```
 ./scripts/install_prerequisites.sh -- --production
@@ -42,7 +43,7 @@ What the installer does
 - Installs `python3`, `venv` tooling, `less`, and `git` using the native
   package manager (with `sudo` when required).
 - Creates `.venv` if missing and upgrades `pip`, `setuptools`, and `wheel`.
-- Installs the project in editable mode with optional developer extras.
+- Installs the project in editable mode with optional pinned developer extras.
 - Installs/updates managed git `pre-commit` and `pre-push` hook wrappers via
   `scripts/install_git_hooks.py`.
 
@@ -82,3 +83,7 @@ Notes and expectations
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
   `--knowledge-root TheKnowledge --force`, review `git diff`, and then stage
   only the intended updates.
+- The managed starter for consuming projects also includes
+  `requirements-dev.txt` and `scripts/dev_setup.py`, which install the same
+  pinned Black, Ruff, and pytest toolchain by default unless a project adopts
+  a stricter local bootstrap flow.

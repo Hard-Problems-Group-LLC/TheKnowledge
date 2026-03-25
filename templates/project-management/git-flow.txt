@@ -111,6 +111,9 @@ Operational Notes
   documented in local operator notes.
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
   through `{{THEKNOWLEDGE_ROOT}}/scripts/install_git_hooks.py`.
+- If the project is using the managed starter Python toolchain, rerun
+  `python scripts/dev_setup.py` whenever `requirements-dev.txt` changes or the
+  local Black, Ruff, or pytest install drifts from the pinned defaults.
 - Keep local working trees clean before broad integration work when practical.
 - Record significant merge operations and outcomes in project-management logs
   when they affect backlog status, bug status, or delivery traceability.

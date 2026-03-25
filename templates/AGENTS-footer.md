@@ -21,6 +21,10 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `AI-backlog-iteration.txt` when told to iterate the backlog.
 - Use the consuming project's own `project-management/git-flow.txt` for branch
   and merge operations.
+- Use `python scripts/dev_setup.py` when the project is relying on the managed
+  starter Python toolchain. The default starter installs `requirements-dev.txt`
+  and `scripts/dev_setup.py` with pinned Black, Ruff, and pytest versions, but
+  project-local instructions may replace that bootstrap flow.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
