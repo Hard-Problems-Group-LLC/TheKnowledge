@@ -3,7 +3,11 @@ Cached Quality-Gate Helper Fails In Submodule Checkouts
 
 Status
 ------
-Open.
+Closed.
+
+Date Closed
+-----------
+2026-03-25T14:28:19-07:00
 
 Date Opened
 -----------
@@ -81,3 +85,26 @@ TheKnowledge's documentation currently points contributors toward a
 submodule-based Feedback workflow. If the standardized commit helper cannot run
 in that environment, the intended process remains partly broken even when the
 branch guidance itself is clarified.
+
+2026-03-25T14:26:13-07:00 Work Start
+------------------------------------
+Active remediation is underway on `trunk`. The planned fix is to normalize the
+default `.git/project-quality-cache.json` path through the real git directory
+before cache writes, then add regression coverage that exercises a repo with a
+separate git dir.
+
+Root cause
+----------
+The helper treated `.git/project-quality-cache.json` as a normal path under
+the worktree root. In active submodule and separate-git-dir checkouts, `.git`
+is a file that points to the real git directory, so `mkdir` on
+`repo_root/.git` failed before the quality-gate cache could be written.
+
+Resolution
+----------
+The fix adds cache-path normalization through `git rev-parse --git-dir` when
+the configured cache path begins with `.git/`. That sends the default cache
+file to the actual git directory in both normal and submodule-style repos.
+Regression tests now cover both the direct resolver behavior and a live repo
+created with a separate git dir, and the full required validation suite
+passed after the change.

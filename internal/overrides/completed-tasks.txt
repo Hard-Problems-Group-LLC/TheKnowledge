@@ -6,6 +6,22 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T14:28:19-07:00 - Fixed the cached quality-gate helper so a
+  `.git/...` cache path resolves through the real git dir in submodule and
+  separate-git-dir checkouts, added regression coverage for the cache-path
+  normalization, and closed the matching submodule workflow bug after the
+  full required validation suite passed.
+
+*
+
+  2026-03-25T14:10:59-07:00 - Reviewed the work merged in from
+  `Feedback`, separated the landed proposal from the still-open bug
+  reports, and backlogged the two repo-side corrective actions for the
+  submodule cache-path failure and the underdocumented `Feedback`
+  submodule workflow.
+
+*
+
   2026-03-25T05:34:34-07:00 - Added a new `knacks/sandboxing/`
   category with a `bubblewrap.knack.md` write-up covering bubblewrap's
   mental model, practical command patterns, and high-value failure

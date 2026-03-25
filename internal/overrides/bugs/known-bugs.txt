@@ -7,17 +7,6 @@ the template wording or examples are being revised. Keep any expanded notes in
 
 *
 
-  2026-03-25T04:52:12-07:00
-  Summary: The cached quality-gate helper assumes `.git/` is a directory and
-  crashes in submodule checkouts, which breaks the standardized commit helper
-  in active consuming-project submodules.
-  Impact: `python scripts/git_standard_commit_push.py` cannot complete in an
-  active submodule checkout even after review and validation are done, so the
-  intended Feedback-branch workflow falls back to manual git commands.
-  Detailed record: `open/quality-gate-cache-helper-fails-in-submodules.txt`
-
-*
-
   2026-03-25T04:05:18-07:00
   Summary: Feedback-branch guidance does not clearly tell contributors to use
   the active TheKnowledge submodule checkout, commit and push there, and then

@@ -19,6 +19,22 @@ Completed Requests
 
 *
 
+  2026-03-25T14:28:19-07:00
+  Requestor: operator
+  Action: Resolve the backlog item to fix the cached quality-gate helper in
+  submodule checkouts.
+  Status: completed by Codex on 2026-03-25T14:28:19-07:00.
+
+*
+
+  2026-03-25T14:10:59-07:00
+  Requestor: operator
+  Action: Review what arrived through the `Feedback` branch and backlog any
+  corrective action that still needs repo-side follow-up.
+  Status: completed by Codex on 2026-03-25T14:10:59-07:00.
+
+*
+
   2026-03-25T05:34:34-07:00
   Requestor: operator
   Action: Write up a reusable bubblewrap sandboxing knack in the stock

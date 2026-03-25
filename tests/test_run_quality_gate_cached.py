@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "run_quality_gate_cached.py"
+
+
+def _load_script_module() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("run_quality_gate_cached", SCRIPT)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def _run_cached(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -20,9 +31,27 @@ def _run_cached(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]
     )
 
 
-def _make_fake_repo(tmp_path: Path) -> Path:
+def _git_dir(repo_root: Path) -> Path:
+    result = subprocess.run(
+        ["git", "rev-parse", "--git-dir"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    git_dir = Path(result.stdout.strip())
+    if not git_dir.is_absolute():
+        git_dir = (repo_root / git_dir).resolve()
+    return git_dir
+
+
+def _make_fake_repo(tmp_path: Path, *, separate_git_dir: bool = False) -> Path:
     repo = tmp_path / "repo"
-    (repo / ".git").mkdir(parents=True)
+    init_command = ["git", "init", "--quiet"]
+    if separate_git_dir:
+        init_command.extend(["--separate-git-dir", str(tmp_path / "repo-git")])
+    init_command.append(str(repo))
+    subprocess.run(init_command, check=True, capture_output=True, text=True)
     (repo / "src").mkdir(parents=True)
     (repo / "tests").mkdir(parents=True)
     (repo / "scripts").mkdir(parents=True)
@@ -50,8 +79,18 @@ def _make_fake_repo(tmp_path: Path) -> Path:
             [
                 "#!/usr/bin/env python3",
                 "import pathlib",
+                "import subprocess",
                 "import sys",
-                "log = pathlib.Path('.git/quality-gate-calls.log')",
+                "git_dir = subprocess.run(",
+                "    ['git', 'rev-parse', '--git-dir'],",
+                "    check=True,",
+                "    capture_output=True,",
+                "    text=True,",
+                ").stdout.strip()",
+                "git_dir_path = pathlib.Path(git_dir)",
+                "if not git_dir_path.is_absolute():",
+                "    git_dir_path = (pathlib.Path.cwd() / git_dir_path).resolve()",
+                "log = git_dir_path / 'quality-gate-calls.log'",
                 "log.parent.mkdir(parents=True, exist_ok=True)",
                 "with log.open('a', encoding='utf-8') as handle:",
                 "    handle.write(sys.argv[1] + '\\n')",
@@ -65,7 +104,7 @@ def _make_fake_repo(tmp_path: Path) -> Path:
 
 
 def _read_calls(repo_root: Path) -> list[str]:
-    log = repo_root / ".git" / "quality-gate-calls.log"
+    log = _git_dir(repo_root) / "quality-gate-calls.log"
     if not log.exists():
         return []
     return [
@@ -92,7 +131,7 @@ def test_quality_gate_cache_skips_when_inputs_unchanged(tmp_path: Path) -> None:
     assert calls == ["black", "entropy_tripwire_verify"]
 
     cache = json.loads(
-        (repo / ".git" / "project-quality-cache.json").read_text(encoding="utf-8")
+        (_git_dir(repo) / "project-quality-cache.json").read_text(encoding="utf-8")
     )
     assert cache["schema_version"] == "1.0.0"
     assert cache["checks"]["black"]["status"] == "pass"
@@ -143,3 +182,37 @@ def test_quality_gate_cache_excludes_knacks_from_entropy_but_runs_knack_check(
 
     calls = _read_calls(repo)
     assert calls == ["entropy_check", "knack_check", "knack_check"]
+
+
+def test_default_git_cache_path_uses_real_git_dir_for_separate_git_repo(
+    tmp_path: Path,
+) -> None:
+    repo = _make_fake_repo(tmp_path, separate_git_dir=True)
+
+    result = _run_cached(repo, "--checks", "black")
+    assert result.returncode == 0
+
+    git_dir = _git_dir(repo)
+    assert (repo / ".git").is_file()
+    assert (git_dir / "project-quality-cache.json").is_file()
+    assert not (repo / ".git" / "project-quality-cache.json").exists()
+
+
+def test_resolve_cache_path_maps_dot_git_prefix_through_real_git_dir(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    module = _load_script_module()
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git_dir = tmp_path / "actual-git-dir"
+    git_dir.mkdir()
+
+    monkeypatch.setattr(module, "resolve_git_dir", lambda _: git_dir)
+
+    resolved = module.resolve_cache_path(
+        repo,
+        ".git/project-quality-cache.json",
+    )
+
+    assert resolved == git_dir / "project-quality-cache.json"

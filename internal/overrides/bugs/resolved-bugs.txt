@@ -4,3 +4,17 @@ Record resolved TheKnowledge maintenance bugs here. Keep
 `templates/project-management/bugs/resolved-bugs.txt` as starter material
 unless the template wording or examples are being revised. Keep any detailed
 closure records in `closed/`.
+
+*
+
+  2026-03-25T14:28:19-07:00
+  Summary: The cached quality-gate helper crashed in active submodule
+  checkouts because its default `.git/...` cache path was resolved against
+  the worktree `.git` file instead of the real git directory.
+  Root cause: `scripts/run_quality_gate_cached.py` joined the configured
+  `.git/project-quality-cache.json` path directly under the repo root and
+  then called `mkdir` on its parent, which fails when `.git` is a file in a
+  submodule or separate-git-dir worktree.
+  Resolution: normalized `.git/...` cache paths through `git rev-parse
+  --git-dir`, added regression coverage for a separate-git-dir repository,
+  and revalidated the full required quality gate after the fix.

@@ -3,3 +3,18 @@ Repository Maintenance Backlog
 Use this backlog for TheKnowledge's own maintenance work. Keep
 `templates/project-management/backlog.txt` as starter material unless the
 template wording or examples are being revised.
+
+*
+
+  2026-03-25T14:10:59-07:00
+  Requestor: operator
+  Summary: Clarify the `Feedback`-branch submodule workflow across
+  TheKnowledge and consuming-project guidance so contributors use the active
+  submodule checkout, switch to `Feedback`, file the report, and switch
+  back afterward.
+  Motivation: `Feedback` branch bug
+  `open/feedback-branch-submodule-workflow-underdocumented.txt` showed that
+  the current wording explains where feedback belongs but not the exact
+  operating sequence for active submodule users.
+  Desired outcome: update the relevant direct-checkout and managed
+  downstream instructions, then revalidate the affected doc wiring.

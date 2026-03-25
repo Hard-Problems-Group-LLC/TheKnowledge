@@ -232,6 +232,38 @@ def load_cache(path: Path) -> Dict[str, object]:
     return data
 
 
+def resolve_git_dir(repo_root: Path) -> Path | None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--git-dir"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    git_dir_text = result.stdout.strip()
+    if result.returncode != 0 or not git_dir_text:
+        return None
+    git_dir = Path(git_dir_text)
+    if not git_dir.is_absolute():
+        git_dir = (repo_root / git_dir).resolve()
+    return git_dir
+
+
+def resolve_cache_path(repo_root: Path, cache_file: str) -> Path:
+    configured_path = Path(cache_file)
+    if configured_path.is_absolute():
+        return configured_path
+
+    if configured_path.parts and configured_path.parts[0] == ".git":
+        git_dir = resolve_git_dir(repo_root)
+        if git_dir is not None:
+            if len(configured_path.parts) == 1:
+                return git_dir
+            return git_dir.joinpath(*configured_path.parts[1:])
+
+    return (repo_root / configured_path).resolve()
+
+
 def save_cache(path: Path, data: Dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     ordered = {
@@ -265,7 +297,7 @@ def now_iso() -> str:
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     repo_root = Path(args.repo_root).resolve()
-    cache_path = (repo_root / args.cache_file).resolve()
+    cache_path = resolve_cache_path(repo_root, args.cache_file)
 
     cache = load_cache(cache_path)
     checks_cache = cache.setdefault("checks", {})
