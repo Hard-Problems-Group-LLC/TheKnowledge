@@ -32,17 +32,28 @@ Use a single-file knack directly in the category root when one document is
 enough, for example `ansi.knack.md`.
 
 When a topic needs more than one document, use
-`<basename>.overview.knack.md` for the conceptual and operational entry point
-and `<basename>.api.knack.md` for the API-focused companion.
+`<basename>.overview.knack.md` for the conceptual and operational entry point.
+API companions should begin with `<basename>.api`.
+
+If the API is small and language-neutral, `foo.api.knack.md` is enough. When
+an API is language-specific, append a stable language tag before `.knack.md`,
+for example `curses.api.C.knack.md`, `curses.api.Python.knack.md`, or
+`ncurses.api.CPP.knack.md`.
+
+When a large API needs to be split by subsystem, insert one or more topical
+section tokens between `.api` and the language tag. For example,
+`directx.api.rendering.CPP.knack.md` keeps the topic, subsection, and
+language easy to scan in one filename.
 
 When a fileset grows large enough to deserve its own container, move it into a
 subdirectory named `<basename>.knack/`. For example, a larger terminal knack
 set might use `xterms.knack/xterms.overview.knack.md` and
-`xterms.knack/xterms.api.knack.md`.
+`xterms.knack/xterms.api.rendering.CPP.knack.md`.
 
 Rationale: the naming scheme keeps related files adjacent in directory
 listings, makes it obvious which file to load first, and leaves room for API
-subsections without hiding the main overview document.
+subsections and language-specific companions without hiding the main
+overview document.
 
 ## Consumer Project Layout
 

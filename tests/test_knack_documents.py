@@ -10,8 +10,14 @@ EXPECTED_FILES = [
     STANDARDS / "knack_documents.txt",
     ROOT / "knacks" / "README.md",
     ROOT / "knacks" / "authoring-guide.md",
+    ROOT / "knacks" / "sandboxing" / "README.md",
+    ROOT / "knacks" / "sandboxing" / "bubblewrap.knack.md",
     ROOT / "knacks" / "UI" / "README.md",
     ROOT / "knacks" / "UI" / "terminal" / "README.md",
+    ROOT / "knacks" / "UI" / "terminal" / "curses.api.C.knack.md",
+    ROOT / "knacks" / "UI" / "terminal" / "curses.api.Python.knack.md",
+    ROOT / "knacks" / "UI" / "terminal" / "ncurses.api.C.knack.md",
+    ROOT / "knacks" / "UI" / "terminal" / "ncurses.api.CPP.knack.md",
 ]
 
 
@@ -24,6 +30,9 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     repo_readme = (ROOT / "README.md").read_text(encoding="utf-8")
     knack_readme = (ROOT / "knacks" / "README.md").read_text(encoding="utf-8")
     guide_text = (ROOT / "knacks" / "authoring-guide.md").read_text(encoding="utf-8")
+    sandboxing_readme = (ROOT / "knacks" / "sandboxing" / "README.md").read_text(
+        encoding="utf-8"
+    )
     terminal_readme = (ROOT / "knacks" / "UI" / "terminal" / "README.md").read_text(
         encoding="utf-8"
     )
@@ -34,6 +43,9 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "authoring-guide.md" in knack_readme
     assert ".overview.knack.md" in knack_readme
     assert ".api.knack.md" in knack_readme
+    assert ".api.C.knack.md" in knack_readme
+    assert ".api.Python.knack.md" in knack_readme
+    assert ".api.rendering.CPP.knack.md" in knack_readme
     assert ".knack/" in knack_readme
     assert "project-local knack path collides" in knack_readme
     assert "skills" in knack_readme
@@ -49,7 +61,16 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "word-count recommendation overruns as warnings" in guide_text
     assert "bug tracking" in guide_text
     assert "serious or high-priority" in guide_text
+    assert ".api.C.knack.md" in guide_text
+    assert ".api.Python.knack.md" in guide_text
+    assert ".api.rendering.CPP.knack.md" in guide_text
+    assert "bubblewrap" in sandboxing_readme.lower()
+    assert "sandbox" in sandboxing_readme.lower()
     assert "terminal" in terminal_readme.lower()
+    assert "curses.api.C.knack.md" in terminal_readme
+    assert "curses.api.Python.knack.md" in terminal_readme
+    assert "ncurses.api.C.knack.md" in terminal_readme
+    assert "ncurses.api.CPP.knack.md" in terminal_readme
     assert "`knacks/`" in spec_text
     assert ".knack.md" in spec_text
     assert "1,250" in spec_text
@@ -57,6 +78,9 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "5,000" in spec_text
     assert ".overview.knack.md" in spec_text
     assert ".api.knack.md" in spec_text
+    assert ".api.C.knack.md" in spec_text
+    assert ".api.Python.knack.md" in spec_text
+    assert ".api.rendering.CPP.knack.md" in spec_text
     assert "`knacks/authoring-guide.md`" in spec_text
     assert ".git/knack-validation-cache.json" in spec_text
     assert "project-local knack path collides" in spec_text

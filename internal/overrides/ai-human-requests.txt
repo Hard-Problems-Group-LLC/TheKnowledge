@@ -19,6 +19,14 @@ Completed Requests
 
 *
 
+  2026-03-25T05:34:34-07:00
+  Requestor: operator
+  Action: Write up a reusable bubblewrap sandboxing knack in the stock
+  `knacks/` library.
+  Status: completed by Codex on 2026-03-25T05:34:34-07:00.
+
+*
+
   2026-03-25T01:37:03-07:00
   Requestor: operator
   Action: Implement inline timestamp guidance for substantive AI-driven

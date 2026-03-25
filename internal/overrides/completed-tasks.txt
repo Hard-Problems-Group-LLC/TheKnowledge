@@ -6,6 +6,30 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T05:34:34-07:00 - Added a new `knacks/sandboxing/`
+  category with a `bubblewrap.knack.md` write-up covering bubblewrap's
+  mental model, practical command patterns, and high-value failure
+  analysis; updated the knack scaffold test; and revalidated the full
+  required check suite plus `knack_check`.
+
+*
+
+  2026-03-25T04:53:39-07:00 - Clarified the knack API naming standard so
+  language-qualified files use patterns such as `curses.api.C.knack.md`
+  and `directx.api.rendering.CPP.knack.md`, added C, Python, and C++
+  API knacks for the terminal curses and ncurses materials, refreshed
+  the terminal indexes, and revalidated the full required check suite.
+
+*
+
+  2026-03-25T02:40:26-07:00 - Drafted the initial terminal knack library
+  for ANSI control sequences, VT100 compatibility, xterm-family emulator
+  behavior, the generic curses model, and ncurses-specific guidance;
+  refreshed the terminal knack README; and revalidated the full required
+  check suite plus `knack_check`.
+
+*
+
   2026-03-25T01:37:03-07:00 - Added a detailed open bug report for the local
   `bubblewrap --argv0` sandbox incompatibility, recorded the summary in
   `known-bugs.txt`, and documented evidence, options, and recommended

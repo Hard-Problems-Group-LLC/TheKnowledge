@@ -30,10 +30,20 @@ Requirements
   must warn the operator and still evaluate both files.
 - Single-file knacks may live directly in a topical directory and must use the
   `.knack.md` suffix.
-- When a topic spans multiple documents, the fileset must use the basename
-  pattern `<basename>.overview.knack.md` plus `<basename>.api.knack.md`.
+- When a topic spans multiple documents, the fileset must use
+  `<basename>.overview.knack.md` plus one or more API documents whose names
+  begin with `<basename>.api`.
+- API documents that are not language-specific may use
+  `<basename>.api.knack.md`.
+- Language-specific API documents must append a stable language tag before
+  `.knack.md`, for example `<basename>.api.C.knack.md`,
+  `<basename>.api.CPP.knack.md`, or `<basename>.api.Python.knack.md`.
+- Large API references may insert one or more topical section tokens between
+  `.api` and the language tag, for example
+  `<basename>.api.rendering.CPP.knack.md`.
 - `<basename>.api.knack.md` may either hold the full API reference for a
-  small API or act as an index for subordinate API section documents.
+  small API or act as an index for subordinate API language or section
+  documents.
 - Large knack filesets may move into a sibling subdirectory named
   `<basename>.knack/`.
 - Overview documents should target roughly 1,250 words each.

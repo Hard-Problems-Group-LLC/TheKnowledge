@@ -5,9 +5,16 @@ that they package practical know-how for repeated use, but they live in
 TheKnowledge as repository-managed reference material.
 
 A single-file knack may live directly in a category root as `foo.knack.md`.
-When a topic grows into a fileset, use `foo.overview.knack.md` and
-`foo.api.knack.md`, optionally inside `foo.knack/` when the fileset becomes
-large enough to deserve its own directory.
+When a topic grows into a fileset, use `foo.overview.knack.md` plus API
+companions whose names begin with `foo.api`.
+
+Small, language-neutral API references may use `foo.api.knack.md`. When an
+API is language-specific, append the language tag before `.knack.md`, for
+example `foo.api.C.knack.md`, `foo.api.CPP.knack.md`, or
+`foo.api.Python.knack.md`. Large APIs may insert subsection tokens before the
+language tag, as in `foo.api.rendering.CPP.knack.md`, optionally inside
+`foo.knack/` when the fileset becomes large enough to deserve its own
+directory.
 
 Projects that use TheKnowledge may also keep proprietary or third-party
 knacks in their own top-level `knacks/` directory.
@@ -20,3 +27,6 @@ lightweight validation rules, see `knacks/authoring-guide.md`.
 This subtree is organized by topic. Placeholder `README.md` files keep the
 scaffold visible in Git until the first knack files for a topic are ready to
 land.
+
+Current stock areas include `UI/` for interface work and `sandboxing/` for
+process-isolation and execution-boundary guidance.
