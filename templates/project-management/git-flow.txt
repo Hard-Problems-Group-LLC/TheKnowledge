@@ -90,6 +90,13 @@ mandatory.
 
 Operational Notes
 -----------------
+- During substantive AI-driven development work, prefix
+  intermediary status updates with an inline bracketed ISO 8601
+  timestamp including the timezone offset so workflow profiling
+  stays possible from the shared conversation.
+- Use those timestamps when work begins, before and after
+  long-running commands or waits, and at major phase boundaries.
+  Include elapsed durations when they are easy to compute.
 - Before any `git add`, list the files about to be staged and ask whether to
   review them. Offer `1` review at least one file, `2` proceed without
   review for this changeset, and `3` proceed and suppress review prompts for

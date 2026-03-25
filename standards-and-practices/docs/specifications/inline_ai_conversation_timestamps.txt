@@ -1,0 +1,68 @@
+Inline AI Conversation Timestamps
+=================================
+
+Scope
+-----
+Define the default timestamp format, usage rules, and documentation touchpoints
+for intermediary AI development updates in TheKnowledge and in projects that
+consume it.
+
+Problem Statement
+-----------------
+TheKnowledge already requires ISO 8601 timestamps in project-management files,
+but active AI development conversations still tend to use untimed status
+updates such as "running tests" or "waiting on review." That makes workflow
+latency hard to profile from the shared conversation itself. Teams can feel
+that a session was slow, but they cannot reliably separate model latency,
+command startup, long-running validation, human review waits, GUI review time,
+and approval delays without scraping logs or reconstructing events later.
+
+Requirements
+------------
+- For substantive development work, intermediary AI status updates must begin
+  with an inline bracketed ISO 8601 timestamp that includes seconds and the
+  timezone offset.
+- The required house format is
+  `[YYYY-MM-DDThh:mm:ss+hh:mm] Message text.`
+- Example: `[2026-03-25T01:05:12-07:00] Running full pytest.`
+- Timestamped intermediary updates are required when work begins.
+- Timestamped intermediary updates are required immediately before and after
+  commands, waits, or external operations that are expected to take more than
+  a few seconds.
+- Timestamped intermediary updates are required when entering and leaving human
+  review, approval waits, GUI review sessions, and other explicit wait states.
+- Timestamped intermediary updates are required at major phase boundaries such
+  as context gathering, implementation, validation, staging review, commit,
+  push, and resume-after-interruption.
+- When a duration is easy to compute, the update should include it.
+- The rule applies to TheKnowledge's own maintenance sessions and to consuming
+  projects through the managed template guidance.
+- The rule applies to intermediary development updates, not to every sentence
+  of casual conversation.
+- Final summary messages do not need timestamp prefixes unless a project-local
+  override explicitly requires them.
+- Repository guidance must explain that the purpose of these timestamps is
+  workflow profiling and optimization from the shared conversation, without
+  relying on hidden logs.
+- `AGENTS.md` must document the timestamp rule for TheKnowledge itself.
+- `templates/AGENTS-footer.md` must document the same default rule for
+  consuming projects.
+- `standards-and-practices/docs/development-workflow.txt` must document the
+  timestamp rule as part of active execution guidance.
+- `templates/project-management/git-flow.txt` must document the rule in the
+  operational notes inherited by consuming projects.
+- `README.md` must explain the purpose of the timestamped-update convention in
+  user-facing terms.
+- `templates/README.md` must note that managed downstream `AGENTS.md` files
+  inherit the timestamped intermediary-update guidance.
+- Documentation and template tests must verify that the timestamp guidance is
+  wired into both TheKnowledge and downstream starter material.
+
+Non-Goals
+---------
+- Replacing project-management timestamps in backlog, proposal, bug, or
+  completed-task records.
+- Requiring timestamps in every final answer paragraph or every casual chat
+  exchange.
+- Building a dedicated telemetry service, trace database, or dashboard.
+- Requiring Codex log inspection to profile workflow timing.

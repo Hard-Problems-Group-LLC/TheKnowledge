@@ -21,6 +21,17 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `AI-backlog-iteration.txt` when told to iterate the backlog.
 - Use the consuming project's own `project-management/git-flow.txt` for branch
   and merge operations.
+- For substantive development work, prefix intermediary status
+  updates with an inline bracketed ISO 8601 timestamp including the
+  timezone offset, for example
+  `[2026-03-25T01:05:12-07:00] Running full pytest.`
+- Use timestamped updates when work begins, before and after
+  commands or waits likely to take more than a few seconds, and at
+  major phase boundaries.
+- Include elapsed durations when they are easy to compute.
+- Keep final answers readable; this rule applies to intermediary
+  development updates for workflow profiling, not to every sentence
+  of casual chat.
 - Before any `git add`, list the files about to be staged and ask the
   operator whether to review them.
 - Offer these staging-review choices: `1.` review at least one file in the

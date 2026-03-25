@@ -26,6 +26,7 @@ EXPECTED_FILES = [
     TEMPLATES / "project-management" / "bugs" / "in-progress" / "README.txt",
     TEMPLATES / "project-management" / "bugs" / "closed" / "README.txt",
     STANDARDS / "docs" / "development-workflow.txt",
+    STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt",
     STANDARDS
     / "docs"
     / "specifications"
@@ -69,6 +70,9 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     workflow_text = (STANDARDS / "docs" / "development-workflow.txt").read_text(
         encoding="utf-8"
     )
+    timing_spec_text = (
+        STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt"
+    ).read_text(encoding="utf-8")
     assert "standards-and-practices/docs/development-workflow.txt" in agents_text
     assert "templates/project-management/git-flow.txt" in agents_text
     assert "internal/overrides/README.txt" in agents_text
@@ -77,6 +81,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "internal/overrides/bugs/" in agents_text
     assert "Before any `git add`, list the files about to be staged" in agents_text
     assert "Run `git diff --cached` before any commit" in agents_text
+    assert "inline bracketed ISO 8601 timestamp" in agents_text
+    assert "workflow profiling" in agents_text
     assert "default visual review path" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
@@ -87,6 +93,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "scripts/initial-setup.py" in templates_text
     assert "report_managed_agents_drift.py" in templates_text
     assert "review `git diff`" in templates_text
+    assert "timestamped" in templates_text
+    assert "workflow profiling" in templates_text
     assert "git diff --cached" in templates_text
     assert "--resume-review-prompts" in templates_text
     assert "approved/" in templates_text
@@ -96,6 +104,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "TheKnowledge Overrides" in footer_text
     assert "Feedback` branch" in footer_text
     assert "Before any `git add`, list the files about to be staged" in footer_text
+    assert "inline bracketed ISO 8601 timestamp" in footer_text
+    assert "workflow profiling" in footer_text
     assert "git diff --cached" in footer_text
     assert "report_managed_agents_drift.py" in footer_text
     assert "normal internal trees on `trunk`" in footer_text
@@ -107,14 +117,22 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "--resume-review-prompts" in footer_text
     assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
+    assert "Timestamped Intermediary Updates" in repo_text
+    assert "workflow profiling" in repo_text
+    assert "[2026-03-25T01:05:12-07:00] Running full pytest." in repo_text
     assert "Review-first staging" in repo_text
     assert "git diff --cached" in repo_text
     assert "--assume-reviewed" in repo_text
     assert "https://gnome.pages.gitlab.gnome.org/meld/" in repo_text
     assert "default recommended visual review path" in repo_text
     assert "project-management/proposals/" in workflow_text
+    assert "workflow profiling" in workflow_text
+    assert "[2026-03-25T01:05:12-07:00] Running full pytest." in workflow_text
     assert "project-management/backlog.txt" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
     assert "review in Meld" in workflow_text
     assert "default visual review path" in workflow_text
     assert "git diff --cached" in workflow_text
+    assert "[YYYY-MM-DDThh:mm:ss+hh:mm] Message text." in timing_spec_text
+    assert "Final summary messages do not need timestamp prefixes" in timing_spec_text
+    assert "workflow profiling" in timing_spec_text

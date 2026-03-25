@@ -75,6 +75,15 @@ enough to serve as commit body text. The standardized commit/push helper uses
 the nonblank contents of that file as the commit body and clears the file
 after a successful local commit.
 
+For substantive AI-driven development work, prefix intermediary
+conversation updates with an inline bracketed ISO 8601 timestamp
+including the timezone offset, for example
+`[2026-03-25T01:05:12-07:00] Running full pytest.` Use timestamped
+updates when work begins, before and after long-running commands or
+waits, and at major phase boundaries. Include elapsed durations when
+they are easy to compute. Use this conversation timeline for
+workflow profiling instead of relying on hidden logs.
+
 For broad exploratory smoke runs, avoid ad hoc shell snippets. Implement
 repeatable checks as formal tests or reusable scripts under
 `standards-and-practices/dev-utils/`, and document usage in

@@ -6,6 +6,21 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T01:37:03-07:00 - Added a detailed open bug report for the local
+  `bubblewrap --argv0` sandbox incompatibility, recorded the summary in
+  `known-bugs.txt`, and documented evidence, options, and recommended
+  next steps for further investigation.
+
+*
+
+  2026-03-25T01:37:03-07:00 - Approved the inline AI conversation timestamp
+  proposal, added a specification plus direct-checkout and downstream
+  guidance for timestamped intermediary development updates, and
+  extended the doc-wiring tests so workflow profiling stays inherited by
+  generated projects.
+
+*
+
   2026-03-24T23:52:46-07:00 - Made review-first staging the default workflow for
   TheKnowledge and consuming projects, updated the standardized commit
   helper to prompt for optional review before any `git add`, require

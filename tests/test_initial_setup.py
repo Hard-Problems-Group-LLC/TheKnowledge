@@ -105,6 +105,8 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         in agents.read_text(encoding="utf-8")
     )
     assert "git diff --cached" in agents.read_text(encoding="utf-8")
+    assert "inline bracketed ISO 8601 timestamp" in agents.read_text(encoding="utf-8")
+    assert "workflow profiling" in agents.read_text(encoding="utf-8")
     assert "review in Meld" in agents.read_text(encoding="utf-8")
     assert "default visual review path" in agents.read_text(encoding="utf-8")
     assert "--resume-review-prompts" in agents.read_text(encoding="utf-8")

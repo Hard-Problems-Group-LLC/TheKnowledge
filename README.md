@@ -146,6 +146,22 @@ supports this flow; use `--assume-reviewed` only after an explicit review
 decision, and `--resume-review-prompts` to re-enable prompts for the current
 shell session.
 
+## Timestamped Intermediary Updates
+
+TheKnowledge recommends inline timestamp prefixes for substantive
+AI-driven development updates in both direct-checkout maintenance
+sessions and consuming projects. Use a bracketed ISO 8601 format
+such as `[2026-03-25T01:05:12-07:00] Running full pytest.` at the
+start of intermediary updates when work begins, before and after
+long-running commands or waits, and at major phase boundaries. Add
+elapsed durations when they are easy to compute.
+
+This keeps workflow profiling visible in the shared conversation
+itself, so teams can identify slow command startup, long
+validation, GUI review pauses, and approval waits without scraping
+hidden logs. Final answers and casual chat do not need timestamp
+prefixes in every sentence.
+
 ## Submodule layout
 
 The consuming project chooses the submodule path at `git submodule add` time.

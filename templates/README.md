@@ -40,3 +40,10 @@ path. It can also pause for file-by-file review and runs
 `git diff --cached` before commit. Use `--assume-reviewed` only
 after an explicit review decision made outside the helper, and use
 `--resume-review-prompts` to re-enable prompts for the current shell session.
+
+Managed downstream `AGENTS.md` files also inherit timestamped
+intermediary-update guidance for workflow profiling. Use inline
+bracketed ISO 8601 prefixes such as
+`[2026-03-25T01:05:12-07:00] Running full pytest.` when work begins,
+before and after long-running commands or waits, and at major phase
+boundaries.

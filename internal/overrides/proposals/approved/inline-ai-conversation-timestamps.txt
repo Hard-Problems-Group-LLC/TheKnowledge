@@ -1,0 +1,206 @@
+Inline Timestamps for AI Development Conversations
+==================================================
+
+Title: Inline Timestamps for AI Development Conversations
+Author: Codex
+Date: 2026-03-25T00:57:35-07:00
+Status: Approved
+Reviewers: operator (repository maintainer), AI maintainers
+Related Work: Direct operator request on 2026-03-25;
+standards-and-practices/docs/specifications/inline_ai_conversation_timestamps.txt; AGENTS.md;
+standards-and-practices/docs/development-workflow.txt;
+templates/project-management/git-flow.txt; templates/AGENTS-footer.md
+
+Problem Statement
+-----------------
+Development conversations that automate repository work currently expose only
+coarse status text such as "running tests" or "waiting on review." When the
+workflow feels slow, reviewers can see that delay happened, but they cannot
+reconstruct where the elapsed time went without reading hidden tool logs,
+opening local transcripts, or inferring timing from memory. That blocks
+workflow profiling and makes optimization reactive instead of evidence-driven.
+
+TheKnowledge already requires ISO 8601 timestamps in project-management files,
+but it does not yet require timestamps in AI conversation updates themselves.
+That leaves a visibility gap precisely where most perceived latency occurs:
+model thinking time, command startup overhead, long-running validation,
+network-bound operations, GUI review pauses, and human approval waits.
+
+Goals
+-----
+- Make end-to-end workflow latency visible inside the AI conversation itself.
+- Give both TheKnowledge maintainers and consuming projects a lightweight,
+  shared profiling format that works without proprietary logs.
+- Standardize a compact timestamp style that humans can scan and scripts can
+  parse later.
+- Capture enough timing detail to identify slow phases, repeated waits, and
+  avoidable round trips.
+- Keep the guidance portable across direct checkouts of TheKnowledge and
+  projects that consume it as a submodule.
+
+Non-Goals
+---------
+- Replace project-management records or their existing ISO 8601 timestamps.
+- Build a full telemetry pipeline, dashboard, or database in this proposal.
+- Require timestamps in every final answer paragraph or casual chat exchange.
+- Expose hidden model-internal reasoning or private platform diagnostics.
+
+Use Cases
+---------
+1. A maintainer suspects TheKnowledge's validation workflow is slow but cannot
+   tell whether the delay is in test execution, sandbox startup, or repeated
+   approval waits.
+2. A consuming project uses TheKnowledge as a submodule and wants to compare
+   the cost of validation, code review, and push operations across sessions.
+3. An operator reviews a long AI-driven debugging session and wants to see
+   exactly when GUI review started, how long it took, and when execution
+   resumed.
+4. An AI maintainer wants to improve status-update cadence and needs a way to
+   measure whether changes actually reduce idle time and conversational churn.
+
+Constraints and Assumptions
+---------------------------
+- The format must use ISO 8601 timestamps with timezone offsets so entries are
+  comparable across machines and sessions.
+- The guidance must be readable in plain-text chats, terminal transcripts, and
+  copied issue notes without special tooling.
+- Token overhead matters, so the timestamp convention must stay concise.
+- The approach must remain useful even when Codex logs are unavailable or
+  intentionally not inspected.
+- Some tool runtimes already report durations. The proposal assumes those can
+  complement, but not replace, inline conversation timestamps.
+
+Proposed Approach
+-----------------
+Adopt a standard requirement that AI intermediary updates for active
+development work include inline timestamps at the start of the message.
+Require timestamped updates in these situations:
+- when acknowledging a substantive development task and beginning work;
+- immediately before launching any command or operation expected to take more
+  than a few seconds;
+- immediately after that operation completes, including a duration when it is
+  easy to compute;
+- when entering a wait state for human review, approvals, GUI tools, network
+  operations, or long-running external processes;
+- when resuming from that wait state; and
+- when beginning and ending major phases such as context gathering,
+  implementation, validation, staging review, commit, and push.
+
+Use a compact house format such as:
+- `[2026-03-25T01:05:12-07:00] Running full pytest.`
+- `[2026-03-25T01:05:14-07:00] Pytest passed in 1.95 s.`
+- `[2026-03-25T01:06:03-07:00] Waiting on Meld review.`
+- `[2026-03-25T01:09:41-07:00] Meld review complete; resuming staging flow.`
+
+Apply this guidance in both TheKnowledge's own repository instructions and the
+managed downstream templates so consuming projects inherit the same behavior by
+default. Document that these timestamps are for conversational profiling and do
+not replace timestamps in backlog, proposal, bug, or completed-task records.
+
+Prefer this conversational method over log scraping because it keeps timing
+visible to both humans and AI in the shared working context. It also respects
+existing guidance not to inspect Codex logs unless explicitly instructed.
+
+Risks and Mitigations
+---------------------
+- Risk: Timestamped updates add noise and token overhead.
+  Mitigation: Limit the requirement to intermediary development updates and
+  major phase boundaries, not every sentence.
+- Risk: Agents may forget the format under pressure.
+  Mitigation: Add the rule to AGENTS guidance and downstream templates, with a
+  short example block near the workflow instructions.
+- Risk: Human readers may see timestamps as clutter.
+  Mitigation: Keep the format compact, one line when possible, and reserve it
+  for work profiling rather than casual conversation.
+- Risk: Cross-machine comparisons may be confusing when time zones differ.
+  Mitigation: Require full ISO 8601 timestamps with offsets instead of local
+  shorthand.
+- Risk: Some delays occur inside tools that already emit durations.
+  Mitigation: Treat tool-reported durations as supporting detail and use the
+  chat timestamps as the primary end-to-end timeline.
+
+Testing and Validation
+----------------------
+Validate the eventual implementation through documentation and template tests.
+At minimum:
+- add coverage that generated `AGENTS.md` files and workflow docs mention the
+  timestamp convention for intermediary development updates;
+- confirm the guidance appears in both TheKnowledge's own instructions and the
+  managed downstream footer/template path;
+- manually review a sample AI-driven maintenance session to verify that the
+  timestamps are readable, lightweight, and sufficient to reconstruct phase
+  timing; and
+- verify that the added wording does not weaken existing requirements around
+  explicit status updates, review gates, or project-management timestamps.
+
+Per Joel Spolsky's shipping guidance, treat the documentation change as
+unfinished until both the automated checks and the manual transcript review
+show the timing guidance is practical in real use.
+
+Alternatives Considered
+-----------------------
+1. Rely on Codex logs or local terminal transcripts.
+   Rejected because those are not always accessible, are harder to share, and
+   conflict with the current guidance to avoid log inspection unless asked.
+2. Add no timestamps and rely on human intuition.
+   Rejected because it leaves performance complaints unverifiable.
+3. Build a fully automated telemetry system first.
+   Rejected because it adds much more complexity than the immediate need and
+   still would not help users reading the live conversation.
+4. Timestamp only project-management files.
+   Rejected because those files capture state transitions, not the fine-grain
+   pacing of active development conversations.
+
+Open Questions
+--------------
+None at approval time. Approval fixed the default behavior: timestamped
+intermediary updates are required for substantive development work, the
+bracketed ISO 8601 format is fixed, and final summary messages do not need a
+timestamp unless a project-local override requires one.
+
+Milestones
+----------
+1. Proposal review and decision.
+   Target date: 2026-03-26.
+   Owners: operator, AI maintainers.
+   Dependencies: review of this proposal.
+   Entry criteria: proposal is present under `under-review/`.
+   Exit criteria: decision recorded and status moved to the matching
+   directory.
+2. Specification drafting after approval.
+   Target date: 2026-03-27.
+   Owners: AI maintainers.
+   Dependencies: approved proposal.
+   Entry criteria: proposal status is Approved.
+   Exit criteria: specification names the required touchpoints, timestamp
+   format, and validation expectations.
+3. Guidance rollout.
+   Target date: 2026-03-28.
+   Owners: operator, AI maintainers.
+   Dependencies: approved specification.
+   Entry criteria: specification merged or otherwise accepted for execution.
+   Exit criteria: TheKnowledge docs, templates, and tests reflect the adopted
+   timestamp guidance.
+
+Adoption and Rollout
+--------------------
+Roll out in two layers.
+
+First, add the guidance to TheKnowledge's own AGENTS and workflow documents so
+maintainers use it while evolving the repository itself. That lets the team
+profile TheKnowledge maintenance sessions immediately.
+
+Second, mirror the rule into the managed downstream template footer and any
+consumer-facing workflow documentation so projects using TheKnowledge inherit
+the same profiling behavior by default. Document that local project overrides
+may tighten or relax the cadence, but the default should remain timestamped
+intermediary updates for substantive development work.
+
+Decision Log
+------------
+- 2026-03-25T00:57:35-07:00 - Proposal drafted by Codex and placed under
+  review in response to an operator request for better workflow profiling.
+- 2026-03-25T01:17:55-07:00 - Approved by the operator for immediate
+  implementation. The adopted defaults are mandatory timestamped
+  intermediary development updates, a fixed bracketed ISO 8601 format,
+  and no required timestamp prefix in final summary messages.
