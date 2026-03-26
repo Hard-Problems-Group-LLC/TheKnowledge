@@ -1,0 +1,122 @@
+TheKnowledge Starter Validation Stack Drifts from Supported Python and Black Behavior
+=====================================================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-25T21:59:00-07:00
+
+Scope
+-----
+This is a TheKnowledge starter-material bug. It affects consuming projects
+that rely on the managed Python toolchain and inherited local validation
+guidance.
+
+Summary
+-------
+TheKnowledge currently advertises `requires-python = ">=3.9"` and installs a
+starter local Python toolchain for consuming projects, but the pinned starter
+dev-tool versions no longer match that floor and the inherited Black runner
+guidance does not match the current sandbox-safe posture.
+
+Two problems showed up together while bringing a consuming project into full
+local validation:
+- TheKnowledge still pins `black==26.3.1` and `pytest==9.0.2` in
+  `pyproject.toml`, `templates/requirements-dev.txt`, and the starter tests.
+  Those versions do not support Python 3.9, so a consuming project that
+  follows the managed starter flow on its declared minimum interpreter can
+  fail during bootstrap.
+- TheKnowledge still directs consuming projects to
+  `python TheKnowledge/scripts/run_tool_with_timeout.py black` in downstream
+  workflow material, and the timeout-wrapper config still hardcodes
+  `python -m black . --no-cache ...`. That assumes a Black flag that is not
+  available in common supported versions and keeps the primary inherited path
+  on direct multi-file or whole-repo dispatch even though the Codex sandbox
+  workaround says Black must be serialized one file at a time when the known
+  unsafe case applies.
+
+Observed Reproduction From The Consuming Project
+-----------------------------------------------
+Repository:
+- `/home/mheck/codebase/HPG/actual/codex-wrangler/`
+
+Observed facts from this session:
+1. The consuming project declares `requires-python = ">=3.9"` and adopted
+   TheKnowledge's managed starter files.
+2. Running `python3 scripts/dev_setup.py` inside that project initially
+   required changing the inherited pins from `black==26.3.1` and
+   `pytest==9.0.2` to versions that still support Python 3.9.
+3. The local Black wrapper in the consuming project observed that the
+   installed Black did not support `--no-cache`, so the wrapper had to probe
+   for that flag and omit it when unavailable.
+4. The consuming project's local validation flow had to move to repo-local
+   wrapper scripts that format one file at a time and inject `src/` into
+   `PYTHONPATH`, because the inherited raw-checkout and Black guidance was
+   not sufficient for reliable sandboxed validation.
+
+Current Upstream Sources That Drift
+-----------------------------------
+- `pyproject.toml`
+- `templates/requirements-dev.txt`
+- `tests/test_pinned_dev_tools.py`
+- `tests/test_initial_setup.py`
+- `scripts/tool_timeouts.json`
+- `tests/test_run_tool_with_timeout.py`
+- `templates/project-management/git-flow.txt`
+- `AGENTS.md`
+
+Why This Matters
+----------------
+TheKnowledge is trying to give consuming projects a disciplined, reproducible
+starter path. When the starter toolchain cannot bootstrap on the advertised
+minimum Python version, and the inherited Black path still assumes brittle
+direct invocation details, the downstream promise breaks in exactly the kind
+of environment that most needs the starter material to be dependable.
+
+The result is avoidable churn for consuming projects:
+- local bootstrap fails or must be corrected by hand;
+- inherited tests reinforce the stale pins and stale wrapper contract;
+- downstream maintainers may keep using `run_tool_with_timeout.py black`
+  because the generated workflow docs still tell them to, even though the
+  known-safe path has shifted toward constrained wrappers and cached quality
+  gates.
+
+Likely Root Cause
+-----------------
+TheKnowledge landed several partial mitigations for the Codex sandbox issue,
+including `tool_execution_constraints.json` and cached quality-gate
+serialization, but the starter templates, timeout-wrapper defaults, and
+pinned dev-tool versions were not realigned at the same time.
+
+That left three layers drifting apart:
+- the repository's declared Python floor;
+- the starter pinned tool versions; and
+- the inherited formatter workflow presented to consuming projects.
+
+Recommended Next Steps
+----------------------
+1. Decide whether TheKnowledge still intends to support Python 3.9 in its
+   starter material. If yes, repin the starter Black and pytest versions to
+   Python-3.9-compatible releases and update the matching tests. If no, raise
+   the declared `requires-python` floor and the downstream expectations
+   explicitly.
+2. Update the starter validation guidance so downstream projects no longer
+   treat `run_tool_with_timeout.py black` as the primary Black path in known
+   affected sandboxes.
+3. Replace or harden the default Black timeout-wrapper contract so it does
+   not assume `--no-cache` support and can degrade cleanly when Black flag
+   support differs across supported versions.
+4. Reconcile the generated downstream workflow text with the current intended
+   quality-gate path, whether that means promoting the cached quality gate,
+   introducing a starter safe-Black wrapper, or both.
+
+References
+----------
+Related TheKnowledge materials:
+- `../../known-bugs.txt`
+- `../../proposals/approved/serial-file-safe-static-analysis-in-`
+  `affected-sandboxes.txt`
+- `../../proposals/approved/pin_python_dev_tool_versions.txt`

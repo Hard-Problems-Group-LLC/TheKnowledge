@@ -6,6 +6,23 @@ the template wording or examples are being revised. Keep any expanded notes in
 `open/`.
 
 *
+  2026-03-25T21:59:00-07:00
+  Summary: TheKnowledge's starter validation stack no longer aligns with its
+  declared Python 3.9 floor or its current Black sandbox guidance.
+  Impact: consuming projects can inherit dev-tool pins that fail to bootstrap
+  on supported interpreters, plus generated validation commands that still
+  assume brittle Black invocation details such as `--no-cache` and direct
+  non-serialized dispatch.
+  Current status: reproduced in the active `codex-wrangler` consuming project
+  while restoring full local validation; no upstream TheKnowledge fix has been
+  applied yet.
+  Detailed record:
+  `open/starter-validation-stack-drifts-from-supported-python-and-black-behavior.txt`
+  Note: It may be appropriate to target Python 3.9 for initial setup/init/
+  bootstrap scripts, then use pyenv/virtualenv/pyenv-virtualenv to move up to
+  Python 3.12, our ideal target for heavy lifting.
+
+*
   2026-03-25T15:58:54-07:00
   Summary: Knack authoring guidance does not clearly distinguish local knack
   storage from knack content style, so contributors can infer that project-
