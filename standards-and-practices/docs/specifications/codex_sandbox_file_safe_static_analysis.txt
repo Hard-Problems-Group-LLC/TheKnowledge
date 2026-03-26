@@ -17,9 +17,14 @@ or ineffective knobs such as `black -W 1`.
 
 Requirements
 ------------
-- Guidance must state that when a file-safe formatter or linter hangs inside
-  a Codex sandbox on a multi-file run, maintainers should retry the explicit
-  file list one file at a time.
+- Guidance must state that in a sandbox matched by
+  `tool_execution_constraints.json`, Black should only run through
+  `python scripts/run_tool_with_timeout.py black`, and that harness must run
+  Black exactly one file at a time when more than one target file would
+  otherwise be formatted.
+- Guidance must still state that when another file-safe formatter or linter
+  hangs inside a Codex sandbox on a multi-file run, maintainers should retry
+  the explicit file list one file at a time.
 - Guidance must state that `black -W 1` or similar worker-count flags are not
   sufficient to avoid the known multi-file hang.
 - Guidance must keep the workaround narrow: use it for explicit file lists
@@ -29,18 +34,24 @@ Requirements
   full required check suite still needs to run outside the affected sandbox or
   in CI before work is cleared.
 - TheKnowledge's default `tool_execution_constraints.json` must record the
-  current known-unsafe Codex sandbox case for Black's explicit multi-file
-  path. The current default entry may use Codex environment-variable matching
-  as a heuristic, but that heuristic must live in the registry rather than as
-  a hardcoded script rule.
-- `scripts/run_quality_gate_cached.py` must consult
+  current known-unsafe Codex sandbox case for Black's multi-file path. The
+  current default entry may use Codex environment-variable matching as a
+  heuristic, but that heuristic must live in the registry rather than as a
+  hardcoded script rule.
+- `scripts/run_quality_gate_cached.py` and
+  `scripts/run_tool_with_timeout.py` must consult
   `tool_execution_constraints.json` instead of hardcoding a Codex sandbox
   environment variable for this workaround.
 - When the current environment matches a registry entry that marks Black's
-  explicit multi-file path unsafe to parallelize, `scripts/run_quality_gate_`
-  `cached.py` must run Black one file at a time for its explicit Python-file
-  scope instead of delegating one multi-file Black invocation through the
-  normal whole-repo command path.
+  multi-file path unsafe to parallelize, `scripts/run_quality_gate_cached.py`
+  must run Black one file at a time for its explicit Python-file scope
+  instead of delegating one multi-file Black invocation through the normal
+  whole-repo command path.
+- When the current environment matches a registry entry that marks Black's
+  multi-file path unsafe to parallelize, `scripts/run_tool_with_timeout.py`
+  must detect when a Black invocation would format more than one file and
+  rerun those files one at a time through the same timeout harness instead of
+  launching one multi-file Black process.
 - The serial helper behavior must stay narrow: preserve the normal whole-repo
   quality-gate commands outside the affected sandbox and leave Ruff on its
   existing path until its file-safe scope is explicitly expanded.

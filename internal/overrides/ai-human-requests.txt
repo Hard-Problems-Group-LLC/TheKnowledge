@@ -18,6 +18,27 @@ Completed Requests
 ------------------
 
 *
+*
+
+  2026-03-25T21:32:26-07:00
+  Requestor: operator
+  Action: Replace the Codex-specific entropy exclusions with default
+  Git-ignore-aware scanning and add an explicit `--even-gitignored`
+  override.
+  Status: completed by Codex on 2026-03-25T21:32:26-07:00 with the full
+  required validation suite passing and `97` passing tests.
+
+*
+
+  2026-03-25T21:01:11-07:00
+  Requestor: operator
+  Action: Resume from the handoff, stabilize the repo-local Codex CLI
+  isolation work, and ensure Black only runs one file at a time through the
+  timeout harness in the matched Codex sandbox.
+  Status: completed by Codex on 2026-03-25T21:01:11-07:00 with the full
+  required validation suite passing and `93` passing tests.
+
+*
 
   2026-03-25T17:41:41-07:00
   Requestor: operator
@@ -25,7 +46,6 @@ Completed Requests
   licenses of current concern, emphasizing incompatible licenses and
   disallowed use cases, and add an SBoM auditing knack.
   Status: completed by Codex on 2026-03-25T17:41:41-07:00.
-
 *
 
   2026-03-25T16:52:22-07:00

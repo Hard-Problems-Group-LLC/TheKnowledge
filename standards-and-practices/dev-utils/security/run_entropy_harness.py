@@ -69,6 +69,11 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         action="store_true",
         help="Forward --json-output to entropy-check.py.",
     )
+    parser.add_argument(
+        "--even-gitignored",
+        action="store_true",
+        help="Forward --even-gitignored to entropy-check.py.",
+    )
     return parser.parse_args(argv)
 
 
@@ -97,6 +102,8 @@ def build_command(repo_root: Path, args: argparse.Namespace) -> list[str]:
         command.extend(["--min-line-length", str(args.min_line_length)])
     if args.json_output:
         command.append("--json-output")
+    if args.even_gitignored:
+        command.append("--even-gitignored")
 
     for pattern in DEFAULT_EXCLUDES + list(args.exclude):
         command.extend(["--exclude", pattern])

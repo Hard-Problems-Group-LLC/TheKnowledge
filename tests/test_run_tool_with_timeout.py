@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
+import sys
 from pathlib import Path
 from types import ModuleType
 
@@ -101,3 +104,201 @@ def test_resolve_tool_run_keeps_default_scope_without_explicit_paths() -> None:
     assert timeout == 120
     assert retries == 0
     assert cleanup_patterns == []
+
+
+def _write_execution_constraints(repo_root: Path) -> None:
+    (repo_root / "tool_execution_constraints.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "products": {
+                    "codex": {
+                        "sandbox_technologies": {
+                            "bubblewrap": {
+                                "environments": {
+                                    "managed_linux_sandbox": {
+                                        "match": {
+                                            "env_all_of": {
+                                                "CODEX_CI": "1",
+                                                "CODEX_MANAGED_BY_NPM": "1",
+                                                "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+                                            }
+                                        },
+                                        "tools": {
+                                            "black": {
+                                                "parallel_safety": {
+                                                    "status": "unsafe",
+                                                    "applies_when": {
+                                                        "invocation_kind": "any",
+                                                        "path_count_gte": 2,
+                                                    },
+                                                    "preferred_workaround": {
+                                                        "mode": (
+                                                            "serial_explicit_paths"
+                                                        )
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_main_serializes_black_through_timeout_wrapper_in_matching_sandbox(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    module = _load_script_module()
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "tests").mkdir(parents=True)
+    (repo / ".venv").mkdir(parents=True)
+    (repo / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (repo / "tests" / "test_app.py").write_text(
+        "def test_ok():\n    assert 1\n",
+        encoding="utf-8",
+    )
+    (repo / ".venv" / "ignored.py").write_text("print('skip')\n", encoding="utf-8")
+    _write_execution_constraints(repo)
+
+    monkeypatch.chdir(repo)
+    monkeypatch.setenv("CODEX_CI", "1")
+    monkeypatch.setenv("CODEX_MANAGED_BY_NPM", "1")
+    monkeypatch.setenv("CODEX_SANDBOX_NETWORK_DISABLED", "1")
+
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    result = module.main(["black"])
+
+    assert result == 0
+    assert commands == [
+        [
+            sys.executable,
+            str(SCRIPT),
+            "black",
+            "--",
+            "src/app.py",
+        ],
+        [
+            sys.executable,
+            str(SCRIPT),
+            "black",
+            "--",
+            "tests/test_app.py",
+        ],
+    ]
+
+
+def test_main_preserves_explicit_black_flags_when_serializing(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    module = _load_script_module()
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "tests").mkdir(parents=True)
+    (repo / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (repo / "tests" / "test_app.py").write_text(
+        "def test_ok():\n    assert 1\n",
+        encoding="utf-8",
+    )
+    _write_execution_constraints(repo)
+
+    monkeypatch.chdir(repo)
+    monkeypatch.setenv("CODEX_CI", "1")
+    monkeypatch.setenv("CODEX_MANAGED_BY_NPM", "1")
+    monkeypatch.setenv("CODEX_SANDBOX_NETWORK_DISABLED", "1")
+
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    result = module.main(
+        [
+            "black",
+            "--",
+            "--check",
+            "src/app.py",
+            "tests/test_app.py",
+        ]
+    )
+
+    assert result == 0
+    assert commands == [
+        [
+            sys.executable,
+            str(SCRIPT),
+            "black",
+            "--",
+            "--check",
+            "src/app.py",
+        ],
+        [
+            sys.executable,
+            str(SCRIPT),
+            "black",
+            "--",
+            "--check",
+            "tests/test_app.py",
+        ],
+    ]
+
+
+def test_main_runs_black_directly_without_matching_constraint(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    module = _load_script_module()
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "tests").mkdir(parents=True)
+    (repo / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (repo / "tests" / "test_app.py").write_text(
+        "def test_ok():\n    assert 1\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.chdir(repo)
+
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(module.subprocess, "run", fake_run)
+
+    result = module.main(["black"])
+
+    assert result == 0
+    assert commands == [
+        [
+            "python",
+            "-m",
+            "black",
+            ".",
+            "--no-cache",
+            "--exclude",
+            "/(\\.venv|project\\.egg-info)/",
+        ]
+    ]

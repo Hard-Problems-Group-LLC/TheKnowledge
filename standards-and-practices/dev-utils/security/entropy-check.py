@@ -9,6 +9,7 @@ import json
 import math
 import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -118,8 +119,14 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         default=[],
         help=(
             "Exclude path pattern (fnmatch). May be passed multiple times. "
-            "Defaults include .git, .venv, caches, and egg-info."
+            "Defaults include .git, .venv, caches, egg-info, and Git-ignored "
+            "paths unless --even-gitignored is passed."
         ),
+    )
+    parser.add_argument(
+        "--even-gitignored",
+        action="store_true",
+        help="Scan Git-ignored paths too instead of skipping them by default.",
     )
     parser.add_argument(
         "--top-percent",
@@ -187,14 +194,66 @@ def is_binary_blob(data: bytes) -> bool:
     return non_text / max(len(sample), 1) > 0.30
 
 
-def iter_files(paths: Iterable[str], excludes: Sequence[str]) -> Iterable[Path]:
+def resolve_git_root(path: Path) -> Path | None:
+    probe = path if path.is_dir() else path.parent
+    result = subprocess.run(
+        ["git", "-C", str(probe), "rev-parse", "--show-toplevel"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    root_text = result.stdout.strip()
+    if result.returncode != 0 or not root_text:
+        return None
+    return Path(root_text).resolve()
+
+
+def git_ignored_paths(git_root: Path, candidates: Sequence[Path]) -> set[Path]:
+    rel_paths = []
+    for candidate in candidates:
+        try:
+            rel_paths.append(candidate.relative_to(git_root).as_posix())
+        except ValueError:
+            continue
+    if not rel_paths:
+        return set()
+
+    input_bytes = b"".join(relative.encode("utf-8") + b"\0" for relative in rel_paths)
+    result = subprocess.run(
+        ["git", "check-ignore", "--stdin", "-z"],
+        cwd=git_root,
+        check=False,
+        capture_output=True,
+        input=input_bytes,
+    )
+    if result.returncode not in {0, 1}:
+        return set()
+
+    ignored: set[Path] = set()
+    for relative in result.stdout.decode("utf-8").split("\0"):
+        if relative:
+            ignored.add(git_root / relative)
+    return ignored
+
+
+def iter_files(
+    paths: Iterable[str],
+    excludes: Sequence[str],
+    *,
+    even_gitignored: bool,
+) -> Iterable[Path]:
     exclude_patterns = list(DEFAULT_EXCLUDES) + list(excludes)
     roots = [Path(path).resolve() for path in paths]
+    candidates: List[Path] = []
+    git_groups: dict[Path, List[Path]] = {}
 
     for root in roots:
+        git_root = None if even_gitignored else resolve_git_root(root)
         if root.is_file():
             if not path_is_excluded(root, exclude_patterns):
-                yield root
+                candidates.append(root)
+                if git_root is not None:
+                    git_groups.setdefault(git_root, []).append(root)
             continue
         if not root.exists():
             continue
@@ -209,7 +268,18 @@ def iter_files(paths: Iterable[str], excludes: Sequence[str]) -> Iterable[Path]:
             for filename in filenames:
                 candidate = current_path / filename
                 if not path_is_excluded(candidate, exclude_patterns):
-                    yield candidate
+                    candidates.append(candidate)
+                    if git_root is not None:
+                        git_groups.setdefault(git_root, []).append(candidate)
+
+    unique_candidates = sorted(set(candidates))
+    if even_gitignored:
+        return unique_candidates
+
+    ignored: set[Path] = set()
+    for git_root, group in git_groups.items():
+        ignored.update(git_ignored_paths(git_root, group))
+    return [candidate for candidate in unique_candidates if candidate not in ignored]
 
 
 def path_is_excluded(path: Path, patterns: Sequence[str]) -> bool:
@@ -454,7 +524,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     scanned_files = 0
     flagged_results: List[FileScanResult] = []
 
-    for path in iter_files(args.paths, args.exclude):
+    for path in iter_files(
+        args.paths,
+        args.exclude,
+        even_gitignored=args.even_gitignored,
+    ):
         scanned_files += 1
         result = scan_file(
             path=path,

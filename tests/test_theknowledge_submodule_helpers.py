@@ -48,11 +48,14 @@ def _copy_workspace(source: Path, destination: Path) -> None:
         source,
         destination,
         ignore=shutil.ignore_patterns(
+            ".codex-home",
+            ".codex-local",
             ".git",
             "__pycache__",
             ".pytest_cache",
             ".ruff_cache",
             ".venv",
+            "README-LOCAL-Start-Codex.md",
         ),
     )
 

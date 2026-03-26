@@ -51,6 +51,11 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         action="store_true",
         help="Print command output for all checks.",
     )
+    parser.add_argument(
+        "--even-gitignored",
+        action="store_true",
+        help="Include Git-ignored files in both scans and coverage checks.",
+    )
     return parser.parse_args(argv)
 
 
@@ -90,9 +95,18 @@ def iter_files(paths: Iterable[Path], excludes: Sequence[str]) -> Iterable[Path]
                     yield candidate
 
 
-def expected_scan_count(repo_root: Path, extra_excludes: Sequence[str]) -> int:
+def expected_scan_count(
+    repo_root: Path,
+    extra_excludes: Sequence[str],
+    *,
+    even_gitignored: bool = False,
+) -> int:
     excludes = list(DEFAULT_EXCLUDES) + list(extra_excludes)
-    return sum(1 for _ in iter_files([repo_root], excludes))
+    files = sorted(set(iter_files([repo_root], excludes)))
+    if even_gitignored:
+        return len(files)
+    ignored = git_ignored_paths(repo_root, files)
+    return sum(1 for candidate in files if candidate not in ignored)
 
 
 def run_command(command: Sequence[str], cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -103,6 +117,34 @@ def run_command(command: Sequence[str], cwd: Path) -> subprocess.CompletedProces
         capture_output=True,
         text=True,
     )
+
+
+def git_ignored_paths(repo_root: Path, candidates: Sequence[Path]) -> set[Path]:
+    rel_paths = []
+    for candidate in candidates:
+        try:
+            rel_paths.append(candidate.relative_to(repo_root).as_posix())
+        except ValueError:
+            continue
+    if not rel_paths:
+        return set()
+
+    input_bytes = b"".join(relative.encode("utf-8") + b"\0" for relative in rel_paths)
+    result = subprocess.run(
+        ["git", "check-ignore", "--stdin", "-z"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        input=input_bytes,
+    )
+    if result.returncode not in {0, 1}:
+        return set()
+
+    ignored: set[Path] = set()
+    for relative in result.stdout.decode("utf-8").split("\0"):
+        if relative:
+            ignored.add(repo_root / relative)
+    return ignored
 
 
 def parse_report(output: str, label: str) -> Dict[str, object]:
@@ -160,7 +202,13 @@ def emit_step(label: str, passed: bool, detail: str) -> None:
     print(f"[entropy-tripwire] {status}: {label} - {detail}")
 
 
-def verify(repo_root: Path, tripwire_path: str, verbose: bool = False) -> None:
+def verify(
+    repo_root: Path,
+    tripwire_path: str,
+    *,
+    verbose: bool = False,
+    even_gitignored: bool = False,
+) -> None:
     tool_root = Path(__file__).resolve().parents[3]
     scanner = (
         tool_root
@@ -178,16 +226,25 @@ def verify(repo_root: Path, tripwire_path: str, verbose: bool = False) -> None:
     )
     sentinel = tripwire_path.replace("\\", "/")
 
-    direct = run_command(
-        [sys.executable, str(scanner), "--json-output", str(repo_root)],
-        cwd=tool_root,
-    )
+    direct_command = [
+        sys.executable,
+        str(scanner),
+        "--json-output",
+    ]
+    if even_gitignored:
+        direct_command.append("--even-gitignored")
+    direct_command.append(str(repo_root))
+    direct = run_command(direct_command, cwd=tool_root)
     direct_output = (direct.stdout or "") + (direct.stderr or "")
     direct_report = parse_report(direct.stdout or "", "raw scan")
     direct_scanned, _direct_flagged, _direct_lines = parse_summary_counts(
         direct_report, "raw scan"
     )
-    expected_direct = expected_scan_count(repo_root, extra_excludes=[])
+    expected_direct = expected_scan_count(
+        repo_root,
+        extra_excludes=[],
+        even_gitignored=even_gitignored,
+    )
 
     if verbose:
         print(direct_output.rstrip())
@@ -214,7 +271,13 @@ def verify(repo_root: Path, tripwire_path: str, verbose: bool = False) -> None:
     emit_step("scan coverage", True, f"raw scan covered {direct_scanned} files")
 
     harness_result = run_command(
-        [sys.executable, str(harness), "--json-output", str(repo_root)],
+        [
+            sys.executable,
+            str(harness),
+            "--json-output",
+            *(["--even-gitignored"] if even_gitignored else []),
+            str(repo_root),
+        ],
         cwd=tool_root,
     )
     harness_output = (harness_result.stdout or "") + (harness_result.stderr or "")
@@ -222,7 +285,11 @@ def verify(repo_root: Path, tripwire_path: str, verbose: bool = False) -> None:
     harness_scanned, harness_flagged, harness_lines = parse_summary_counts(
         harness_report, "harness scan"
     )
-    expected_harness = expected_scan_count(repo_root, extra_excludes=[sentinel])
+    expected_harness = expected_scan_count(
+        repo_root,
+        extra_excludes=[sentinel],
+        even_gitignored=even_gitignored,
+    )
 
     if verbose:
         print(harness_output.rstrip())
@@ -250,7 +317,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         verify(
-            repo_root=repo_root, tripwire_path=args.tripwire_path, verbose=args.verbose
+            repo_root=repo_root,
+            tripwire_path=args.tripwire_path,
+            verbose=args.verbose,
+            even_gitignored=args.even_gitignored,
         )
     except TripwireError as error:
         print(f"[entropy-tripwire] FAIL: {error}", file=sys.stderr)

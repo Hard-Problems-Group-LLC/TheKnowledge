@@ -6,6 +6,29 @@ the template wording or examples are being revised.
 
 *
 
+*
+
+  2026-03-25T21:32:26-07:00 - Replaced the temporary Codex-specific entropy
+  exclusions with generic Git-ignore-aware entropy handling, added
+  `--even-gitignored` across the scanner, harness, and tripwire verifier,
+  aligned the cached quality-gate entropy scope with the same rule, updated
+  the repo-local Codex isolation and entropy-tripwire specifications, and
+  revalidated the full required check suite with `97` passing tests.
+
+*
+
+  2026-03-25T21:01:11-07:00 - Broadened the Codex sandbox Black fallback so
+  `scripts/run_tool_with_timeout.py` and
+  `scripts/run_quality_gate_cached.py` both route matched sandbox runs
+  through registry-driven one-file-at-a-time timeout-harness execution,
+  added shared execution-constraint lookup helpers, documented the stronger
+  Black-only rule, excluded local Codex operator state from entropy and
+  workspace-copy helpers, finished the repo-local Codex CLI isolation
+  wrapper/spec/test work, and revalidated the full required check suite with
+  `93` passing tests.
+
+*
+
   2026-03-25T17:41:41-07:00 - Added new stock `knacks/licenses/` and
   `knacks/auditing/` areas, drafted a practical software-license library
   covering the top licenses of current concern with emphasis on
@@ -13,7 +36,6 @@ the template wording or examples are being revised.
   auditing knack, refreshed the knack index, extended scaffold coverage, and
   revalidated the full required check suite plus `knack_check` with `83`
   passing tests.
-
 *
 
   2026-03-25T16:52:22-07:00 - Added first-class submodule-aware helper

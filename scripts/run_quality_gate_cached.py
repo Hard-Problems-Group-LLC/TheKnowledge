@@ -14,9 +14,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
+try:
+    from tool_execution_constraints import (
+        load_execution_constraints,
+        serial_execution_constraint_label,
+    )
+except ImportError:  # pragma: no cover - import path varies by entry point.
+    from scripts.tool_execution_constraints import (
+        load_execution_constraints,
+        serial_execution_constraint_label,
+    )
+
 
 SCHEMA_VERSION = "1.0.0"
-CONSTRAINTS_SCHEMA_VERSION = "1.0.0"
 DEFAULT_EXECUTION_CONSTRAINTS_FILE = "tool_execution_constraints.json"
 
 DEFAULT_EXCLUDES = {
@@ -72,12 +82,14 @@ CHECK_SCOPE: Dict[str, Dict[str, object]] = {
         "extensions": None,
         "extra_files": [],
         "exclude_patterns": ["knacks"],
+        "skip_gitignored": True,
     },
     "entropy_tripwire_verify": {
         "roots": ["."],
         "extensions": None,
         "extra_files": [],
         "exclude_patterns": ["knacks"],
+        "skip_gitignored": True,
     },
     "knack_check": {
         "roots": ["knacks"],
@@ -153,6 +165,8 @@ def iter_scope_files(
     extensions: Sequence[str] | None,
     extra_files: Sequence[str],
     exclude_patterns: Sequence[str] | None,
+    *,
+    skip_gitignored: bool = False,
 ) -> List[Path]:
     files: List[Path] = []
     excludes = list(DEFAULT_EXCLUDES) + list(exclude_patterns or [])
@@ -195,7 +209,40 @@ def iter_scope_files(
         if extra_path.exists() and extra_path.is_file():
             files.append(extra_path)
 
-    return sorted(set(files))
+    unique_files = sorted(set(files))
+    if not skip_gitignored:
+        return unique_files
+
+    ignored = git_ignored_paths(repo_root, unique_files)
+    return [candidate for candidate in unique_files if candidate not in ignored]
+
+
+def git_ignored_paths(repo_root: Path, candidates: Sequence[Path]) -> set[Path]:
+    rel_paths = []
+    for candidate in candidates:
+        try:
+            rel_paths.append(candidate.relative_to(repo_root).as_posix())
+        except ValueError:
+            continue
+    if not rel_paths:
+        return set()
+
+    input_bytes = b"".join(relative.encode("utf-8") + b"\0" for relative in rel_paths)
+    result = subprocess.run(
+        ["git", "check-ignore", "--stdin", "-z"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        input=input_bytes,
+    )
+    if result.returncode not in {0, 1}:
+        return set()
+
+    ignored: set[Path] = set()
+    for relative in result.stdout.decode("utf-8").split("\0"):
+        if relative:
+            ignored.add(repo_root / relative)
+    return ignored
 
 
 def fingerprint_files(
@@ -208,7 +255,10 @@ def fingerprint_files(
     count = 0
     for file_path in files:
         rel = file_path.relative_to(repo_root).as_posix()
-        content = file_path.read_bytes()
+        try:
+            content = file_path.read_bytes()
+        except FileNotFoundError:
+            continue
         digest.update(rel.encode("utf-8"))
         digest.update(b"\0")
         digest.update(content)
@@ -231,29 +281,6 @@ def load_cache(path: Path) -> Dict[str, object]:
     checks = data.get("checks")
     if not isinstance(checks, dict):
         data["checks"] = {}
-    return data
-
-
-def load_execution_constraints(path: Path) -> Dict[str, object]:
-    if not path.exists():
-        return {}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as error:
-        raise ValueError(
-            f"invalid JSON in execution constraints file {path}: {error}"
-        ) from error
-    if not isinstance(data, dict):
-        raise ValueError("execution constraints file must contain a JSON object")
-    schema_version = data.get("schema_version")
-    if schema_version != CONSTRAINTS_SCHEMA_VERSION:
-        raise ValueError(
-            "execution constraints file must use schema_version "
-            f"{CONSTRAINTS_SCHEMA_VERSION!r}"
-        )
-    products = data.get("products")
-    if not isinstance(products, dict):
-        raise ValueError("execution constraints file must include 'products'")
     return data
 
 
@@ -316,86 +343,6 @@ def run_check(
         capture_output=True,
         text=True,
     )
-
-
-def environment_match_is_active(match: Dict[str, object]) -> bool:
-    env_all_of = match.get("env_all_of", {})
-    if env_all_of is None:
-        env_all_of = {}
-    if not isinstance(env_all_of, dict) or not all(
-        isinstance(key, str) and isinstance(value, str)
-        for key, value in env_all_of.items()
-    ):
-        raise ValueError("match.env_all_of must be a JSON object of strings")
-    return all(os.environ.get(key) == value for key, value in env_all_of.items())
-
-
-def serial_execution_constraint_label(
-    constraints: Dict[str, object],
-    check_name: str,
-    path_count: int,
-) -> str | None:
-    products = constraints.get("products", {})
-    if not isinstance(products, dict):
-        raise ValueError("execution constraints file must include 'products'")
-
-    for product_name, product_entry in products.items():
-        if not isinstance(product_entry, dict):
-            continue
-        sandboxes = product_entry.get("sandbox_technologies", {})
-        if not isinstance(sandboxes, dict):
-            continue
-        for sandbox_name, sandbox_entry in sandboxes.items():
-            if not isinstance(sandbox_entry, dict):
-                continue
-            environments = sandbox_entry.get("environments", {})
-            if not isinstance(environments, dict):
-                continue
-            for environment_name, environment_entry in environments.items():
-                if not isinstance(environment_entry, dict):
-                    continue
-                match = environment_entry.get("match", {})
-                if not isinstance(match, dict):
-                    continue
-                if not environment_match_is_active(match):
-                    continue
-                tools = environment_entry.get("tools", {})
-                if not isinstance(tools, dict):
-                    continue
-                tool_entry = tools.get(check_name)
-                if not isinstance(tool_entry, dict):
-                    continue
-                parallel_safety = tool_entry.get("parallel_safety", {})
-                if not isinstance(parallel_safety, dict):
-                    continue
-                if parallel_safety.get("status") != "unsafe":
-                    continue
-                applies_when = parallel_safety.get("applies_when", {})
-                if applies_when is None:
-                    applies_when = {}
-                if not isinstance(applies_when, dict):
-                    continue
-                invocation_kind = applies_when.get("invocation_kind")
-                if invocation_kind not in {None, "explicit_paths"}:
-                    continue
-                path_count_gte = applies_when.get("path_count_gte", 1)
-                if not isinstance(path_count_gte, int) or path_count_gte < 1:
-                    raise ValueError(
-                        "parallel_safety.applies_when.path_count_gte must be "
-                        "a positive integer"
-                    )
-                if path_count < path_count_gte:
-                    continue
-                preferred_workaround = parallel_safety.get(
-                    "preferred_workaround",
-                    {},
-                )
-                if not isinstance(preferred_workaround, dict):
-                    continue
-                if preferred_workaround.get("mode") != "serial_explicit_paths":
-                    continue
-                return f"{product_name}/{sandbox_name}/{environment_name}"
-    return None
 
 
 def execution_paths_for_check(
@@ -499,6 +446,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             extensions=scope["extensions"],  # type: ignore[index]
             extra_files=scope["extra_files"],  # type: ignore[index]
             exclude_patterns=scope["exclude_patterns"],  # type: ignore[index]
+            skip_gitignored=bool(scope.get("skip_gitignored", False)),
         )
         fingerprint, file_count = fingerprint_files(repo_root, files, check_name)
 
@@ -530,6 +478,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 execution_constraints,
                 check_name,
                 len(execution_paths),
+                "explicit_paths",
             )
         if constraint_label is not None:
             result = run_serial_file_safe_check(

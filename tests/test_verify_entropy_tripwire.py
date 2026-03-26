@@ -29,14 +29,30 @@ def _token() -> str:
     )
 
 
-def _run_tripwire(repo_root: Path) -> subprocess.CompletedProcess[str]:
+def _run_tripwire(
+    repo_root: Path, *extra_args: str
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPT), "--repo-root", str(repo_root)],
+        [sys.executable, str(SCRIPT), "--repo-root", str(repo_root), *extra_args],
         check=False,
         capture_output=True,
         text=True,
         cwd=ROOT,
     )
+
+
+def _init_repo(repo_root: Path, *ignored_patterns: str) -> None:
+    subprocess.run(
+        ["git", "init", "--quiet", str(repo_root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    if ignored_patterns:
+        (repo_root / ".gitignore").write_text(
+            "".join(f"{pattern}\n" for pattern in ignored_patterns),
+            encoding="utf-8",
+        )
 
 
 def _sentinel_fixture() -> str:
@@ -84,6 +100,60 @@ def test_tripwire_verifier_fails_when_non_sentinel_finding_exists(
     )
 
     result = _run_tripwire(tmp_path)
+
+    assert result.returncode == 1
+    assert "Entropy harness reported non-sentinel findings." in result.stderr
+
+
+def test_tripwire_verifier_ignores_gitignored_findings_by_default(
+    tmp_path: Path,
+) -> None:
+    _init_repo(tmp_path, "local-state/")
+    tripwire = tmp_path / "tests" / "test_entropy_check.py"
+    tripwire.parent.mkdir(parents=True)
+    tripwire.write_text(_sentinel_fixture(), encoding="utf-8")
+
+    ignored_file = tmp_path / "local-state" / "secret.txt"
+    ignored_file.parent.mkdir(parents=True)
+    ignored_file.write_text(
+        "\n".join(
+            [
+                "ordinary prose for baseline stabilization",
+                "another ordinary prose line for baseline",
+                _token(),
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run_tripwire(tmp_path)
+
+    assert result.returncode == 0
+    assert "PASS: tripwire verification complete." in result.stdout
+
+
+def test_tripwire_verifier_supports_even_gitignored(tmp_path: Path) -> None:
+    _init_repo(tmp_path, "local-state/")
+    tripwire = tmp_path / "tests" / "test_entropy_check.py"
+    tripwire.parent.mkdir(parents=True)
+    tripwire.write_text(_sentinel_fixture(), encoding="utf-8")
+
+    ignored_file = tmp_path / "local-state" / "secret.txt"
+    ignored_file.parent.mkdir(parents=True)
+    ignored_file.write_text(
+        "\n".join(
+            [
+                "ordinary prose for baseline stabilization",
+                "another ordinary prose line for baseline",
+                _token(),
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run_tripwire(tmp_path, "--even-gitignored")
 
     assert result.returncode == 1
     assert "Entropy harness reported non-sentinel findings." in result.stderr
