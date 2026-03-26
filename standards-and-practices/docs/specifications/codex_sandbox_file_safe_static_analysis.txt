@@ -28,12 +28,30 @@ Requirements
 - Guidance must keep whole-repository validation as the final standard. The
   full required check suite still needs to run outside the affected sandbox or
   in CI before work is cleared.
+- TheKnowledge's default `tool_execution_constraints.json` must record the
+  current known-unsafe Codex sandbox case for Black's explicit multi-file
+  path. The current default entry may use Codex environment-variable matching
+  as a heuristic, but that heuristic must live in the registry rather than as
+  a hardcoded script rule.
+- `scripts/run_quality_gate_cached.py` must consult
+  `tool_execution_constraints.json` instead of hardcoding a Codex sandbox
+  environment variable for this workaround.
+- When the current environment matches a registry entry that marks Black's
+  explicit multi-file path unsafe to parallelize, `scripts/run_quality_gate_`
+  `cached.py` must run Black one file at a time for its explicit Python-file
+  scope instead of delegating one multi-file Black invocation through the
+  normal whole-repo command path.
+- The serial helper behavior must stay narrow: preserve the normal whole-repo
+  quality-gate commands outside the affected sandbox and leave Ruff on its
+  existing path until its file-safe scope is explicitly expanded.
+- The serial helper behavior must preserve failure signaling by returning
+  nonzero when any per-file Black invocation fails and by identifying the
+  failing file clearly in the output.
 - `AGENTS.md`, `templates/AGENTS-footer.md`, and
   `standards-and-practices/docs/development-workflow.txt` must document this
-  temporary workaround.
-- Documentation tests must verify that the one-file-at-a-time fallback and
-  the whole-repository validation caveat remain wired into TheKnowledge and
-  the managed downstream guidance.
+  temporary workaround and its registry-driven trigger.
+- Documentation and helper tests must verify both the wording and the narrow
+  Black-only serial-dispatch behavior.
 
 Non-Goals
 ---------

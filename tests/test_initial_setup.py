@@ -62,6 +62,7 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     )
     requirements_dev = project_root / "requirements-dev.txt"
     dev_setup = project_root / "scripts" / "dev_setup.py"
+    execution_constraints = project_root / "tool_execution_constraints.json"
     bugs_readme = project_root / "project-management" / "bugs" / "README.txt"
     open_bugs = project_root / "project-management" / "bugs" / "open" / "README.txt"
     in_progress_bugs = (
@@ -83,6 +84,7 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert pending_queue.is_file()
     assert requirements_dev.is_file()
     assert dev_setup.is_file()
+    assert execution_constraints.is_file()
     assert bugs_readme.is_file()
     assert open_bugs.is_file()
     assert in_progress_bugs.is_file()
@@ -102,10 +104,16 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "top-level `knacks/` directory" in agents.read_text(encoding="utf-8")
     assert "python scripts/dev_setup.py" in agents.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in agents.read_text(encoding="utf-8")
+    assert "tool_execution_constraints.json" in agents.read_text(encoding="utf-8")
+    assert "must load `TheKnowledge/AGENTS.md` before running automated" in (
+        agents.read_text(encoding="utf-8")
+    )
     assert "scripts/validate_knacks.py --project-root ." in agents.read_text(
         encoding="utf-8"
     )
     assert "report_managed_agents_drift.py" in agents.read_text(encoding="utf-8")
+    assert "update_theknowledge_submodule.py" in agents.read_text(encoding="utf-8")
+    assert "send_theknowledge_feedback.py prepare" in agents.read_text(encoding="utf-8")
     assert "incoming upstream `trunk` delta" in agents.read_text(encoding="utf-8")
     assert "one file at a time" in agents.read_text(encoding="utf-8")
     assert "`black -W 1`" in agents.read_text(encoding="utf-8")
@@ -127,10 +135,15 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         git_flow.read_text(encoding="utf-8")
     )
     assert "python scripts/dev_setup.py" in git_flow.read_text(encoding="utf-8")
+    assert "update_theknowledge_submodule.py" in git_flow.read_text(encoding="utf-8")
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
     assert "black==26.3.1" in requirements_dev.read_text(encoding="utf-8")
     assert "pytest-timeout==2.4.0" in requirements_dev.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in dev_setup.read_text(encoding="utf-8")
+    assert '"schema_version": "1.0.0"' in execution_constraints.read_text(
+        encoding="utf-8"
+    )
+    assert '"black"' in execution_constraints.read_text(encoding="utf-8")
     assert "open/" in bugs_readme.read_text(encoding="utf-8")
     resolved_text = resolved_bugs.read_text(encoding="utf-8")
     assert "Root cause:" in resolved_text

@@ -13,6 +13,12 @@ PLACEHOLDERS = ("{{THEKNOWLEDGE_ROOT}}", "{$KNOWLEDGE_ROOT}")
 AGENTS_PATH = Path("AGENTS.md")
 AGENTS_HEADER = "AGENTS-header.md"
 AGENTS_FOOTER = "AGENTS-footer.md"
+MANAGED_ROOT_FILES = (Path("tool_execution_constraints.json"),)
+MANAGED_REFRESH_TEMPLATES = (
+    "requirements-dev.txt",
+    "scripts",
+    "tool_execution_constraints.json",
+)
 MANAGED_MARKERS = (
     "<!-- THEKNOWLEDGE_MANAGED_HEADER_START -->",
     "<!-- THEKNOWLEDGE_MANAGED_HEADER_END -->",
@@ -83,22 +89,31 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def installable_templates(templates_root: Path) -> dict[str, Path]:
-    return {
-        path.name: path
+def installable_entries(
+    knowledge_repo_root: Path,
+    templates_root: Path,
+) -> dict[str, tuple[Path, Path]]:
+    entries = {
+        path.name: (path, path.relative_to(templates_root))
         for path in sorted(templates_root.iterdir())
         if path.name not in {"README.md", AGENTS_HEADER, AGENTS_FOOTER}
     }
+    for relative_path in MANAGED_ROOT_FILES:
+        entries[relative_path.as_posix()] = (
+            knowledge_repo_root / relative_path,
+            relative_path,
+        )
+    return entries
 
 
 def selected_templates(
-    templates_root: Path, requested: Iterable[str] | None
-) -> list[Path]:
-    available = installable_templates(templates_root)
+    knowledge_repo_root: Path, templates_root: Path, requested: Iterable[str] | None
+) -> list[tuple[Path, Path]]:
+    available = installable_entries(knowledge_repo_root, templates_root)
     if requested is None:
         return list(available.values())
 
-    selected: list[Path] = []
+    selected: list[tuple[Path, Path]] = []
     for name in requested:
         path = available.get(name)
         if path is None:
@@ -108,18 +123,18 @@ def selected_templates(
     return selected
 
 
-def iter_template_files(
-    templates_root: Path, sources: Iterable[Path]
-) -> list[tuple[Path, Path]]:
+def iter_install_files(sources: Iterable[tuple[Path, Path]]) -> list[tuple[Path, Path]]:
     planned: list[tuple[Path, Path]] = []
-    for source in sources:
+    for source, destination_root in sources:
         if source.is_file():
-            planned.append((source, source.relative_to(templates_root)))
+            planned.append((source, destination_root))
             continue
 
         for file_path in sorted(source.rglob("*")):
             if file_path.is_file():
-                planned.append((file_path, file_path.relative_to(templates_root)))
+                planned.append(
+                    (file_path, destination_root / file_path.relative_to(source))
+                )
     return planned
 
 
@@ -181,6 +196,7 @@ def install_agents_file(
 
 
 def install_templates(
+    knowledge_repo_root: Path,
     templates_root: Path,
     project_root: Path,
     knowledge_root: str,
@@ -188,8 +204,8 @@ def install_templates(
     force: bool,
     dry_run: bool,
 ) -> list[Path]:
-    sources = selected_templates(templates_root, requested)
-    files = iter_template_files(templates_root, sources)
+    sources = selected_templates(knowledge_repo_root, templates_root, requested)
+    files = iter_install_files(sources)
     destinations = [project_root / relative_path for _, relative_path in files]
 
     conflicts = [
@@ -235,6 +251,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             knowledge_repo_root=knowledge_repo_root,
         )
         destinations = install_templates(
+            knowledge_repo_root=knowledge_repo_root,
             templates_root=templates_root,
             project_root=project_root,
             knowledge_root=knowledge_root,

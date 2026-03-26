@@ -23,8 +23,10 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   and merge operations.
 - Use `python scripts/dev_setup.py` when the project is relying on the managed
   starter Python toolchain. The default starter installs `requirements-dev.txt`
-  and `scripts/dev_setup.py` with pinned Black, Ruff, and pytest versions, but
-  project-local instructions may replace that bootstrap flow.
+  and `scripts/dev_setup.py` with pinned Black, Ruff, and pytest versions,
+  plus `tool_execution_constraints.json` for known environment-specific tool
+  execution constraints, but project-local instructions may replace that
+  bootstrap flow.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
@@ -58,10 +60,12 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   proposals, complaints, or general notes about TheKnowledge itself,
   record them on the TheKnowledge `Feedback` branch.
 - When filing that feedback from a consuming project, use the active
-  `{$KNOWLEDGE_ROOT}/` submodule checkout in that project, capture its
-  current branch or detached state, switch that same checkout to
-  `Feedback`, record, commit, and push there, and then switch the
-  submodule back before resuming project work.
+  `{$KNOWLEDGE_ROOT}/` submodule checkout in that project. Prefer
+  `python {$KNOWLEDGE_ROOT}/scripts/send_theknowledge_feedback.py prepare`
+  and `finish` so the helper captures and restores the submodule state for
+  you. Use `--push` only when the configured remote push URL is writable for
+  the current operator, and use `abort` when you want to restore the prior
+  state without publishing.
 - The `Feedback` branch is only for cross-project feedback flowing back
   into TheKnowledge. Direct maintenance of TheKnowledge itself should keep
   using its normal internal trees on `trunk`.
@@ -74,21 +78,19 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   high-entropy findings are errors, word-count overruns are warnings, the
   validator uses `.git/knack-validation-cache.json`, and path collisions with
   stock knacks should warn while still evaluating both files.
-- After updating the TheKnowledge submodule, run
+- When updating the TheKnowledge submodule itself, prefer
+  `python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`
+  `--project-root . --knowledge-root {$KNOWLEDGE_ROOT}`. That helper fetches
+  and briefly summarizes the incoming upstream `trunk` delta, adopts the
+  reviewed version, runs the drift report, refreshes the managed starter
+  files when needed, and leaves a reviewable parent-repo diff.
+- For a manual managed-file check without adopting a new upstream commit, run
   `python {$KNOWLEDGE_ROOT}/scripts/report_managed_agents_drift.py`
-  `--project-root . --knowledge-root {$KNOWLEDGE_ROOT}` to compare managed
-  `AGENTS.md` header and footer content with the updated templates.
-- If that helper reports drift, rerun
-  `python {$KNOWLEDGE_ROOT}/scripts/initial-setup.py --project-root .`
-  `--knowledge-root {$KNOWLEDGE_ROOT} --force`, review the resulting
-  `git diff`, and then stage only the intended updates.
-- When updating the TheKnowledge submodule itself, first fetch and briefly
-  review the incoming upstream `trunk` delta, then adopt that reviewed
-  version, run the drift report, and commit the resulting submodule-pointer
-  update plus related project changes together when they belong to the same
-  upgrade.
-- If a file-safe formatter or linter hangs inside a Codex sandbox on a
-  multi-file run, retry the explicit file list one file at a time. Do not
-  assume `black -W 1` is enough, and rerun the full required checks outside
-  the affected sandbox or in CI before clearing the work.
+  `--project-root . --knowledge-root {$KNOWLEDGE_ROOT}`.
+- Follow `tool_execution_constraints.json` when it marks a tool-and-
+  environment combination unsafe to parallelize. If a file-safe formatter or
+  linter still hangs inside a Codex sandbox on a multi-file run, retry the
+  explicit file list one file at a time. Do not assume `black -W 1` is
+  enough, and rerun the full required checks outside the affected sandbox or
+  in CI before clearing the work.
 <!-- THEKNOWLEDGE_MANAGED_FOOTER_END -->

@@ -4,7 +4,13 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.initial_setup import render_file
+from scripts.initial_setup import (
+    MANAGED_REFRESH_TEMPLATES,
+    installable_entries,
+    iter_install_files,
+    render_file,
+    repo_root,
+)
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -37,6 +43,20 @@ def _write_agents(project_root: Path, header: str, footer: str) -> None:
     )
 
 
+def _write_managed_starter_files(project_root: Path, knowledge_root: str) -> None:
+    knowledge_repo_root = repo_root()
+    templates_root = knowledge_repo_root / "templates"
+    for source, relative_path in iter_install_files(
+        [
+            installable_entries(knowledge_repo_root, templates_root)[name]
+            for name in MANAGED_REFRESH_TEMPLATES
+        ]
+    ):
+        destination = project_root / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(render_file(source, knowledge_root))
+
+
 def test_report_managed_agents_drift_passes_when_sections_match(
     tmp_path: Path,
 ) -> None:
@@ -46,12 +66,16 @@ def test_report_managed_agents_drift_passes_when_sections_match(
     header = render_file(TEMPLATES / "AGENTS-header.md", knowledge_root).decode("utf-8")
     footer = render_file(TEMPLATES / "AGENTS-footer.md", knowledge_root).decode("utf-8")
     _write_agents(project, header, footer)
+    _write_managed_starter_files(project, knowledge_root)
 
     result = _run(project, "--knowledge-root", knowledge_root)
 
     assert result.returncode == 0
     assert "managed header is up to date" in result.stdout
     assert "managed footer is up to date" in result.stdout
+    assert "managed file tool_execution_constraints.json is up to date" in (
+        result.stdout
+    )
 
 
 def test_report_managed_agents_drift_reports_header_or_footer_changes(
@@ -67,6 +91,7 @@ def test_report_managed_agents_drift_reports_header_or_footer_changes(
         "Review project changes before staging",
     )
     _write_agents(project, header, drifted_footer)
+    _write_managed_starter_files(project, knowledge_root)
 
     result = _run(project, "--knowledge-root", knowledge_root)
 
@@ -75,5 +100,28 @@ def test_report_managed_agents_drift_reports_header_or_footer_changes(
     assert "DIFF footer" in result.stdout
     assert (
         "initial-setup.py --project-root . --knowledge-root "
-        "TheKnowledge --force" in result.stdout
+        "TheKnowledge --force --template requirements-dev.txt "
+        "--template scripts --template tool_execution_constraints.json" in result.stdout
     )
+
+
+def test_report_managed_agents_drift_reports_managed_file_changes(
+    tmp_path: Path,
+) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    knowledge_root = "TheKnowledge"
+    header = render_file(TEMPLATES / "AGENTS-header.md", knowledge_root).decode("utf-8")
+    footer = render_file(TEMPLATES / "AGENTS-footer.md", knowledge_root).decode("utf-8")
+    _write_agents(project, header, footer)
+    _write_managed_starter_files(project, knowledge_root)
+    (project / "tool_execution_constraints.json").write_text(
+        '{"schema_version": "1.0.0", "products": {}}\n',
+        encoding="utf-8",
+    )
+
+    result = _run(project, "--knowledge-root", knowledge_root)
+
+    assert result.returncode == 1
+    assert "managed file tool_execution_constraints.json differs" in result.stdout
+    assert "DIFF file-tool_execution_constraints.json" in result.stdout

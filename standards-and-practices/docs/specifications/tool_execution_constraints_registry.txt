@@ -1,0 +1,65 @@
+Tool Execution Constraints Registry
+===================================
+
+Scope
+-----
+Define TheKnowledge's machine-readable registry for environment-specific tool
+execution constraints and the managed installation path for consuming
+projects.
+
+Problem Statement
+-----------------
+Some tool behaviors are unsafe only in particular execution environments. A
+hardcoded script heuristic does not scale, hides evidence and scope, and does
+not propagate cleanly to consuming projects that rely on TheKnowledge's
+managed helpers.
+
+Requirements
+------------
+- TheKnowledge must define a canonical repo-root
+  `tool_execution_constraints.json`.
+- `scripts/run_quality_gate_cached.py` must load that file from the target
+  repository root by default when it exists.
+- `tool_execution_constraints.json` must be a JSON object with
+  `schema_version` and `products` top-level keys.
+- Under `products`, the registry must organize entries by AI product, then by
+  `sandbox_technologies`, then by `environments`.
+- Each environment entry must include a `match` object and a `tools` object.
+- `match.env_all_of`, when present, must map environment-variable names to
+  required string values. An environment entry matches only when every listed
+  variable is present with the exact configured value.
+- `match.signal_quality`, when present, must describe the quality of the
+  detection signal such as `heuristic` or `confirmed`.
+- Tool entries may describe `parallel_safety` with:
+  - `status`
+  - optional `applies_when`
+  - optional `preferred_workaround`
+  - optional `confidence`
+  - optional `evidence`
+  - optional `notes`
+- `scripts/run_quality_gate_cached.py` must only apply automated one-file-at-
+  a-time fallback when a matching registry entry marks the current
+  tool-and-mode combination as unsafe to parallelize and the preferred
+  workaround is `serial_explicit_paths`.
+- The default registry must stay narrow. It should record only tool behavior
+  that is evidenced and scoped to a concrete environment and invocation mode.
+- `scripts/initial_setup.py` must install `tool_execution_constraints.json`
+  into consuming projects by default during initial setup.
+- The managed consuming-project update path must also refresh
+  `tool_execution_constraints.json` alongside other managed starter files
+  without overwriting the consuming project's live project-management state.
+- `README.md`, `templates/README.md`,
+  `standards-and-practices/docs/installation.txt`, and managed AGENTS
+  guidance must explain that the managed starter includes
+  `tool_execution_constraints.json`.
+- Tests must verify:
+  - the registry file exists at the repository root;
+  - the registry is installed into consuming projects by the setup path; and
+  - the cached quality gate follows the registry rather than a hardcoded
+    environment-variable check.
+
+Non-Goals
+---------
+- Recording every possible tool behavior across every environment.
+- Replacing upstream fixes for the underlying tools or sandboxes.
+- Turning routine style guidance into hard, unsummarizable context.

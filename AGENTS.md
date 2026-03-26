@@ -25,6 +25,13 @@ live state.
 - Keep standards and process docs concise, actionable, and testable.
 - Preserve append-only history in project-management records.
 
+## Critical Context
+- Load this file before running automated tooling that edits, validates,
+  stages, or tests repository files.
+- Keep the live-state override record map and any repository-specific
+  non-destructive safety boundaries in active context rather than
+  summarizing them away.
+
 ## Workflow Profiling
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
@@ -80,10 +87,11 @@ live state.
   complaints, and general notes discovered while working primarily inside
   some other project that uses TheKnowledge.
 - When that feedback is discovered from a consuming project, use the active
-  `TheKnowledge/` submodule in that project, capture its current branch or
-  detached state, switch that same checkout to `Feedback`, record, commit,
-  and push the feedback there, and then switch the submodule back before
-  resuming project work.
+  `TheKnowledge/` submodule in that project. Prefer
+  `python TheKnowledge/scripts/send_theknowledge_feedback.py prepare` and
+  `finish` so the helper captures and restores the submodule state for you.
+  Use `--push` only when the configured remote push URL is writable for the
+  current operator.
 - When maintaining TheKnowledge directly as its own checkout, keep using
   the normal `trunk` workflow plus `internal/overrides/`, proposal
   records, and bug tracking. Do not route routine direct-checkout
@@ -118,6 +126,8 @@ live state.
 - Cover edge cases, failure modes, and regressions.
 - Keep reusable fixtures deterministic.
 - Prefer reusable scripted smoke checks over one-off shell snippets.
+- Follow `tool_execution_constraints.json` when it marks a
+  tool-and-environment combination unsafe to parallelize.
 - If a file-safe formatter or linter hangs in a Codex sandbox on a multi-file
   run, retry the explicit file list one file at a time. Do not assume
   `black -W 1` is sufficient, and rerun the full required checks outside the

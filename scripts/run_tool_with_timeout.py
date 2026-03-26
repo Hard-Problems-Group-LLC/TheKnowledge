@@ -62,6 +62,12 @@ def _resolve_tool_run(
     ):
         raise ValueError(f"tool '{tool}' must define command as a list of strings")
 
+    replace_default_scope_with_args = entry.get(
+        "replace_default_scope_with_args", False
+    )
+    if not isinstance(replace_default_scope_with_args, bool):
+        raise ValueError("replace_default_scope_with_args must be a boolean")
+
     timeout = override_timeout
     if timeout is None:
         configured_timeout = entry.get("timeout_seconds")
@@ -90,7 +96,25 @@ def _resolve_tool_run(
     if args and args[0] == "--":
         args = args[1:]
 
-    return command + args, timeout, retries, cleanup_patterns
+    resolved_command = list(command)
+    if args and replace_default_scope_with_args:
+        placeholder_indexes = [
+            index for index, part in enumerate(resolved_command) if part == "."
+        ]
+        if len(placeholder_indexes) != 1:
+            raise ValueError(
+                f"tool '{tool}' must contain exactly one '.' scope placeholder "
+                "when replace_default_scope_with_args is enabled"
+            )
+        placeholder_index = placeholder_indexes[0]
+        resolved_command = (
+            resolved_command[:placeholder_index]
+            + args
+            + resolved_command[placeholder_index + 1 :]
+        )
+        args = []
+
+    return resolved_command + args, timeout, retries, cleanup_patterns
 
 
 def _cleanup_processes(patterns: List[str]) -> None:

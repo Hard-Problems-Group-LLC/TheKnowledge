@@ -11,10 +11,12 @@ The `project-management/` starter tree includes proposal status directories
 directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
 project's live records in the installed copy, not inside this submodule.
 
-The starter set also includes `requirements-dev.txt` and
-`scripts/dev_setup.py`. Together they install TheKnowledge's default pinned
-Black, Ruff, and pytest toolchain for consuming projects that have not yet
-defined a tighter local bootstrap policy.
+The starter set also includes `requirements-dev.txt`,
+`scripts/dev_setup.py`, and `tool_execution_constraints.json`. Together they
+install TheKnowledge's default pinned Black, Ruff, and pytest toolchain plus
+a managed registry for known environment-specific tool execution constraints
+for consuming projects that have not yet defined a tighter local bootstrap
+policy.
 
 When templates contain `{{THEKNOWLEDGE_ROOT}}` or `{$KNOWLEDGE_ROOT}`, the
 setup script replaces that placeholder with the submodule path relative to
@@ -28,15 +30,39 @@ so rerunning the installer does not duplicate them.
 
 After updating the submodule, first review the incoming upstream delta in the
 TheKnowledge checkout, then run `scripts/report_managed_agents_drift.py` to
-compare the consuming project's managed `AGENTS.md` header and footer with the
-updated templates. The helper prints unified diffs that both human and AI
-developers can review before rerunning `scripts/initial-setup.py --force`,
-review `git diff`, and stage the resulting submodule-pointer update plus only
-the intended project-file changes.
+compare the consuming project's managed `AGENTS.md` sections plus managed
+starter files with the updated templates. The helper prints unified diffs that
+both human and AI developers can review before rerunning
+`scripts/initial-setup.py --force --template requirements-dev.txt --template`
+`scripts --template tool_execution_constraints.json`, review `git diff`, and
+stage the resulting submodule-pointer update plus only the intended
+project-file changes.
+
+For the normal review-and-adopt path, prefer
+`python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`
+` --project-root . --knowledge-root {$KNOWLEDGE_ROOT}`. That helper fetches
+and summarizes the upstream delta, adopts the reviewed `trunk` commit, runs
+managed drift detection, refreshes the managed starter files when needed, and
+leaves a reviewable parent-repo diff without auto-committing.
 
 If that rerun updates `requirements-dev.txt` or `scripts/dev_setup.py`,
 refresh the starter toolchain with `python scripts/dev_setup.py` unless the
-consuming project intentionally overrides those files.
+consuming project intentionally overrides those files. If it updates
+`tool_execution_constraints.json`, review the policy change alongside the
+submodule update so shared helpers stay aligned with the current managed
+constraints.
+
+When contributors need to file TheKnowledge feedback from a consuming project,
+prefer the helper flow:
+- `python {$KNOWLEDGE_ROOT}/scripts/send_theknowledge_feedback.py prepare`
+  ` --project-root . --knowledge-root {$KNOWLEDGE_ROOT}`
+- record the Feedback item in the active submodule checkout
+- `python {$KNOWLEDGE_ROOT}/scripts/send_theknowledge_feedback.py finish`
+  ` --project-root . --knowledge-root {$KNOWLEDGE_ROOT} --message`
+  ` "Record TheKnowledge feedback"`
+- add `--push` only when the configured remote push URL is writable for the
+  current operator
+- use `abort` to restore the prior submodule state without finishing
 
 The `project-management/state/` template directory includes
 `pending-commit-changes.txt`, which is the short-lived queue for brief commit

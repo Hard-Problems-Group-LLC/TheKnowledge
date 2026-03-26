@@ -16,6 +16,8 @@ from typing import Dict, Iterable, List, Sequence
 
 
 SCHEMA_VERSION = "1.0.0"
+CONSTRAINTS_SCHEMA_VERSION = "1.0.0"
+DEFAULT_EXECUTION_CONSTRAINTS_FILE = "tool_execution_constraints.json"
 
 DEFAULT_EXCLUDES = {
     ".git",
@@ -232,6 +234,29 @@ def load_cache(path: Path) -> Dict[str, object]:
     return data
 
 
+def load_execution_constraints(path: Path) -> Dict[str, object]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise ValueError(
+            f"invalid JSON in execution constraints file {path}: {error}"
+        ) from error
+    if not isinstance(data, dict):
+        raise ValueError("execution constraints file must contain a JSON object")
+    schema_version = data.get("schema_version")
+    if schema_version != CONSTRAINTS_SCHEMA_VERSION:
+        raise ValueError(
+            "execution constraints file must use schema_version "
+            f"{CONSTRAINTS_SCHEMA_VERSION!r}"
+        )
+    products = data.get("products")
+    if not isinstance(products, dict):
+        raise ValueError("execution constraints file must include 'products'")
+    return data
+
+
 def resolve_git_dir(repo_root: Path) -> Path | None:
     result = subprocess.run(
         ["git", "rev-parse", "--git-dir"],
@@ -279,14 +304,155 @@ def save_cache(path: Path, data: Dict[str, object]) -> None:
 def run_check(
     repo_root: Path,
     check_name: str,
+    paths: Sequence[str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, "scripts/run_tool_with_timeout.py", check_name]
+    if paths:
+        command.extend(["--", *paths])
     return subprocess.run(
         command,
         cwd=repo_root,
         check=False,
         capture_output=True,
         text=True,
+    )
+
+
+def environment_match_is_active(match: Dict[str, object]) -> bool:
+    env_all_of = match.get("env_all_of", {})
+    if env_all_of is None:
+        env_all_of = {}
+    if not isinstance(env_all_of, dict) or not all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in env_all_of.items()
+    ):
+        raise ValueError("match.env_all_of must be a JSON object of strings")
+    return all(os.environ.get(key) == value for key, value in env_all_of.items())
+
+
+def serial_execution_constraint_label(
+    constraints: Dict[str, object],
+    check_name: str,
+    path_count: int,
+) -> str | None:
+    products = constraints.get("products", {})
+    if not isinstance(products, dict):
+        raise ValueError("execution constraints file must include 'products'")
+
+    for product_name, product_entry in products.items():
+        if not isinstance(product_entry, dict):
+            continue
+        sandboxes = product_entry.get("sandbox_technologies", {})
+        if not isinstance(sandboxes, dict):
+            continue
+        for sandbox_name, sandbox_entry in sandboxes.items():
+            if not isinstance(sandbox_entry, dict):
+                continue
+            environments = sandbox_entry.get("environments", {})
+            if not isinstance(environments, dict):
+                continue
+            for environment_name, environment_entry in environments.items():
+                if not isinstance(environment_entry, dict):
+                    continue
+                match = environment_entry.get("match", {})
+                if not isinstance(match, dict):
+                    continue
+                if not environment_match_is_active(match):
+                    continue
+                tools = environment_entry.get("tools", {})
+                if not isinstance(tools, dict):
+                    continue
+                tool_entry = tools.get(check_name)
+                if not isinstance(tool_entry, dict):
+                    continue
+                parallel_safety = tool_entry.get("parallel_safety", {})
+                if not isinstance(parallel_safety, dict):
+                    continue
+                if parallel_safety.get("status") != "unsafe":
+                    continue
+                applies_when = parallel_safety.get("applies_when", {})
+                if applies_when is None:
+                    applies_when = {}
+                if not isinstance(applies_when, dict):
+                    continue
+                invocation_kind = applies_when.get("invocation_kind")
+                if invocation_kind not in {None, "explicit_paths"}:
+                    continue
+                path_count_gte = applies_when.get("path_count_gte", 1)
+                if not isinstance(path_count_gte, int) or path_count_gte < 1:
+                    raise ValueError(
+                        "parallel_safety.applies_when.path_count_gte must be "
+                        "a positive integer"
+                    )
+                if path_count < path_count_gte:
+                    continue
+                preferred_workaround = parallel_safety.get(
+                    "preferred_workaround",
+                    {},
+                )
+                if not isinstance(preferred_workaround, dict):
+                    continue
+                if preferred_workaround.get("mode") != "serial_explicit_paths":
+                    continue
+                return f"{product_name}/{sandbox_name}/{environment_name}"
+    return None
+
+
+def execution_paths_for_check(
+    repo_root: Path,
+    files: Sequence[Path],
+    extra_files: Sequence[str],
+) -> List[str]:
+    extra_file_set = set(extra_files)
+    execution_paths: List[str] = []
+    for file_path in files:
+        relative_path = file_path.relative_to(repo_root).as_posix()
+        if relative_path in extra_file_set:
+            continue
+        execution_paths.append(relative_path)
+    return execution_paths
+
+
+def run_serial_file_safe_check(
+    repo_root: Path,
+    check_name: str,
+    paths: Sequence[str],
+    constraint_label: str,
+) -> subprocess.CompletedProcess[str]:
+    stdout_chunks = [
+        (
+            f"[quality-gate] SERIAL {check_name}: matched "
+            f"{constraint_label}; running {len(paths)} files one at a time."
+        )
+    ]
+    stderr_chunks: List[str] = []
+
+    for index, path in enumerate(paths, start=1):
+        stdout_chunks.append(
+            f"[quality-gate] SERIAL {check_name}: {index}/{len(paths)} {path}"
+        )
+        result = run_check(repo_root, check_name, paths=[path])
+        if result.stdout:
+            stdout_chunks.append(result.stdout.rstrip())
+        if result.stderr:
+            stderr_chunks.append(result.stderr.rstrip())
+        if result.returncode != 0:
+            stderr_chunks.append(
+                f"[quality-gate] FAIL {check_name}: {path} exited "
+                f"{result.returncode}."
+            )
+            return subprocess.CompletedProcess(
+                ["serial-file-safe-check", check_name],
+                result.returncode,
+                "\n".join(stdout_chunks) + "\n",
+                "\n".join(stderr_chunks) + "\n",
+            )
+
+    return subprocess.CompletedProcess(
+        ["serial-file-safe-check", check_name],
+        0,
+        "\n".join(stdout_chunks) + "\n",
+        "\n".join(stderr_chunks) + ("\n" if stderr_chunks else ""),
     )
 
 
@@ -298,6 +464,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     repo_root = Path(args.repo_root).resolve()
     cache_path = resolve_cache_path(repo_root, args.cache_file)
+    constraints_path = repo_root / DEFAULT_EXECUTION_CONSTRAINTS_FILE
+
+    try:
+        execution_constraints = load_execution_constraints(constraints_path)
+    except ValueError as error:
+        print(f"[quality-gate] FAIL: {error}", file=sys.stderr)
+        return 2
 
     cache = load_cache(cache_path)
     checks_cache = cache.setdefault("checks", {})
@@ -346,7 +519,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"[quality-gate] RUN {check_name}: cache miss "
             f"({file_count} files fingerprinted)."
         )
-        result = run_check(repo_root, check_name)
+        execution_paths = execution_paths_for_check(
+            repo_root,
+            files,
+            scope["extra_files"],  # type: ignore[index]
+        )
+        constraint_label = None
+        if execution_paths:
+            constraint_label = serial_execution_constraint_label(
+                execution_constraints,
+                check_name,
+                len(execution_paths),
+            )
+        if constraint_label is not None:
+            result = run_serial_file_safe_check(
+                repo_root,
+                check_name,
+                execution_paths,
+                constraint_label,
+            )
+        else:
+            result = run_check(repo_root, check_name)
         output = (result.stdout or "") + (result.stderr or "")
         if output:
             print(output.rstrip())

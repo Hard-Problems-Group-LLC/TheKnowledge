@@ -114,11 +114,12 @@ Operational Notes
 - If the project is using the managed starter Python toolchain, rerun
   `python scripts/dev_setup.py` whenever `requirements-dev.txt` changes or the
   local Black, Ruff, or pytest install drifts from the pinned defaults.
-- When updating a TheKnowledge submodule inside a consuming project, first
-  fetch and briefly review the incoming upstream `trunk` delta, then adopt
-  that reviewed version, reconcile managed-file drift, and commit the
-  resulting submodule-pointer update plus related project changes together
-  when they belong to the same upgrade.
+- When updating a TheKnowledge submodule inside a consuming project, prefer
+  `python {{THEKNOWLEDGE_ROOT}}/scripts/update_theknowledge_submodule.py`
+  `--project-root . --knowledge-root {{THEKNOWLEDGE_ROOT}}`. That helper
+  fetches and briefly reviews the incoming upstream `trunk` delta, adopts the
+  reviewed version, reconciles managed-file drift, and leaves a reviewable
+  parent-repo diff before commit.
 - Keep local working trees clean before broad integration work when practical.
 - Record significant merge operations and outcomes in project-management logs
   when they affect backlog status, bug status, or delivery traceability.

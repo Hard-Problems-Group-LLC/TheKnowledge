@@ -19,6 +19,34 @@ Completed Requests
 
 *
 
+  2026-03-25T16:52:22-07:00
+  Requestor: operator
+  Action: Add first-class helper tooling for updating TheKnowledge and
+  sending Feedback from consuming projects, while accounting for operators
+  who may not have write access to TheKnowledge.
+  Status: completed by Codex on 2026-03-25T16:52:22-07:00.
+
+*
+
+  2026-03-25T16:45:37-07:00
+  Requestor: operator
+  Action: Put `tool_execution_constraints.json` into service as a managed
+  default, install it through TheKnowledge's setup and update paths, and add
+  compact managed `AGENTS.md` header guidance for critical context that must
+  stay loaded before automated tooling runs.
+  Status: completed by Codex on 2026-03-25T16:45:37-07:00.
+
+*
+
+  2026-03-25T15:40:42-07:00
+  Requestor: operator
+  Action: Implement the next approved proposal.
+  Status: completed by Codex on 2026-03-25T15:40:42-07:00 via the
+  remaining helper-behavior work from the approved serial file-safe
+  static-analysis proposal.
+
+*
+
   2026-03-25T15:15:56-07:00
   Requestor: operator
   Action: Resolve everything outstanding in `Feedback`, then synchronize

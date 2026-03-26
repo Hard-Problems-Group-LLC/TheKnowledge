@@ -15,9 +15,10 @@ the template wording or examples are being revised. Keep any expanded notes in
   discovery, so AI maintenance work may need one-file-at-a-time tool
   invocations, escalated fallbacks, or external shells until the sandbox
   wakeup bug is fixed upstream.
-  Current status: TheKnowledge now documents a one-file-at-a-time fallback
-  for explicit file lists, but the upstream sandbox wakeup defect remains
-  open.
+  Current status: TheKnowledge now documents the fallback, records the known
+  unsafe case in managed `tool_execution_constraints.json`, and serializes
+  Black one file at a time in the cached quality gate when that registry
+  entry matches, but the upstream sandbox wakeup defect remains open.
   Detailed record:
   `open/codex-sandbox-asyncio-wakeup-fails-for-multi-file-static-analysis.txt`
 

@@ -44,11 +44,13 @@ application business logic.
    from `templates/` into the consuming project root.
 3. Use the starter `scripts/dev_setup.py` when you want the default pinned
    Black, Ruff, and pytest toolchain in the consuming project.
-4. Keep project state in the consuming project's own directories rather than
+4. Let the installed `tool_execution_constraints.json` record managed
+   environment-specific tool execution constraints for shared helpers.
+5. Keep project state in the consuming project's own directories rather than
    inside the submodule.
-5. Add language/technology SOPs under
+6. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
-6. Add focused knack documents under `knacks/` when a reusable body of
+7. Add focused knack documents under `knacks/` when a reusable body of
    know-how deserves a dedicated `.knack.md` file.
 
 ## Using as a submodule
@@ -71,10 +73,12 @@ For new or lightly customized consuming projects, then run:
 python scripts/dev_setup.py
 ```
 
-The starter installs `requirements-dev.txt` plus `scripts/dev_setup.py`, which
-provide TheKnowledge's default pinned Black, Ruff, and pytest toolchain.
-Projects with tighter local environment policy may replace or extend those
-files instead of using the starter unchanged.
+The starter installs `requirements-dev.txt`, `scripts/dev_setup.py`, and
+`tool_execution_constraints.json`. Together they provide TheKnowledge's
+default pinned Black, Ruff, and pytest toolchain plus a managed registry for
+known environment-specific tool execution constraints. Projects with tighter
+local environment policy may replace or extend those files instead of using
+the starter unchanged.
 
 For a brand-new repository, initialize the repo first and then add the
 submodule:
@@ -121,23 +125,33 @@ incoming upstream delta in the submodule checkout, then adopt that reviewed
 version and reconcile any managed-file drift before staging the result:
 
 ```bash
-(cd TheKnowledge && git fetch origin trunk)
-(cd TheKnowledge && git log --oneline HEAD..origin/trunk)
-(cd TheKnowledge && git diff --stat HEAD..origin/trunk)
-(cd TheKnowledge && python scripts/git_veteran_pull.py)
-python TheKnowledge/scripts/report_managed_agents_drift.py \
+python TheKnowledge/scripts/update_theknowledge_submodule.py \
   --project-root . \
   --knowledge-root TheKnowledge
 ```
 
-If the drift helper reports differences in the managed `AGENTS.md` header or
-footer, rerun the installer and review the resulting changes before staging:
+That helper prints the incoming commit summary and diffstat, advances the
+active submodule checkout to the reviewed upstream `trunk` commit, runs the
+managed drift report, refreshes the managed starter files when drift is
+detected, and leaves a clean reviewable diff in the parent project.
+
+If you need or prefer the fully manual path, the equivalent core steps are:
 
 ```bash
+(cd TheKnowledge && git fetch origin trunk)
+(cd TheKnowledge && git log --oneline HEAD..origin/trunk)
+(cd TheKnowledge && git diff --stat HEAD..origin/trunk)
+(cd TheKnowledge && git checkout --detach origin/trunk)
+python TheKnowledge/scripts/report_managed_agents_drift.py \
+  --project-root . \
+  --knowledge-root TheKnowledge
 python TheKnowledge/scripts/initial-setup.py \
   --project-root . \
   --knowledge-root TheKnowledge \
-  --force
+  --force \
+  --template requirements-dev.txt \
+  --template scripts \
+  --template tool_execution_constraints.json
 git diff
 ```
 
@@ -152,7 +166,10 @@ shared baseline.
 If the upgrade also changes the starter `requirements-dev.txt` or
 `scripts/dev_setup.py`, rerun `python scripts/dev_setup.py` in the consuming
 project before the next validation pass, unless the project intentionally uses
-its own bootstrap flow instead.
+its own bootstrap flow instead. When the upgrade changes
+`tool_execution_constraints.json`, review that policy diff alongside the
+submodule update so the project's shared helpers stay aligned with the new
+constraints.
 
 ## Review-first staging
 
@@ -252,9 +269,37 @@ back into the TheKnowledge checkout without interrupting the consuming
 project's main work.
 
 When that happens, use the active `TheKnowledge/` submodule checkout inside
-the consuming project. Capture its current branch or detached state, switch
-that same checkout to `Feedback`, record, commit, and push the feedback
-there, and then switch the submodule back before resuming project work.
+the consuming project. Prefer the helper workflow:
+
+```bash
+python TheKnowledge/scripts/send_theknowledge_feedback.py prepare \
+  --project-root . \
+  --knowledge-root TheKnowledge
+```
+
+Then record the Feedback item in the active `TheKnowledge/` checkout and
+finish with either a local-only commit:
+
+```bash
+python TheKnowledge/scripts/send_theknowledge_feedback.py finish \
+  --project-root . \
+  --knowledge-root TheKnowledge \
+  --message "Record TheKnowledge feedback"
+```
+
+or a commit plus push when the configured remote push URL is writable for the
+current operator:
+
+```bash
+python TheKnowledge/scripts/send_theknowledge_feedback.py finish \
+  --project-root . \
+  --knowledge-root TheKnowledge \
+  --message "Record TheKnowledge feedback" \
+  --push
+```
+
+Use `abort` instead of `finish` when you want the helper to restore the
+previous submodule state without keeping the Feedback session open.
 
 While maintaining TheKnowledge itself, periodically inspect `Feedback`.
 Items there should either become evaluation tasks backlogged on `trunk`,

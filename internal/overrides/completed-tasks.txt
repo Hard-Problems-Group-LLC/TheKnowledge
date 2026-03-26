@@ -6,6 +6,40 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T16:52:22-07:00 - Added first-class submodule-aware helper
+  tooling for consuming projects via
+  `scripts/update_theknowledge_submodule.py`,
+  `scripts/send_theknowledge_feedback.py`, and shared Git-dir-safe support
+  logic; documented helper-first update/adopt and Feedback flows with an
+  explicit read-only push caveat; expanded the submodule workflow
+  specification plus downstream guidance; and added real submodule
+  regression coverage before the final required validation suite passed with
+  `83` passing tests.
+
+*
+
+  2026-03-25T16:45:37-07:00 - Replaced the hardcoded Codex-sandbox trigger
+  with a managed repo-root `tool_execution_constraints.json` registry,
+  taught `scripts/run_quality_gate_cached.py` to follow that registry for the
+  narrow Black serial fallback, installed the registry into consuming
+  projects through `scripts/initial_setup.py`, broadened the managed drift
+  report and safe refresh command so downstream updates pick the file up, and
+  added compact `AGENTS.md` critical-context guidance plus regression
+  coverage before the full required validation suite passed with `79`
+  passing tests.
+
+*
+
+  2026-03-25T15:40:42-07:00 - Implemented the remaining helper-behavior work
+  from the approved serial file-safe static-analysis proposal by teaching the
+  timeout wrapper to replace Black's default scope with explicit paths,
+  teaching the cached quality gate to serialize Black one file at a time when
+  `CODEX_SANDBOX_NETWORK_DISABLED=1` is present, adding regression coverage
+  for the new wrapper and sandbox-aware dispatch behavior, and revalidating
+  the full required check suite with `77` passing tests.
+
+*
+
   2026-03-25T15:15:56-07:00 - Resolved the outstanding `Feedback` intake by
   closing the underdocumented active-submodule reporting bug, approving the
   incoming proposals, adding specifications for TheKnowledge submodule

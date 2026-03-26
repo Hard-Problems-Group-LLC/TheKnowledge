@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -21,13 +22,24 @@ def _load_script_module() -> ModuleType:
     return module
 
 
-def _run_cached(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+def _run_cached(
+    repo_root: Path,
+    *args: str,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    run_env = os.environ.copy()
+    run_env.pop("CODEX_SANDBOX_NETWORK_DISABLED", None)
+    run_env.pop("CODEX_CI", None)
+    run_env.pop("CODEX_MANAGED_BY_NPM", None)
+    if env:
+        run_env.update(env)
     return subprocess.run(
         [sys.executable, str(SCRIPT), "--repo-root", str(repo_root), *args],
         check=False,
         capture_output=True,
         text=True,
         cwd=ROOT,
+        env=run_env,
     )
 
 
@@ -93,7 +105,7 @@ def _make_fake_repo(tmp_path: Path, *, separate_git_dir: bool = False) -> Path:
                 "log = git_dir_path / 'quality-gate-calls.log'",
                 "log.parent.mkdir(parents=True, exist_ok=True)",
                 "with log.open('a', encoding='utf-8') as handle:",
-                "    handle.write(sys.argv[1] + '\\n')",
+                "    handle.write(' '.join(sys.argv[1:]) + '\\n')",
                 "raise SystemExit(0)",
             ]
         )
@@ -103,7 +115,7 @@ def _make_fake_repo(tmp_path: Path, *, separate_git_dir: bool = False) -> Path:
     return repo
 
 
-def _read_calls(repo_root: Path) -> list[str]:
+def _read_call_lines(repo_root: Path) -> list[str]:
     log = _git_dir(repo_root) / "quality-gate-calls.log"
     if not log.exists():
         return []
@@ -112,6 +124,60 @@ def _read_calls(repo_root: Path) -> list[str]:
         for line in log.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+
+
+def _read_calls(repo_root: Path) -> list[str]:
+    return [line.split(" ", 1)[0] for line in _read_call_lines(repo_root)]
+
+
+def _write_execution_constraints(repo_root: Path) -> None:
+    (repo_root / "tool_execution_constraints.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "products": {
+                    "codex": {
+                        "sandbox_technologies": {
+                            "bubblewrap": {
+                                "environments": {
+                                    "managed_linux_sandbox": {
+                                        "match": {
+                                            "env_all_of": {
+                                                "CODEX_CI": "1",
+                                                "CODEX_MANAGED_BY_NPM": "1",
+                                                "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+                                            }
+                                        },
+                                        "tools": {
+                                            "black": {
+                                                "parallel_safety": {
+                                                    "status": "unsafe",
+                                                    "applies_when": {
+                                                        "invocation_kind": (
+                                                            "explicit_paths"
+                                                        ),
+                                                        "path_count_gte": 2,
+                                                    },
+                                                    "preferred_workaround": {
+                                                        "mode": (
+                                                            "serial_explicit_paths"
+                                                        )
+                                                    },
+                                                }
+                                            }
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 def test_quality_gate_cache_skips_when_inputs_unchanged(tmp_path: Path) -> None:
@@ -216,3 +282,56 @@ def test_resolve_cache_path_maps_dot_git_prefix_through_real_git_dir(
     )
 
     assert resolved == git_dir / "project-quality-cache.json"
+
+
+def test_quality_gate_serializes_black_in_affected_codex_sandbox(
+    tmp_path: Path,
+) -> None:
+    repo = _make_fake_repo(tmp_path)
+    (repo / "scripts" / "helper.py").write_text("print('helper')\n", encoding="utf-8")
+    _write_execution_constraints(repo)
+
+    result = _run_cached(
+        repo,
+        "--checks",
+        "black",
+        env={
+            "CODEX_CI": "1",
+            "CODEX_MANAGED_BY_NPM": "1",
+            "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+        },
+    )
+
+    assert result.returncode == 0
+    assert "SERIAL black" in result.stdout
+    assert "codex/bubblewrap/managed_linux_sandbox" in result.stdout
+
+    call_lines = _read_call_lines(repo)
+    assert all(line.startswith("black -- ") for line in call_lines)
+    assert {line.split(" -- ", 1)[1] for line in call_lines} == {
+        "scripts/helper.py",
+        "scripts/run_tool_with_timeout.py",
+        "src/app.py",
+        "tests/test_app.py",
+    }
+
+
+def test_quality_gate_does_not_serialize_without_matching_registry(
+    tmp_path: Path,
+) -> None:
+    repo = _make_fake_repo(tmp_path)
+
+    result = _run_cached(
+        repo,
+        "--checks",
+        "black",
+        env={
+            "CODEX_CI": "1",
+            "CODEX_MANAGED_BY_NPM": "1",
+            "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+        },
+    )
+
+    assert result.returncode == 0
+    assert "SERIAL black" not in result.stdout
+    assert _read_calls(repo) == ["black"]

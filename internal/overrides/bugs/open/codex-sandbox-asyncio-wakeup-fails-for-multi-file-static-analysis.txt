@@ -144,6 +144,16 @@ multi-file Codex sandbox run, retry the explicit file list one file at a
 time, do not assume `black -W 1` is enough, and keep whole-repository
 validation outside the affected sandbox or in CI as the final standard.
 
+TheKnowledge now also automates the first narrow helper pass in
+`scripts/run_quality_gate_cached.py` through managed
+`tool_execution_constraints.json`. The default registry records the current
+known-unsafe Codex/bubblewrap environment for Black's explicit multi-file
+path, the cached quality gate follows that registry instead of hardcoding the
+env-var trigger directly, and `scripts/initial_setup.py` installs the same
+managed file into consuming projects. Ruff and the other checks remain on
+their existing behavior until their safe serialized scope is defined more
+tightly.
+
 References
 ----------
 Local references:

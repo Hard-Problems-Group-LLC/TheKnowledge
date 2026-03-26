@@ -186,3 +186,14 @@ Decision Log
   validation outside the affected sandbox or in CI. Wrapper automation stays
   deferred until tool-by-tool scope and a durable affected-sandbox signal are
   better defined.
+- 2026-03-25T15:39:39-07:00 - Implemented the first narrow helper automation
+  pass. `scripts/run_quality_gate_cached.py` now uses
+  `CODEX_SANDBOX_NETWORK_DISABLED=1` as the current affected-sandbox signal
+  and runs Black one file at a time in that environment, while Ruff stays on
+  the normal whole-repo path until its file-safe scope is expanded explicitly.
+- 2026-03-25T16:45:37-07:00 - Replaced the hardcoded env-var trigger with a
+  managed `tool_execution_constraints.json` registry, installed that file
+  into consuming projects through the setup/update path, broadened the
+  managed drift report so downstream refreshes can adopt the new file safely,
+  and tightened the managed AGENTS header to preserve only a very small
+  amount of critical preflight context.

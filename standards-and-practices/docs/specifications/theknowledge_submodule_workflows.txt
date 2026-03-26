@@ -11,7 +11,7 @@ Problem Statement
 -----------------
 TheKnowledge already explains how to install itself as a submodule and how to
 reconcile managed-file drift after an update. However, the current guidance
-still leaves two operational expectations too implicit.
+still leaves two operational expectations too implicit and too manual.
 
 First, when a consuming project is told to update TheKnowledge, maintainers
 should briefly review the incoming upstream delta before adopting it as the
@@ -20,14 +20,39 @@ feedback while working in a consuming project, they should file that feedback
 from the active submodule checkout in that project, not from an unrelated
 sibling checkout.
 
+That manual flow has proven awkward in practice. Operators have to juggle the
+parent project repo plus the active submodule checkout, remember a stateful
+sequence of fetch/review/adopt/refresh steps, and account for submodule Git
+metadata that may live under `.git/modules/...` instead of a real `.git`
+directory in the worktree. The workflow also needs to stay usable for
+contributors who can fetch TheKnowledge but cannot push to its remote.
+
 Requirements
 ------------
+- TheKnowledge must provide first-class helper tooling for these two consuming-
+  project workflows instead of relying on documentation alone.
+- The update helper must live at
+  `scripts/update_theknowledge_submodule.py`.
+- The feedback helper must live at
+  `scripts/send_theknowledge_feedback.py`.
 - When a consuming project is told to update TheKnowledge, the workflow must
   first fetch the latest upstream `trunk` in the submodule checkout and review
   the incoming delta relative to the project's current submodule commit.
 - The review may be brief and proportional. `git log --oneline`,
   `git diff --stat`, or targeted file inspection is sufficient for routine
   upgrades.
+- `scripts/update_theknowledge_submodule.py` must automate that review-and-
+  adopt flow. At minimum it must:
+  - resolve the parent project root and active TheKnowledge submodule path;
+  - refuse unsafe operation when the parent project or the submodule worktree
+    is unexpectedly dirty, unless the operator explicitly overrides that;
+  - fetch the configured remote branch for the submodule;
+  - print a brief incoming review summary before adoption;
+  - adopt the reviewed upstream version in the active submodule checkout;
+  - run `scripts/report_managed_agents_drift.py`;
+  - rerun `scripts/initial-setup.py --force` with the managed refresh
+    templates when drift is reported; and
+  - leave a reviewable parent-repo diff without auto-committing.
 - After that review, the workflow must adopt the reviewed upstream version in
   the same submodule checkout, run
   `scripts/report_managed_agents_drift.py`, rerun
@@ -35,10 +60,24 @@ Requirements
   reported, review `git diff`, and commit the resulting submodule-pointer
   update with any related project-file changes as one reviewable changeset
   when they belong together.
+- `scripts/send_theknowledge_feedback.py` must provide a safe two-phase
+  feedback flow so contributors can pause to edit project-management records
+  on `Feedback` and then restore the previous submodule state later.
+- The feedback helper must:
+  - capture the current branch or detached-HEAD state of the active
+    TheKnowledge submodule checkout;
+  - synchronize `Feedback` refs before switching there;
+  - make the configured fetch and push transport explicit in its output;
+  - avoid assuming the operator has push rights to TheKnowledge;
+  - preserve a local Feedback commit even when push is skipped or fails; and
+  - restore the previous submodule state automatically when the flow
+    completes or is aborted.
+- Both helpers must resolve Git metadata through `git rev-parse --git-dir`
+  and must not assume the worktree contains a real `.git/` directory.
 - `README.md`, `standards-and-practices/docs/installation.txt`,
   `templates/README.md`, `templates/AGENTS-footer.md`, and
   `templates/project-management/git-flow.txt` must document the review-before-
-  adopt update sequence.
+  adopt update sequence plus the helper entry points.
 - TheKnowledge's own `AGENTS.md` and `README.md` must explain that feedback
   discovered while working in a consuming project must be filed from the
   active `TheKnowledge/` submodule checkout in that project, not from an
@@ -52,6 +91,12 @@ Requirements
 - Documentation tests must verify that the review-before-adopt and active-
   submodule Feedback guidance remain wired into TheKnowledge and the managed
   downstream templates.
+- Script tests must verify:
+  - the update helper's review summary and managed-refresh behavior;
+  - the feedback helper's prepare and finish flow;
+  - correct handling when the operator does not request or cannot complete a
+    push; and
+  - correct behavior when the submodule Git dir is separate from the worktree.
 
 Non-Goals
 ---------
