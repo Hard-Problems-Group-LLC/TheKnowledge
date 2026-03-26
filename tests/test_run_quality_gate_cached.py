@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "run_quality_gate_cached.py"
@@ -153,9 +155,7 @@ def _write_execution_constraints(repo_root: Path) -> None:
                                                 "parallel_safety": {
                                                     "status": "unsafe",
                                                     "applies_when": {
-                                                        "invocation_kind": (
-                                                            "explicit_paths"
-                                                        ),
+                                                        "invocation_kind": ("any"),
                                                         "path_count_gte": 2,
                                                     },
                                                     "preferred_workaround": {
@@ -248,6 +248,38 @@ def test_quality_gate_cache_excludes_knacks_from_entropy_but_runs_knack_check(
 
     calls = _read_calls(repo)
     assert calls == ["entropy_check", "knack_check", "knack_check"]
+
+
+def test_quality_gate_cache_excludes_gitignored_paths_from_entropy_scope(
+    tmp_path: Path,
+) -> None:
+    repo = _make_fake_repo(tmp_path)
+    (repo / ".gitignore").write_text("local-state/\n", encoding="utf-8")
+    local_dir = repo / "local-state"
+    local_dir.mkdir()
+    target = local_dir / "target.txt"
+    target.write_text(
+        "not-repo-content\n",
+        encoding="utf-8",
+    )
+    lock_path = local_dir / "lock"
+    try:
+        lock_path.symlink_to("target.txt")
+    except OSError:
+        pytest.skip("symlinks are unavailable in this test environment")
+
+    first = _run_cached(repo, "--checks", "entropy_check")
+    assert first.returncode == 0
+    assert "RUN entropy_check: cache miss" in first.stdout
+
+    target.unlink()
+
+    second = _run_cached(repo, "--checks", "entropy_check")
+    assert second.returncode == 0
+    assert "SKIP entropy_check: cache hit" in second.stdout
+
+    calls = _read_calls(repo)
+    assert calls == ["entropy_check"]
 
 
 def test_default_git_cache_path_uses_real_git_dir_for_separate_git_repo(

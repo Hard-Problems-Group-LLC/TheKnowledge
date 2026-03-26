@@ -37,10 +37,12 @@ Requirements
   - optional `confidence`
   - optional `evidence`
   - optional `notes`
-- `scripts/run_quality_gate_cached.py` must only apply automated one-file-at-
-  a-time fallback when a matching registry entry marks the current
-  tool-and-mode combination as unsafe to parallelize and the preferred
-  workaround is `serial_explicit_paths`.
+- `parallel_safety.applies_when.invocation_kind`, when present, must be one
+  of `any`, `default_scope`, or `explicit_paths`.
+- `scripts/run_quality_gate_cached.py` and `scripts/run_tool_with_timeout.py`
+  must only apply automated one-file-at-a-time fallback when a matching
+  registry entry marks the current tool-and-mode combination as unsafe to
+  parallelize and the preferred workaround is `serial_explicit_paths`.
 - The default registry must stay narrow. It should record only tool behavior
   that is evidenced and scoped to a concrete environment and invocation mode.
 - `scripts/initial_setup.py` must install `tool_execution_constraints.json`
@@ -55,8 +57,8 @@ Requirements
 - Tests must verify:
   - the registry file exists at the repository root;
   - the registry is installed into consuming projects by the setup path; and
-  - the cached quality gate follows the registry rather than a hardcoded
-    environment-variable check.
+  - the cached quality gate and timeout wrapper follow the registry rather
+    than a hardcoded environment-variable check.
 
 Non-Goals
 ---------

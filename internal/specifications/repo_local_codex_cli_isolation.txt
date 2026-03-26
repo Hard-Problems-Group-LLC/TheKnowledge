@@ -1,0 +1,43 @@
+Repository-Local Codex CLI Isolation
+====================================
+
+Scope
+-----
+Define how TheKnowledge supports repo-local Codex CLI installs without
+treating Codex as a tracked project dependency.
+
+Problem Statement
+-----------------
+Operators may want a Codex CLI install isolated to a specific repository so
+`npx`-style usage does not depend on global machine state. Installing that
+tooling in the repository root pollutes `git status` and makes local operator
+tooling look like tracked project dependencies.
+
+Requirements
+------------
+- Repo-local Codex CLI manifests and installed packages must live under the
+  ignored directory `.codex-local/`.
+- Operator-local support artifacts such as `.codex-home/`,
+  `README-LOCAL-Start-Codex.md`, and `bin/codex-local` must also stay
+  ignored when external local tooling creates them.
+- Repository validation helpers that scan repository contents must honor
+  Git ignore rules by default so those operator-local Codex artifacts do not
+  pollute required check results unless an operator explicitly opts into
+  scanning Git-ignored paths.
+- `.codex-local/` must remain outside tracked project dependency manifests.
+- The repository must provide a wrapper script that:
+  - uses `.codex-local/package.json` when it exists
+  - installs local dependencies into `.codex-local/` when needed
+  - falls back to `npx` package execution when `.codex-local/package.json`
+    does not exist
+- The tracked repository entry point for repo-local Codex CLI invocation must
+  remain `python scripts/codex_local.py`; generated local helper launchers are
+  optional operator conveniences, not required tracked interfaces.
+- The wrapper must not require a tracked root-level `package.json` or
+  `package-lock.json`.
+
+Non-Goals
+---------
+- Standardizing global Codex CLI installation.
+- Requiring every repository to use repo-local Codex CLI installs.
+- Treating Codex CLI as a runtime or build dependency of TheKnowledge itself.

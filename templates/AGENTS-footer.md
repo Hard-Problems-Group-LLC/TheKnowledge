@@ -88,9 +88,13 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `python {$KNOWLEDGE_ROOT}/scripts/report_managed_agents_drift.py`
   `--project-root . --knowledge-root {$KNOWLEDGE_ROOT}`.
 - Follow `tool_execution_constraints.json` when it marks a tool-and-
-  environment combination unsafe to parallelize. If a file-safe formatter or
-  linter still hangs inside a Codex sandbox on a multi-file run, retry the
-  explicit file list one file at a time. Do not assume `black -W 1` is
-  enough, and rerun the full required checks outside the affected sandbox or
+  environment combination unsafe to parallelize. In a matched Codex sandbox,
+  run Black only through
+  `python {$KNOWLEDGE_ROOT}/scripts/run_tool_with_timeout.py black`; the
+  harness will fall back to exactly one file at a time when Black would
+  otherwise hit the known multi-file hang. Do not assume `black -W 1` is
+  enough. If another file-safe formatter or linter still hangs inside a
+  Codex sandbox on a multi-file run, retry the explicit file list one file at
+  a time, and rerun the full required checks outside the affected sandbox or
   in CI before clearing the work.
 <!-- THEKNOWLEDGE_MANAGED_FOOTER_END -->

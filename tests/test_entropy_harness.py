@@ -26,6 +26,20 @@ def _run_harness(target: Path, *extra_args: str) -> subprocess.CompletedProcess[
     )
 
 
+def _init_repo(repo_root: Path, *ignored_patterns: str) -> None:
+    subprocess.run(
+        ["git", "init", "--quiet", str(repo_root)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    if ignored_patterns:
+        (repo_root / ".gitignore").write_text(
+            "".join(f"{pattern}\n" for pattern in ignored_patterns),
+            encoding="utf-8",
+        )
+
+
 def test_harness_ignores_intentional_entropy_test_fixture(tmp_path: Path) -> None:
     token = "".join(
         [
@@ -102,6 +116,72 @@ def test_timeout_wrapper_config_includes_entropy_harness() -> None:
         "python",
         "standards-and-practices/dev-utils/security/verify_entropy_tripwire.py",
     ]
+
+
+def test_harness_ignores_gitignored_paths_by_default(tmp_path: Path) -> None:
+    _init_repo(tmp_path, "local-state/")
+    token = "".join(
+        [
+            "X4b9Rk2Q",
+            "m8Lp0Vz7",
+            "Hn6Tw3Ys",
+            "5Df1Ja9C",
+            "u2Me7Po4",
+            "Gi8Nr5Kb",
+            "1Qx6Zv0",
+        ]
+    )
+    ignored_file = tmp_path / "local-state" / "secret.txt"
+    ignored_file.parent.mkdir(parents=True)
+    ignored_file.write_text(
+        "\n".join(
+            [
+                token,
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run_harness(tmp_path)
+
+    assert result.returncode == 0
+    assert "flagged 0 files" in result.stdout
+
+
+def test_harness_supports_even_gitignored_passthrough(tmp_path: Path) -> None:
+    _init_repo(tmp_path, "local-state/")
+    token = "".join(
+        [
+            "X4b9Rk2Q",
+            "m8Lp0Vz7",
+            "Hn6Tw3Ys",
+            "5Df1Ja9C",
+            "u2Me7Po4",
+            "Gi8Nr5Kb",
+            "1Qx6Zv0",
+        ]
+    )
+    ignored_file = tmp_path / "local-state" / "secret.txt"
+    ignored_file.parent.mkdir(parents=True)
+    ignored_file.write_text(
+        "\n".join(
+            [
+                "plain baseline text with repeated words and predictable structure.",
+                "another plain baseline line to stabilize relative entropy.",
+                token,
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = _run_harness(tmp_path, "--json-output", "--even-gitignored")
+
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["summary"]["flagged_files"] == 1
+    assert payload["results"][0]["path"].endswith("local-state/secret.txt")
 
 
 def test_harness_supports_json_output_passthrough(tmp_path: Path) -> None:
