@@ -28,5 +28,7 @@ This subtree is organized by topic. Placeholder `README.md` files keep the
 scaffold visible in Git until the first knack files for a topic are ready to
 land.
 
-Current stock areas include `UI/` for interface work and `sandboxing/` for
-process-isolation and execution-boundary guidance.
+Current stock areas include `UI/` for interface work, `sandboxing/` for
+process-isolation and execution-boundary guidance, `licenses/` for software
+license triage, and `auditing/` for evidence-oriented review topics such as
+software bills of materials.

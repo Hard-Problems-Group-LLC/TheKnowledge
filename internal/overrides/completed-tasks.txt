@@ -6,6 +6,16 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-25T17:41:41-07:00 - Added new stock `knacks/licenses/` and
+  `knacks/auditing/` areas, drafted a practical software-license library
+  covering the top licenses of current concern with emphasis on
+  incompatibilities and disallowed use cases, added an SBoM generation and
+  auditing knack, refreshed the knack index, extended scaffold coverage, and
+  revalidated the full required check suite plus `knack_check` with `83`
+  passing tests.
+
+*
+
   2026-03-25T16:52:22-07:00 - Added first-class submodule-aware helper
   tooling for consuming projects via
   `scripts/update_theknowledge_submodule.py`,

@@ -10,6 +10,13 @@ EXPECTED_FILES = [
     STANDARDS / "knack_documents.txt",
     ROOT / "knacks" / "README.md",
     ROOT / "knacks" / "authoring-guide.md",
+    ROOT / "knacks" / "auditing" / "README.md",
+    ROOT / "knacks" / "auditing" / "Software-Bill-of-Materials.knack.md",
+    ROOT / "knacks" / "licenses" / "README.md",
+    ROOT / "knacks" / "licenses" / "mit-license.knack.md",
+    ROOT / "knacks" / "licenses" / "apache-license-2.0.knack.md",
+    ROOT / "knacks" / "licenses" / "gpl-lgpl-v2-v3.knack.md",
+    ROOT / "knacks" / "licenses" / "source-available-business-licenses.knack.md",
     ROOT / "knacks" / "sandboxing" / "README.md",
     ROOT / "knacks" / "sandboxing" / "bubblewrap.knack.md",
     ROOT / "knacks" / "UI" / "README.md",
@@ -30,6 +37,15 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     repo_readme = (ROOT / "README.md").read_text(encoding="utf-8")
     knack_readme = (ROOT / "knacks" / "README.md").read_text(encoding="utf-8")
     guide_text = (ROOT / "knacks" / "authoring-guide.md").read_text(encoding="utf-8")
+    auditing_readme = (ROOT / "knacks" / "auditing" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    licenses_readme = (ROOT / "knacks" / "licenses" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    sbom_knack = (
+        ROOT / "knacks" / "auditing" / "Software-Bill-of-Materials.knack.md"
+    ).read_text(encoding="utf-8")
     sandboxing_readme = (ROOT / "knacks" / "sandboxing" / "README.md").read_text(
         encoding="utf-8"
     )
@@ -49,6 +65,8 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert ".knack/" in knack_readme
     assert "project-local knack path collides" in knack_readme
     assert "skills" in knack_readme
+    assert "licenses/" in knack_readme
+    assert "auditing/" in knack_readme
     assert "1,250" in guide_text
     assert "2,500" in guide_text
     assert "5,000" in guide_text
@@ -64,6 +82,14 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert ".api.C.knack.md" in guide_text
     assert ".api.Python.knack.md" in guide_text
     assert ".api.rendering.CPP.knack.md" in guide_text
+    assert "software bill" in auditing_readme.lower()
+    assert "materials generation and auditing" in auditing_readme.lower()
+    assert "top twenty" in licenses_readme.lower()
+    assert "software-bill-of-materials.knack.md" in licenses_readme.lower()
+    assert "top twenty set of software licenses" in licenses_readme.lower()
+    assert "CycloneDX" in sbom_knack
+    assert "SPDX" in sbom_knack
+    assert "vulnerability audit" in sbom_knack.lower()
     assert "bubblewrap" in sandboxing_readme.lower()
     assert "sandbox" in sandboxing_readme.lower()
     assert "terminal" in terminal_readme.lower()

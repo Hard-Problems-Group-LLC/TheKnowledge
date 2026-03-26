@@ -19,6 +19,15 @@ Completed Requests
 
 *
 
+  2026-03-25T17:41:41-07:00
+  Requestor: operator
+  Action: Add stock `knacks/licenses/` guidance for the top software
+  licenses of current concern, emphasizing incompatible licenses and
+  disallowed use cases, and add an SBoM auditing knack.
+  Status: completed by Codex on 2026-03-25T17:41:41-07:00.
+
+*
+
   2026-03-25T16:52:22-07:00
   Requestor: operator
   Action: Add first-class helper tooling for updating TheKnowledge and
