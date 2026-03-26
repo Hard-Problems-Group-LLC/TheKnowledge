@@ -6,6 +6,19 @@ the template wording or examples are being revised. Keep any expanded notes in
 `open/`.
 
 *
+  2026-03-25T15:58:54-07:00
+  Summary: Knack authoring guidance does not clearly distinguish local knack
+  storage from knack content style, so contributors can infer that project-
+  local knacks are supposed to contain project-specific prose rather than
+  generalized reusable guidance.
+  Impact: consuming projects can accumulate project-named knack files and
+  repository-specific advice that are harder to reuse, harder to merge back
+  into stock TheKnowledge, and less consistent with the purpose of a knack as
+  portable know-how.
+  Detailed record:
+  `open/knack-authoring-guidance-allows-project-specific-prose.txt`
+
+*
   2026-03-25T14:12:36-07:00
   Summary: Codex sandboxed Black hangs on multi-file runs because the
   sandboxed asyncio event loop does not wake reliably from worker-thread
