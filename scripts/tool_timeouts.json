@@ -4,18 +4,13 @@
     "black": {
       "timeout_seconds": 120,
       "timeout_retries": 1,
-      "replace_default_scope_with_args": true,
       "cleanup_patterns": [
-        "^python -m black( |$)"
+        "-m black( |$)"
       ],
       "command": [
-        "python",
         "-m",
         "black",
-        ".",
-        "--no-cache",
-        "--exclude",
-        "/(\\.venv|project\\.egg-info)/"
+        "--no-cache"
       ]
     },
     "ruff": {

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
 GUIDELINES = ROOT / "guidelines"
 SPECS = ROOT / "standards-and-practices" / "docs" / "specifications"

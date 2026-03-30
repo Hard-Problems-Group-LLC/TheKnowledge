@@ -22,7 +22,6 @@ from theknowledge_submodule_common import (
     run,
 )
 
-
 PREFIX = "theknowledge-feedback"
 SESSION_FILE = "theknowledge-feedback-session.json"
 

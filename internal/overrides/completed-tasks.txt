@@ -6,6 +6,46 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-30T12:13:45-07:00 - Imported AutoTomato's external
+  `ECRs/TheKnowledge/` bundle unchanged under
+  `internal/overrides/proposals/under-review/imported-autotomato-ecrs/` so
+  the upstream requests now live inside TheKnowledge's reviewable proposal
+  state without modifying the source files in the consuming project.
+
+*
+
+  2026-03-27T12:38:45-07:00 - Executed the approved placement-driven Black
+  validation and runtime-profile proposal by adding a managed
+  `tool_validation_profiles.json` registry plus helper module, teaching the
+  Black timeout wrapper to use Git-first profile discovery and managed
+  runtime selection, splitting bootstrap entry points from the steady-state
+  Python tool runtime in both direct-checkout and starter setup, refreshing
+  the downstream installation and drift-refresh docs, adding regression
+  coverage for the new managed files and helper behavior, and completing a
+  deliberate repository-wide Black normalization pass before the full
+  required validation suite passed with `105` tests.
+
+*
+
+  2026-03-27T00:34:41-07:00 - Filed a new open bug for the missing
+  bootstrap-versus-steady-state Python runtime policy, drafted an under-
+  review proposal for placement-driven Black validation and runtime
+  profiles, and tied that proposal explicitly to the existing starter,
+  sandbox, and full-scope Black spillover bug set so the issue can be
+  resolved as one coherent design problem.
+
+*
+
+  2026-03-26T10:21:08-07:00 - Added a new stock `knacks/debugging/` area
+  plus `HighLevelDebugging.knack.md`, drafted a language-neutral
+  AI-assisted debugging guide at the 1,250-word target, wired the new area
+  into the knack index and scaffold coverage, ran `knack_check`, `ruff`,
+  `compileall`, `entropy_check`, `entropy_tripwire_verify`, and the full
+  `pytest` suite successfully under a temporary Python 3.12 environment. The
+  separate Black spillover is now resolved by the later placement-driven
+  Black/runtime-profile implementation and deliberate repository-wide
+  normalization pass recorded above.
+
 *
 
   2026-03-25T21:32:26-07:00 - Replaced the temporary Codex-specific entropy

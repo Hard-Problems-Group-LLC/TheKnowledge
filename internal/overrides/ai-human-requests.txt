@@ -18,6 +18,49 @@ Completed Requests
 ------------------
 
 *
+  2026-03-30T12:13:45-07:00
+  Requestor: operator
+  Action: Import the AutoTomato `ECRs/TheKnowledge/` files into this writable
+  TheKnowledge checkout without modifying or deleting the originals.
+  Status: completed by Codex on 2026-03-30T12:13:45-07:00. The source tree is
+  now preserved under `internal/overrides/proposals/under-review/imported-
+  autotomato-ecrs/` with the original README scaffolding and all three ECR
+  documents copied unchanged.
+
+*
+  2026-03-27T09:26:42-07:00
+  Requestor: operator
+  Action: Approve and execute the placement-driven Black validation and
+  runtime-profile proposal.
+  Status: completed by Codex on 2026-03-27T12:38:45-07:00. The proposal is
+  now approved and implemented with a managed Black/runtime profile
+  registry, starter bootstrap/runtime split, repository-wide Black
+  normalization, updated docs, and a full passing validation suite.
+
+*
+  2026-03-27T00:22:41-07:00
+  Requestor: operator
+  Action: Decide whether the bootstrap-versus-steady-state Python runtime
+  split is a distinct bug, then write a proposal to resolve the known Black
+  bugs with a naming-and-placement-driven validation strategy.
+  Status: completed by Codex on 2026-03-27T00:34:41-07:00. A distinct
+  runtime-policy bug is now recorded, and a new under-review proposal ties
+  the current Black bug set to a placement-driven discovery, profile, and
+  runtime-resolution design.
+
+*
+
+  2026-03-26T10:02:44-07:00
+  Requestor: operator
+  Action: Deeply research and draft a stock debugging knack on high-level
+  AI-assisted debugging concepts, then keep the related Black spillover from
+  becoming an ongoing distraction by filing it in the bug tracker if it is a
+  repository issue.
+  Status: completed by Codex on 2026-03-26T10:21:08-07:00. The knack and
+  scaffold wiring landed in the working tree, the supporting validations
+  passed except for the separately tracked full-scope Black baseline drift,
+  and that formatter spillover is now recorded as an open repository bug.
+
 *
 
   2026-03-25T21:32:26-07:00

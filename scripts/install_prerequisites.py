@@ -14,10 +14,14 @@ import os
 import platform
 import shutil
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence
+
+try:
+    from tool_validation_profiles import resolve_runtime_policy_executable
+except ImportError:  # pragma: no cover - import path varies by entry point.
+    from scripts.tool_validation_profiles import resolve_runtime_policy_executable
 
 
 @dataclass
@@ -27,6 +31,10 @@ class OSInfo:
     platform_id: str
     version_id: str
     pretty_name: str
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+STEADY_STATE_RUNTIME_POLICY = "steady_state_python_tools"
 
 
 class CommandRunner:
@@ -207,6 +215,15 @@ def install_git_hooks(python_executable: str, runner: CommandRunner) -> None:
     runner.run([python_executable, str(hook_installer)])
 
 
+def select_tool_python(python_override: Optional[str] = None) -> str:
+    return resolve_runtime_policy_executable(
+        REPO_ROOT,
+        STEADY_STATE_RUNTIME_POLICY,
+        explicit_candidate=python_override,
+        required_modules=[],
+    )
+
+
 def validate_platform(os_info: OSInfo) -> None:
     supported = {
         "ubuntu",
@@ -232,13 +249,16 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Install project prerequisites.")
     parser.add_argument(
         "--venv",
-        default=str(Path(__file__).resolve().parent.parent / ".venv"),
+        default=str(REPO_ROOT / ".venv"),
         help="Virtual environment path.",
     )
     parser.add_argument(
         "--python",
-        default=sys.executable,
-        help="Python interpreter used to create virtualenvs.",
+        default=None,
+        help=(
+            "Override the managed steady-state Python interpreter used to "
+            "create the virtual environment."
+        ),
     )
     parser.add_argument(
         "--production",
@@ -274,7 +294,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("Windows detected: skipping system package manager bootstrap.")
 
     venv_path = Path(args.venv).resolve()
-    venv_python = ensure_virtualenv(args.python, venv_path, runner)
+    tool_python = select_tool_python(args.python)
+    print(f"Managed tool runtime: {tool_python}")
+    venv_python = ensure_virtualenv(tool_python, venv_path, runner)
     upgrade_pip_tooling(str(venv_python), runner)
     install_project(str(venv_python), dev=not args.production, runner=runner)
     install_git_hooks(str(venv_python), runner=runner)

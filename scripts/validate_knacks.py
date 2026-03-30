@@ -14,7 +14,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
-
 SCHEMA_VERSION = "1.0.0"
 OVERVIEW_TARGET = 1250
 REFERENCE_TARGET = 2500

@@ -7,6 +7,46 @@ closure records in `closed/`.
 
 *
 
+  2026-03-27T12:38:45-07:00
+  Summary: TheKnowledge's starter validation stack had drifted from its
+  Python 3.9 bootstrap floor and its current Black wrapper behavior.
+  Root cause: pinned tool versions, starter bootstrap files, and Black
+  wrapper guidance evolved separately, so the starter path still implied one
+  interpreter should both bootstrap and run the pinned toolchain.
+  Resolution: added `tool_validation_profiles.json` and a managed runtime-
+  selection helper, updated the starter and repository bootstrap entry
+  points to create environments with the steady-state Python tool runtime,
+  refreshed the starter/install docs, and added regression coverage for the
+  new managed files and wrapper behavior.
+
+*
+
+  2026-03-27T12:38:45-07:00
+  Summary: TheKnowledge lacked a distinct bootstrap-versus-steady-state
+  Python runtime policy for its managed tooling.
+  Root cause: the repository pinned newer Black and pytest releases before
+  it defined a two-phase runtime model for installer entry points versus the
+  maintained toolchain environment.
+  Resolution: defined that split in `tool_validation_profiles.json`,
+  updated the bootstrap helpers to select the managed steady-state runtime,
+  installed the new policy files into consuming projects, and documented the
+  runtime handoff in the repo and starter workflow material.
+
+*
+
+  2026-03-27T12:38:45-07:00
+  Summary: TheKnowledge's required full-scope Black validation reformatted
+  unrelated tracked files on the supported interpreter.
+  Root cause: the pinned Black release was being run against a stale tracked
+  baseline without an explicit repository-managed Black profile and target-
+  version policy.
+  Resolution: added Git-first placement-driven Black profile resolution,
+  recorded the managed runtime and target-version policy in
+  `tool_validation_profiles.json`, and completed one deliberate repository-
+  wide Black normalization pass on the supported toolchain.
+
+*
+
   2026-03-25T15:15:56-07:00
   Summary: Feedback-branch guidance was underdocumented for active
   submodule users, so contributors could mistake a sibling checkout for the

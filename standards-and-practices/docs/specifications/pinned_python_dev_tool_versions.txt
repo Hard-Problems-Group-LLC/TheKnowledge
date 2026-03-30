@@ -32,8 +32,14 @@ Requirements
 - `templates/scripts/dev_setup.py` must install the managed
   `requirements-dev.txt` into a local virtual environment, upgrading `pip`,
   `setuptools`, and `wheel` first.
-- `scripts/initial_setup.py` must install both `requirements-dev.txt` and
-  `scripts/dev_setup.py` into consuming projects by default.
+- `tool_validation_profiles.json` must exist at the repository root and must
+  define the managed steady-state Python tool runtime policy separately from
+  the Python 3.9 bootstrap floor.
+- `scripts/tool_validation_profiles.py` must exist and must expose the managed
+  runtime-selection logic that consuming projects inherit with the starter.
+- `scripts/initial_setup.py` must install `requirements-dev.txt`,
+  `scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`, and
+  `tool_validation_profiles.json` into consuming projects by default.
 - `README.md` must explain that consuming projects receive starter toolchain
   files and may run `python scripts/dev_setup.py` when they want the default
   pinned setup.
@@ -48,7 +54,7 @@ Requirements
   - the `pyproject.toml` dev dependencies remain exact pins;
   - `templates/requirements-dev.txt` stays in sync with those pins; and
   - `scripts/initial_setup.py` installs the managed starter toolchain files
-    into consuming projects.
+    into consuming projects, including the runtime-profile policy files.
 
 Non-Goals
 ---------

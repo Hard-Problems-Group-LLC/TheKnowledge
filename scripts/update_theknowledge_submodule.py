@@ -18,7 +18,6 @@ from theknowledge_submodule_common import (
     run,
 )
 
-
 PREFIX = "theknowledge-update"
 
 

@@ -6,6 +6,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = ROOT / "pyproject.toml"
 TEMPLATE_REQUIREMENTS = ROOT / "templates" / "requirements-dev.txt"
 TEMPLATE_DEV_SETUP = ROOT / "templates" / "scripts" / "dev_setup.py"
+RUNTIME_PROFILES = ROOT / "tool_validation_profiles.json"
+VALIDATION_HELPER = ROOT / "scripts" / "tool_validation_profiles.py"
 
 EXPECTED_DEV_TOOLS = [
     "black==26.3.1",
@@ -74,3 +76,13 @@ def test_starter_dev_setup_uses_managed_requirements_file() -> None:
     assert "requirements-dev.txt" in content
     assert "pip" in content
     assert "install" in content
+    assert "resolve_runtime_policy_executable" in content
+
+
+def test_runtime_profiles_define_steady_state_tool_runtime() -> None:
+    content = RUNTIME_PROFILES.read_text(encoding="utf-8")
+
+    assert '"steady_state_python_tools"' in content
+    assert '"minimum_version": "3.10"' in content
+    assert '"target_version": "py39"' in content
+    assert VALIDATION_HELPER.is_file()

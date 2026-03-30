@@ -3,7 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-VENV_DIR="${VENV_DIR:-${ROOT_DIR}/.venv}"
 PYTHON_CANDIDATES=(${PYTHON_BIN:-python3} python3 python)
 
 log() {
@@ -90,12 +89,5 @@ PYTHON_BIN_PATH=$(select_python) || {
   exit 1
 }
 
-if [ ! -d "$VENV_DIR" ]; then
-  log "Creating virtual environment at $VENV_DIR"
-  "$PYTHON_BIN_PATH" -m venv "$VENV_DIR"
-fi
-
-# shellcheck disable=SC1090
-source "$VENV_DIR/bin/activate"
-python -m pip install --upgrade pip setuptools wheel
-python "$ROOT_DIR/scripts/install_prerequisites.py" "$@"
+log "Using bootstrap interpreter $PYTHON_BIN_PATH"
+"$PYTHON_BIN_PATH" "$ROOT_DIR/scripts/install_prerequisites.py" "$@"

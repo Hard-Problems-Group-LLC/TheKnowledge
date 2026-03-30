@@ -97,7 +97,11 @@ Keep the Python toolchain reproducible. In TheKnowledge itself, rerun
 `./scripts/install_prerequisites.sh` when Black, Ruff, or pytest drift from
 the pinned repository defaults. In consuming projects that adopt the managed
 starter bootstrap, rerun `python scripts/dev_setup.py` after
-`requirements-dev.txt` changes or when the local tool versions drift.
+`requirements-dev.txt`, `tool_validation_profiles.json`, or
+`scripts/tool_validation_profiles.py` changes, or when the local tool
+versions drift. The bootstrap entry point may still run on the bootstrap
+Python floor while creating the steady-state developer-tool environment with
+the managed runtime policy.
 
 If `tool_execution_constraints.json` marks a tool-and-environment
 combination unsafe to parallelize, follow the recorded workaround. In a

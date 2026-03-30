@@ -8,6 +8,7 @@ from scripts.install_prerequisites import (
     ensure_virtualenv,
     install_git_hooks,
     parse_os_release,
+    select_tool_python,
     select_package_manager,
     system_packages_for,
     venv_python_path,
@@ -96,3 +97,21 @@ def test_install_git_hooks_runs_hook_installer_with_selected_python():
     command = runner.commands[0]
     assert command[0] == sys.executable
     assert command[1].endswith("scripts/install_git_hooks.py")
+
+
+def test_select_tool_python_uses_managed_runtime_policy(monkeypatch):
+    import scripts.install_prerequisites as installer
+
+    calls = []
+
+    def fake_resolve(repo_root, policy_name, **kwargs):
+        calls.append((repo_root, policy_name, kwargs))
+        return "python3.12"
+
+    monkeypatch.setattr(installer, "resolve_runtime_policy_executable", fake_resolve)
+
+    selected = select_tool_python()
+
+    assert selected == "python3.12"
+    assert calls[0][1] == "steady_state_python_tools"
+    assert calls[0][2]["required_modules"] == []

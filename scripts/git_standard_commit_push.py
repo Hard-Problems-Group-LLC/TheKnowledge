@@ -11,7 +11,6 @@ import sys
 from pathlib import Path
 from typing import Optional, Sequence
 
-
 PENDING_COMMIT_CHANGES_PATHS = (
     Path("internal/overrides/state/pending-commit-changes.txt"),
     Path("project-management/state/pending-commit-changes.txt"),

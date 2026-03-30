@@ -43,9 +43,13 @@ application business logic.
 2. Run `scripts/initial-setup.py` from the submodule to install starter files
    from `templates/` into the consuming project root.
 3. Use the starter `scripts/dev_setup.py` when you want the default pinned
-   Black, Ruff, and pytest toolchain in the consuming project.
-4. Let the installed `tool_execution_constraints.json` record managed
-   environment-specific tool execution constraints for shared helpers.
+   Black, Ruff, and pytest toolchain in the consuming project. The starter
+   script itself stays bootstrap-compatible, but it selects the managed
+   steady-state Python tool runtime for the virtual environment it creates.
+4. Let the installed `tool_execution_constraints.json` and
+   `tool_validation_profiles.json` record managed environment-specific tool
+   execution constraints plus placement-driven Black/runtime policy for
+   shared helpers.
 5. Keep project state in the consuming project's own directories rather than
    inside the submodule.
 6. Add language/technology SOPs under
@@ -73,12 +77,13 @@ For new or lightly customized consuming projects, then run:
 python scripts/dev_setup.py
 ```
 
-The starter installs `requirements-dev.txt`, `scripts/dev_setup.py`, and
-`tool_execution_constraints.json`. Together they provide TheKnowledge's
-default pinned Black, Ruff, and pytest toolchain plus a managed registry for
-known environment-specific tool execution constraints. Projects with tighter
-local environment policy may replace or extend those files instead of using
-the starter unchanged.
+The starter installs `requirements-dev.txt`, `scripts/dev_setup.py`,
+`scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`, and
+`tool_validation_profiles.json`. Together they provide TheKnowledge's default
+pinned Black, Ruff, and pytest toolchain plus managed registries for known
+environment-specific execution constraints and placement-driven Black/runtime
+selection. Projects with tighter local environment policy may replace or
+extend those files instead of using the starter unchanged.
 
 For a brand-new repository, initialize the repo first and then add the
 submodule:
@@ -151,7 +156,9 @@ python TheKnowledge/scripts/initial-setup.py \
   --force \
   --template requirements-dev.txt \
   --template scripts \
-  --template tool_execution_constraints.json
+  --template scripts/tool_validation_profiles.py \
+  --template tool_execution_constraints.json \
+  --template tool_validation_profiles.json
 git diff
 ```
 
@@ -163,13 +170,14 @@ submodule pointer plus the resulting project-file changes together when they
 belong to the same upgrade so the reviewed version becomes the project's new
 shared baseline.
 
-If the upgrade also changes the starter `requirements-dev.txt` or
-`scripts/dev_setup.py`, rerun `python scripts/dev_setup.py` in the consuming
-project before the next validation pass, unless the project intentionally uses
-its own bootstrap flow instead. When the upgrade changes
-`tool_execution_constraints.json`, review that policy diff alongside the
-submodule update so the project's shared helpers stay aligned with the new
-constraints.
+If the upgrade also changes the starter `requirements-dev.txt`,
+`scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`, or
+`tool_validation_profiles.json`, rerun `python scripts/dev_setup.py` in the
+consuming project before the next validation pass unless the project
+intentionally uses its own bootstrap flow instead. When the upgrade changes
+`tool_execution_constraints.json` or `tool_validation_profiles.json`, review
+that policy diff alongside the submodule update so the project's shared
+helpers stay aligned with the new constraints.
 
 ## Review-first staging
 

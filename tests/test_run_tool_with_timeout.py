@@ -7,7 +7,6 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
-
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "run_tool_with_timeout.py"
 
@@ -175,6 +174,27 @@ def test_main_serializes_black_through_timeout_wrapper_in_matching_sandbox(
     monkeypatch.setenv("CODEX_CI", "1")
     monkeypatch.setenv("CODEX_MANAGED_BY_NPM", "1")
     monkeypatch.setenv("CODEX_SANDBOX_NETWORK_DISABLED", "1")
+    monkeypatch.setattr(
+        module,
+        "discover_black_paths",
+        lambda cwd, tokens=None, include_ignored=False: [
+            "src/app.py",
+            "tests/test_app.py",
+        ],
+    )
+    monkeypatch.setattr(
+        module,
+        "group_black_paths_by_profile",
+        lambda cwd, relative_paths: [
+            (
+                {
+                    "name": "repository_python",
+                    "allow_serial_fallback": True,
+                },
+                list(relative_paths),
+            )
+        ],
+    )
 
     commands = []
 
@@ -224,6 +244,27 @@ def test_main_preserves_explicit_black_flags_when_serializing(
     monkeypatch.setenv("CODEX_CI", "1")
     monkeypatch.setenv("CODEX_MANAGED_BY_NPM", "1")
     monkeypatch.setenv("CODEX_SANDBOX_NETWORK_DISABLED", "1")
+    monkeypatch.setattr(
+        module,
+        "discover_black_paths",
+        lambda cwd, tokens=None, include_ignored=False: [
+            "src/app.py",
+            "tests/test_app.py",
+        ],
+    )
+    monkeypatch.setattr(
+        module,
+        "group_black_paths_by_profile",
+        lambda cwd, relative_paths: [
+            (
+                {
+                    "name": "repository_python",
+                    "allow_serial_fallback": True,
+                },
+                list(relative_paths),
+            )
+        ],
+    )
 
     commands = []
 
@@ -279,6 +320,34 @@ def test_main_runs_black_directly_without_matching_constraint(
     )
 
     monkeypatch.chdir(repo)
+    monkeypatch.setattr(
+        module,
+        "discover_black_paths",
+        lambda cwd, tokens=None, include_ignored=False: [
+            "src/app.py",
+            "tests/test_app.py",
+        ],
+    )
+    monkeypatch.setattr(
+        module,
+        "group_black_paths_by_profile",
+        lambda cwd, relative_paths: [
+            (
+                {
+                    "name": "repository_python",
+                    "allow_serial_fallback": True,
+                    "runtime_policy": "steady_state_python_tools",
+                    "target_version": "py39",
+                },
+                list(relative_paths),
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        module,
+        "resolve_runtime_policy_executable",
+        lambda cwd, policy_name: "python3.12",
+    )
 
     commands = []
 
@@ -293,12 +362,13 @@ def test_main_runs_black_directly_without_matching_constraint(
     assert result == 0
     assert commands == [
         [
-            "python",
+            "python3.12",
             "-m",
             "black",
-            ".",
             "--no-cache",
-            "--exclude",
-            "/(\\.venv|project\\.egg-info)/",
+            "--target-version",
+            "py39",
+            "src/app.py",
+            "tests/test_app.py",
         ]
     ]

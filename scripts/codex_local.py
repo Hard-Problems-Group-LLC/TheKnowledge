@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
-
 LOCAL_DIR_NAME = ".codex-local"
 MANIFEST_NAME = "package.json"
 LOCAL_PACKAGE_MARKER = Path("node_modules") / "@openai" / "codex"

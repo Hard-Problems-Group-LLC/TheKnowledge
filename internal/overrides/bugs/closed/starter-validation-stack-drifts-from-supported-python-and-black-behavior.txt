@@ -3,7 +3,11 @@ TheKnowledge Starter Validation Stack Drifts from Supported Python and Black Beh
 
 Status
 ------
-Open.
+Closed.
+
+Date Closed
+-----------
+2026-03-27T12:38:45-07:00
 
 Date Opened
 -----------
@@ -120,3 +124,20 @@ Related TheKnowledge materials:
 - `../../proposals/approved/serial-file-safe-static-analysis-in-`
   `affected-sandboxes.txt`
 - `../../proposals/approved/pin_python_dev_tool_versions.txt`
+
+Root Cause
+----------
+TheKnowledge updated its pinned Black and pytest stack and added a sandbox
+fallback path without updating the starter bootstrap files and direct-
+checkout guidance to reflect the resulting two-phase runtime model and the
+new Black invocation posture.
+
+Resolution
+----------
+TheKnowledge now installs `tool_validation_profiles.json` plus a managed
+runtime-selection helper into consuming projects, makes starter setup select a
+steady-state Python runtime with a Python 3.10 minimum while keeping the
+bootstrap entry points Python-3.9-compatible, updates the Black timeout
+wrapper to use Git-first profile-driven discovery, and refreshes the starter
+and installation documentation plus regression coverage around the new files
+and drift-report flow.

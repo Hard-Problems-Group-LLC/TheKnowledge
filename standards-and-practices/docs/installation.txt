@@ -2,9 +2,11 @@ Installation strategy
 =====================
 
 Use `scripts/install_prerequisites.sh` as the canonical bootstrap entry point.
-The shell wrapper locates or installs Python 3, provisions `.venv` at the
-repository root, upgrades packaging tools, and delegates system and Python
-package installation to `scripts/install_prerequisites.py`.
+The shell wrapper locates or installs a bootstrap Python 3 interpreter and
+delegates system and Python package installation to
+`scripts/install_prerequisites.py`. The Python installer then selects the
+managed steady-state tool runtime for `.venv`, so the bootstrap interpreter
+and the developer-tool runtime are no longer assumed to be the same.
 
 Quick start
 -----------
@@ -42,7 +44,8 @@ What the installer does
 - Detects the platform and chooses an available package manager.
 - Installs `python3`, `venv` tooling, `less`, and `git` using the native
   package manager (with `sudo` when required).
-- Creates `.venv` if missing and upgrades `pip`, `setuptools`, and `wheel`.
+- Creates `.venv` if missing with the managed steady-state Python runtime and
+  upgrades `pip`, `setuptools`, and `wheel`.
 - Installs the project in editable mode with optional pinned developer extras.
 - Installs/updates managed git `pre-commit` and `pre-push` hook wrappers via
   `scripts/install_git_hooks.py`.
@@ -85,16 +88,20 @@ Notes and expectations
   upstream commit, runs the managed drift report, refreshes the managed
   starter files when needed, and leaves a reviewable parent-repo diff.
 - The managed starter for consuming projects also includes
-  `requirements-dev.txt`, `scripts/dev_setup.py`, and
-  `tool_execution_constraints.json`, which install the same pinned Black,
-  Ruff, and pytest toolchain plus a managed execution-constraints registry by
-  default unless a project adopts a stricter local bootstrap flow.
+  `requirements-dev.txt`, `scripts/dev_setup.py`,
+  `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
+  and `tool_validation_profiles.json`, which install the same pinned Black,
+  Ruff, and pytest toolchain plus managed execution-constraints and
+  placement-driven runtime-policy registries by default unless a project
+  adopts a stricter local bootstrap flow.
 - The managed drift report compares `AGENTS.md` sections plus those starter
   files. When it reports drift, refresh only the managed starter entries:
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
   `--knowledge-root TheKnowledge --force --template requirements-dev.txt`
-  `--template scripts --template tool_execution_constraints.json`
-  and then review `git diff` before staging.
+  `--template scripts --template scripts/tool_validation_profiles.py`
+  `--template tool_execution_constraints.json`
+  `--template tool_validation_profiles.json` and then review `git diff`
+  before staging.
 - To file TheKnowledge feedback from a consuming project, prefer
   `python TheKnowledge/scripts/send_theknowledge_feedback.py prepare`
   followed by `finish --message ...` in the active submodule checkout. Add

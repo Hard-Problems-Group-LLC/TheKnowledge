@@ -55,9 +55,14 @@ CHECK_SCOPE: Dict[str, Dict[str, object]] = {
             "tests",
             "scripts",
             "standards-and-practices/dev-utils",
+            "templates/scripts",
         ],
         "extensions": [".py", ".pyi"],
-        "extra_files": ["pyproject.toml"],
+        "extra_files": [
+            "pyproject.toml",
+            "tool_validation_profiles.json",
+            "scripts/tool_validation_profiles.py",
+        ],
         "exclude_patterns": [],
     },
     "ruff": {
@@ -66,6 +71,7 @@ CHECK_SCOPE: Dict[str, Dict[str, object]] = {
             "tests",
             "scripts",
             "standards-and-practices/dev-utils",
+            "templates/scripts",
         ],
         "extensions": [".py", ".pyi"],
         "extra_files": ["pyproject.toml"],

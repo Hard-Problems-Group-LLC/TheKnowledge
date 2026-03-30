@@ -24,9 +24,12 @@ project needs behavior different from TheKnowledge's own repository setup. -->
 - Use `python scripts/dev_setup.py` when the project is relying on the managed
   starter Python toolchain. The default starter installs `requirements-dev.txt`
   and `scripts/dev_setup.py` with pinned Black, Ruff, and pytest versions,
-  plus `tool_execution_constraints.json` for known environment-specific tool
-  execution constraints, but project-local instructions may replace that
-  bootstrap flow.
+  plus `scripts/tool_validation_profiles.py`,
+  `tool_execution_constraints.json`, and `tool_validation_profiles.json` for
+  managed execution constraints and placement-driven runtime policy. The
+  starter script itself stays bootstrap-compatible, but it creates the tool
+  virtual environment with the managed steady-state Python runtime unless the
+  project overrides that flow locally.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example

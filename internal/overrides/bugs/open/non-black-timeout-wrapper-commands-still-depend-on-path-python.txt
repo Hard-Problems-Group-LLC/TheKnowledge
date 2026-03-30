@@ -1,0 +1,75 @@
+Non-Black Timeout-Wrapper Commands Still Depend on PATH Python
+==============================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-03-27T12:38:45-07:00
+
+Scope
+-----
+This is a TheKnowledge validation-wrapper bug. It affects direct-checkout
+maintenance and any consuming project that runs
+`scripts/run_tool_with_timeout.py` from an explicit interpreter without also
+activating or prefixing the matching `python` on `PATH`.
+
+Summary
+-------
+The new Black path now resolves its own managed steady-state runtime, but the
+other timeout-wrapper tools still execute the literal command strings from
+`scripts/tool_timeouts.json`. Those commands begin with bare `python`, so
+`ruff`, `compileall`, `pytest`, and other checks still depend on whichever
+`python` happens to win on `PATH` rather than inheriting the interpreter that
+launched the wrapper.
+
+Observed Reproduction From This Session
+---------------------------------------
+1. The approved placement-driven Black/runtime work was validated from a
+   Python 3.12 virtual environment under `/tmp/theknowledge-py312`.
+2. Running:
+
+   `/tmp/theknowledge-py312/bin/python`
+   `scripts/run_tool_with_timeout.py ruff`
+
+   failed immediately with:
+
+   `/usr/bin/python: No module named ruff`
+3. The wrapper output confirmed that it ran:
+
+   `python -m ruff check .`
+
+   instead of reusing `/tmp/theknowledge-py312/bin/python`.
+4. Prefixing `PATH=/tmp/theknowledge-py312/bin:$PATH` let the remaining
+   checks pass, which confirms the issue is command resolution rather than
+   the tools themselves.
+
+Impact
+------
+- The timeout wrapper behaves inconsistently across tools: Black now follows
+  the managed runtime policy, while the other required checks still depend on
+  external shell activation or `PATH` surgery.
+- Validation can fail even when the caller intentionally launches the wrapper
+  from a correct Python environment.
+- The runtime split is only partly enforced, which leaves direct-checkout and
+  downstream setup more fragile than the new policy intends.
+
+Likely Root Cause
+-----------------
+`scripts/run_tool_with_timeout.py` still treats most tool commands as static
+command arrays from `scripts/tool_timeouts.json`. Those arrays begin with the
+string `python`, and the generic path does not rewrite that interpreter token
+to `sys.executable` or to a managed runtime policy.
+
+Recommended Resolution
+----------------------
+1. Decide whether the generic timeout-wrapper path should use
+   `sys.executable`, a named runtime policy, or an explicit per-tool
+   interpreter selector.
+2. Update the non-Black tool commands so they do not depend on ambient shell
+   activation when the caller already selected an interpreter deliberately.
+3. Add regression coverage that launches the wrapper from one interpreter
+   while a different `python` wins on `PATH`, then prove the intended
+   interpreter is still used.

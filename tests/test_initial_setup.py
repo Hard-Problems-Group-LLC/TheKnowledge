@@ -62,7 +62,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     )
     requirements_dev = project_root / "requirements-dev.txt"
     dev_setup = project_root / "scripts" / "dev_setup.py"
+    validation_helper = project_root / "scripts" / "tool_validation_profiles.py"
     execution_constraints = project_root / "tool_execution_constraints.json"
+    validation_profiles = project_root / "tool_validation_profiles.json"
     bugs_readme = project_root / "project-management" / "bugs" / "README.txt"
     open_bugs = project_root / "project-management" / "bugs" / "open" / "README.txt"
     in_progress_bugs = (
@@ -84,7 +86,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert pending_queue.is_file()
     assert requirements_dev.is_file()
     assert dev_setup.is_file()
+    assert validation_helper.is_file()
     assert execution_constraints.is_file()
+    assert validation_profiles.is_file()
     assert bugs_readme.is_file()
     assert open_bugs.is_file()
     assert in_progress_bugs.is_file()
@@ -105,6 +109,7 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "python scripts/dev_setup.py" in agents.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in agents.read_text(encoding="utf-8")
     assert "tool_execution_constraints.json" in agents.read_text(encoding="utf-8")
+    assert "tool_validation_profiles.json" in agents.read_text(encoding="utf-8")
     assert "must load `TheKnowledge/AGENTS.md` before running automated" in (
         agents.read_text(encoding="utf-8")
     )
@@ -140,10 +145,16 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "black==26.3.1" in requirements_dev.read_text(encoding="utf-8")
     assert "pytest-timeout==2.4.0" in requirements_dev.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in dev_setup.read_text(encoding="utf-8")
+    assert "resolve_runtime_policy_executable" in validation_helper.read_text(
+        encoding="utf-8"
+    )
     assert '"schema_version": "1.0.0"' in execution_constraints.read_text(
         encoding="utf-8"
     )
     assert '"black"' in execution_constraints.read_text(encoding="utf-8")
+    assert '"steady_state_python_tools"' in validation_profiles.read_text(
+        encoding="utf-8"
+    )
     assert "open/" in bugs_readme.read_text(encoding="utf-8")
     resolved_text = resolved_bugs.read_text(encoding="utf-8")
     assert "Root cause:" in resolved_text

@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 from typing import Dict
 
-
 SCHEMA_VERSION = "1.0.0"
 SUPPORTED_INVOCATION_KINDS = {
     "any",

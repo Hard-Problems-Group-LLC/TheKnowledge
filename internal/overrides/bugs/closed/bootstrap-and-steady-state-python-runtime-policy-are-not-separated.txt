@@ -1,0 +1,116 @@
+Bootstrap and Steady-State Python Runtime Policy Are Not Separated
+==================================================================
+
+Status
+------
+Closed.
+
+Date Closed
+-----------
+2026-03-27T12:38:45-07:00
+
+Date Opened
+-----------
+2026-03-27T00:28:49-07:00
+
+Scope
+-----
+This is a TheKnowledge repository-maintenance and starter-material bug. It
+affects both direct-checkout maintenance and consuming projects that adopt
+the managed Python bootstrap path.
+
+Summary
+-------
+TheKnowledge currently presents a single canonical Python bootstrap flow, but
+the real runtime needs have already split into two phases:
+
+1. a bootstrap-compatible floor that can start the installer entry points;
+   and
+2. a steadier state developer-tool runtime that can actually install and run
+   the pinned Black and pytest toolchain.
+
+That policy split is not currently defined in the scripts or docs. The
+result is that Python 3.9 still looks like a complete supported path, even
+though the pinned `black==26.3.1` and `pytest==9.0.2` toolchain requires a
+newer runtime.
+
+Observed Reproduction From This Session
+---------------------------------------
+1. `pyproject.toml` still declares `requires-python = ">=3.9"`.
+2. `scripts/install_prerequisites.sh` and `scripts/install_prerequisites.py`
+   default to the invoking interpreter and then install `.[dev]` into the
+   same virtual environment.
+3. `templates/scripts/dev_setup.py` likewise defaults to the invoking
+   interpreter and installs the pinned `templates/requirements-dev.txt`
+   directly into that environment.
+4. On this host, the default `python3` is Python 3.9.25. Using that path
+   could create the virtual environment successfully, but the pinned
+   `black==26.3.1` install then failed because that version requires Python
+   3.10 or newer.
+5. A temporary Python 3.12 environment could install and run the pinned
+   Black, Ruff, and pytest stack successfully.
+6. `standards-and-practices/docs/installation.txt` still describes one
+   canonical bootstrap path without explaining any runtime handoff.
+
+Impact
+------
+- Operators cannot tell whether Python 3.9 is meant to support only the
+  installer entry scripts or the full local validation stack.
+- Consuming projects inherit starter files that appear to support one Python
+  story while the actual tool pins require another.
+- Workarounds become ad hoc: manual Python 3.12 virtualenv creation,
+  temporary `/tmp` environments, or local pin edits.
+- Black-related fixes become harder to reason about because runtime policy
+  and formatter policy are entangled.
+
+Why This Is Distinct From the Existing Starter-Validation Bug
+-------------------------------------------------------------
+The existing starter-validation drift bug records the concrete version and
+workflow mismatch: Python 3.9 is advertised while the pinned Black and pytest
+versions require newer runtimes, and the inherited Black wrapper contract is
+stale.
+
+This bug is narrower and more architectural. It tracks the absence of an
+explicit two-phase runtime policy:
+- which scripts must remain compatible with the bootstrap floor; and
+- which validation tools are allowed to require the steady-state runtime.
+
+Without that policy, maintainers can fix one pin mismatch and still leave the
+next runtime split ambiguous.
+
+Likely Root Cause
+-----------------
+TheKnowledge pinned newer developer-tool versions before it defined whether
+its bootstrap scripts and its steady-state validation environment were
+supposed to share the same Python interpreter.
+
+Recommended Resolution
+----------------------
+1. Define the bootstrap Python floor explicitly for installer entry points.
+2. Define the steady-state validation runtime explicitly for the pinned Black,
+   Ruff, and pytest stack.
+3. Teach the bootstrap helpers and starter tooling how to discover or request
+   the steady-state runtime instead of assuming the invoking interpreter must
+   be good for both phases.
+4. Align the documentation and tests with that two-phase model.
+
+Why This Matters
+----------------
+TheKnowledge wants reproducible, low-friction setup. That promise breaks when
+the bootstrap path and the maintained toolchain silently depend on different
+Python runtimes but the repository does not say so.
+
+Root Cause
+----------
+TheKnowledge pinned a newer developer-tool stack before it separated the
+Python runtime used to *start* installer entry points from the Python runtime
+used to *run* the managed toolchain inside `.venv` and starter environments.
+
+Resolution
+----------
+TheKnowledge now defines that split explicitly through
+`tool_validation_profiles.json`, a managed steady-state runtime policy with a
+Python 3.10 minimum, updated bootstrap helpers that create `.venv` with the
+managed runtime instead of the invoking interpreter, starter-file installs of
+the runtime-profile policy and helper module, and refreshed documentation plus
+tests that describe the bootstrap-versus-steady-state handoff.

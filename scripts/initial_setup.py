@@ -8,16 +8,21 @@ import sys
 from pathlib import Path
 from typing import Iterable, Sequence
 
-
 PLACEHOLDERS = ("{{THEKNOWLEDGE_ROOT}}", "{$KNOWLEDGE_ROOT}")
 AGENTS_PATH = Path("AGENTS.md")
 AGENTS_HEADER = "AGENTS-header.md"
 AGENTS_FOOTER = "AGENTS-footer.md"
-MANAGED_ROOT_FILES = (Path("tool_execution_constraints.json"),)
+MANAGED_ROOT_FILES = (
+    Path("tool_execution_constraints.json"),
+    Path("tool_validation_profiles.json"),
+    Path("scripts/tool_validation_profiles.py"),
+)
 MANAGED_REFRESH_TEMPLATES = (
     "requirements-dev.txt",
     "scripts",
+    "scripts/tool_validation_profiles.py",
     "tool_execution_constraints.json",
+    "tool_validation_profiles.json",
 )
 MANAGED_MARKERS = (
     "<!-- THEKNOWLEDGE_MANAGED_HEADER_START -->",

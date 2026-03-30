@@ -12,7 +12,6 @@ from scripts.initial_setup import (
     repo_root,
 )
 
-
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "report_managed_agents_drift.py"
 TEMPLATES = ROOT / "templates"
@@ -76,6 +75,7 @@ def test_report_managed_agents_drift_passes_when_sections_match(
     assert "managed file tool_execution_constraints.json is up to date" in (
         result.stdout
     )
+    assert "managed file tool_validation_profiles.json is up to date" in (result.stdout)
 
 
 def test_report_managed_agents_drift_reports_header_or_footer_changes(
@@ -101,7 +101,9 @@ def test_report_managed_agents_drift_reports_header_or_footer_changes(
     assert (
         "initial-setup.py --project-root . --knowledge-root "
         "TheKnowledge --force --template requirements-dev.txt "
-        "--template scripts --template tool_execution_constraints.json" in result.stdout
+        "--template scripts --template scripts/tool_validation_profiles.py "
+        "--template tool_execution_constraints.json --template "
+        "tool_validation_profiles.json" in result.stdout
     )
 
 

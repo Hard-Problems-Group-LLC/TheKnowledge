@@ -16,28 +16,28 @@ try:
         load_execution_constraints,
         serial_execution_constraint_label,
     )
+    from tool_validation_profiles import (
+        black_profiles,
+        discover_black_paths,
+        group_black_paths_by_profile,
+        resolve_runtime_policy_executable,
+    )
 except ImportError:  # pragma: no cover - import path varies by entry point.
     from scripts.tool_execution_constraints import (
         load_execution_constraints,
         serial_execution_constraint_label,
     )
+    from scripts.tool_validation_profiles import (
+        black_profiles,
+        discover_black_paths,
+        group_black_paths_by_profile,
+        resolve_runtime_policy_executable,
+    )
 
 
 CONFIG_FILE = Path(__file__).resolve().with_name("tool_timeouts.json")
 EXECUTION_CONSTRAINTS_FILE = "tool_execution_constraints.json"
-BLACK_FILE_SUFFIXES = {".ipynb", ".py", ".pyi"}
-BLACK_EXCLUDED_DIRS = {
-    ".codex-home",
-    ".codex-local",
-    ".git",
-    ".mypy_cache",
-    ".pytest_cache",
-    ".ruff_cache",
-    ".venv",
-    "__pycache__",
-    "node_modules",
-    "project.egg-info",
-}
+BLACK_INCLUDE_IGNORED_FLAG = "--include-ignored"
 BLACK_LONG_OPTIONS_WITH_VALUE = {
     "--code",
     "--config",
@@ -178,199 +178,13 @@ def _cleanup_processes(patterns: List[str]) -> None:
             return
 
 
-def _normalize_tool_args(tool_args: Sequence[str]) -> List[str]:
-    normalized = list(tool_args)
-    if normalized and normalized[0] == "--":
-        normalized = normalized[1:]
-    return normalized
-
-
-def _black_option_and_path_args(
-    tool_args: Sequence[str],
-) -> tuple[List[str], List[str]]:
-    option_args: List[str] = []
-    path_args: List[str] = []
-    expecting_value = False
-
-    for arg in _normalize_tool_args(tool_args):
-        if expecting_value:
-            option_args.append(arg)
-            expecting_value = False
-            continue
-
-        if arg == "--":
-            continue
-
-        if arg.startswith("--") and arg != "--":
-            option_args.append(arg)
-            if "=" not in arg and arg in BLACK_LONG_OPTIONS_WITH_VALUE:
-                expecting_value = True
-            continue
-
-        if arg.startswith("-") and arg != "-":
-            option_args.append(arg)
-            short_flag = arg[:2]
-            if len(arg) == 2 and short_flag in BLACK_SHORT_OPTIONS_WITH_VALUE:
-                expecting_value = True
-            continue
-
-        path_args.append(arg)
-
-    return option_args, path_args
-
-
-def _supports_black_serial_mode(option_args: Sequence[str]) -> bool:
-    for option in option_args:
-        if option in {"-c", "--code"}:
-            return False
-        if option.startswith("--code="):
-            return False
-    return True
-
-
-def _serial_black_path_string(path: Path, cwd: Path) -> str:
-    try:
-        return path.relative_to(cwd).as_posix()
-    except ValueError:
-        return path.as_posix()
-
-
-def _discover_black_files_for_token(cwd: Path, token: str) -> List[str] | None:
-    if token == "-":
-        return None
-
-    candidate = Path(token)
-    if not candidate.is_absolute():
-        candidate = (cwd / candidate).resolve()
-
-    if not candidate.exists():
-        return None
-
-    if candidate.is_file():
-        return [_serial_black_path_string(candidate, cwd)]
-
-    if not candidate.is_dir():
-        return None
-
-    discovered: List[str] = []
-    for current_root, dirnames, filenames in os.walk(candidate):
-        current_path = Path(current_root)
-        dirnames[:] = [
-            dirname for dirname in dirnames if dirname not in BLACK_EXCLUDED_DIRS
-        ]
-        for filename in filenames:
-            file_path = current_path / filename
-            if file_path.suffix.lower() not in BLACK_FILE_SUFFIXES:
-                continue
-            discovered.append(_serial_black_path_string(file_path, cwd))
-    return sorted(discovered)
-
-
-def _serial_black_targets(
-    cwd: Path,
-    tool_args: Sequence[str],
-) -> tuple[List[str], List[str], str] | None:
-    option_args, path_args = _black_option_and_path_args(tool_args)
-    if not _supports_black_serial_mode(option_args):
-        return None
-
-    invocation_kind = "explicit_paths" if path_args else "default_scope"
-    tokens = path_args or ["."]
-    discovered_paths: List[str] = []
-
-    for token in tokens:
-        expanded = _discover_black_files_for_token(cwd, token)
-        if expanded is None:
-            return None
-        discovered_paths.extend(expanded)
-
-    deduped = sorted(set(discovered_paths))
-    if len(deduped) < 2:
-        return None
-
-    return option_args, deduped, invocation_kind
-
-
-def _nested_timeout_command(
-    tool: str,
-    override_timeout: int | None,
-    tool_args: Sequence[str],
-) -> List[str]:
-    command = [sys.executable, str(Path(__file__).resolve())]
-    if override_timeout is not None:
-        command.extend(["--timeout-seconds", str(override_timeout)])
-    command.append(tool)
-    command.extend(["--", *tool_args])
-    return command
-
-
-def _maybe_run_serial_black(
-    override_timeout: int | None,
-    tool_args: Sequence[str],
-) -> int | None:
-    cwd = Path.cwd()
-    constraints_path = cwd / EXECUTION_CONSTRAINTS_FILE
-    try:
-        execution_constraints = load_execution_constraints(constraints_path)
-    except ValueError as error:
-        print(f"[timeout-wrapper] {error}", file=sys.stderr)
-        return 2
-
-    serial_targets = _serial_black_targets(cwd, tool_args)
-    if serial_targets is None:
-        return None
-
-    option_args, path_args, invocation_kind = serial_targets
-    constraint_label = serial_execution_constraint_label(
-        execution_constraints,
-        "black",
-        len(path_args),
-        invocation_kind,
-    )
-    if constraint_label is None:
-        return None
-
-    print(
-        f"[timeout-wrapper] SERIAL black: matched {constraint_label}; "
-        f"running {len(path_args)} files one at a time through the timeout "
-        "harness."
-    )
-    for index, path_arg in enumerate(path_args, start=1):
-        print(f"[timeout-wrapper] SERIAL black: {index}/{len(path_args)} {path_arg}")
-        child_command = _nested_timeout_command(
-            "black",
-            override_timeout,
-            [*option_args, path_arg],
-        )
-        result = subprocess.run(child_command, check=False)
-        if result.returncode != 0:
-            print(
-                f"[timeout-wrapper] SERIAL black: {path_arg} exited "
-                f"{result.returncode}.",
-                file=sys.stderr,
-            )
-            return result.returncode
-    return 0
-
-
-def main(argv: Sequence[str] | None = None) -> int:
-    args = _parse_args(argv or sys.argv[1:])
-    if args.tool == "black":
-        serial_result = _maybe_run_serial_black(
-            args.timeout_seconds,
-            args.tool_args,
-        )
-        if serial_result is not None:
-            return serial_result
-
-    config = _load_config()
-    command, timeout, retries, cleanup_patterns = _resolve_tool_run(
-        config=config,
-        tool=args.tool,
-        override_timeout=args.timeout_seconds,
-        tool_args=args.tool_args,
-    )
-
+def _run_command_with_timeout(
+    command: List[str],
+    *,
+    timeout: int,
+    retries: int,
+    cleanup_patterns: List[str],
+) -> int:
     pretty = " ".join(shlex.quote(part) for part in command)
     print(f"[timeout-wrapper] running: {pretty}")
     print(f"[timeout-wrapper] timeout: {timeout}s")
@@ -397,6 +211,315 @@ def main(argv: Sequence[str] | None = None) -> int:
             _cleanup_processes(cleanup_patterns)
 
     return 124
+
+
+def _normalize_tool_args(tool_args: Sequence[str]) -> List[str]:
+    normalized = list(tool_args)
+    if normalized and normalized[0] == "--":
+        normalized = normalized[1:]
+    return normalized
+
+
+def _extract_black_wrapper_args(
+    tool_args: Sequence[str],
+) -> tuple[List[str], List[str]]:
+    wrapper_args: List[str] = []
+    passthrough_args: List[str] = []
+    for arg in _normalize_tool_args(tool_args):
+        if arg == BLACK_INCLUDE_IGNORED_FLAG:
+            wrapper_args.append(arg)
+            continue
+        passthrough_args.append(arg)
+    return wrapper_args, passthrough_args
+
+
+def _black_option_and_path_args(
+    tool_args: Sequence[str],
+) -> tuple[List[str], List[str]]:
+    option_args: List[str] = []
+    path_args: List[str] = []
+    expecting_value = False
+
+    for arg in tool_args:
+        if expecting_value:
+            option_args.append(arg)
+            expecting_value = False
+            continue
+
+        if arg == "--":
+            continue
+
+        if arg.startswith("--") and arg != "--":
+            option_args.append(arg)
+            if "=" not in arg and arg in BLACK_LONG_OPTIONS_WITH_VALUE:
+                expecting_value = True
+            continue
+
+        if arg.startswith("-") and arg != "-":
+            option_args.append(arg)
+            short_flag = arg[:2]
+            if len(arg) == 2 and short_flag in BLACK_SHORT_OPTIONS_WITH_VALUE:
+                expecting_value = True
+            continue
+
+        path_args.append(arg)
+
+    return option_args, path_args
+
+
+def _supports_black_profile_mode(option_args: Sequence[str]) -> bool:
+    for option in option_args:
+        if option in {"-c", "--code"}:
+            return False
+        if option.startswith("--code="):
+            return False
+    return True
+
+
+def _black_has_explicit_target_version(option_args: Sequence[str]) -> bool:
+    for option in option_args:
+        if option in {"-t", "--target-version"}:
+            return True
+        if option.startswith("--target-version="):
+            return True
+    return False
+
+
+def _black_config_entry(
+    config: Dict[str, object],
+) -> tuple[List[str], int, int, List[str]]:
+    tools = config.get("tools")
+    if not isinstance(tools, dict):
+        raise ValueError("configuration must include a 'tools' object")
+    entry = tools.get("black")
+    if not isinstance(entry, dict):
+        raise KeyError("unknown tool 'black'")
+
+    command = entry.get("command")
+    if not isinstance(command, list) or not all(
+        isinstance(part, str) for part in command
+    ):
+        raise ValueError("tool 'black' must define command as a list of strings")
+
+    configured_timeout = entry.get("timeout_seconds")
+    if not isinstance(configured_timeout, int) or configured_timeout <= 0:
+        default_timeout = config.get("default_timeout_seconds")
+        if not isinstance(default_timeout, int) or default_timeout <= 0:
+            raise ValueError("default_timeout_seconds must be a positive integer")
+        configured_timeout = default_timeout
+
+    retries = entry.get("timeout_retries", 0)
+    if not isinstance(retries, int) or retries < 0:
+        raise ValueError("timeout_retries must be a non-negative integer")
+
+    cleanup_patterns = entry.get("cleanup_patterns", [])
+    if not isinstance(cleanup_patterns, list) or not all(
+        isinstance(pattern, str) for pattern in cleanup_patterns
+    ):
+        raise ValueError("cleanup_patterns must be a list of strings")
+
+    return list(command), configured_timeout, retries, cleanup_patterns
+
+
+def _nested_timeout_command(
+    tool: str,
+    override_timeout: int | None,
+    tool_args: Sequence[str],
+) -> List[str]:
+    command = [sys.executable, str(Path(__file__).resolve())]
+    if override_timeout is not None:
+        command.extend(["--timeout-seconds", str(override_timeout)])
+    command.append(tool)
+    command.extend(["--", *tool_args])
+    return command
+
+
+def _build_black_command(
+    runtime_executable: str,
+    base_command: Sequence[str],
+    option_args: Sequence[str],
+    path_args: Sequence[str],
+    *,
+    target_version: str | None,
+) -> List[str]:
+    command = [runtime_executable, *base_command]
+    if target_version is not None:
+        command.extend(["--target-version", target_version])
+    command.extend(option_args)
+    command.extend(path_args)
+    return command
+
+
+def _black_raw_runtime_policy(cwd: Path) -> str:
+    profiles = black_profiles(cwd)
+    if not profiles:
+        raise ValueError("tools.black.profiles must not be empty")
+    runtime_policy = profiles[0].get("runtime_policy")
+    if not isinstance(runtime_policy, str):
+        raise ValueError("Black profile runtime_policy must be a string")
+    return runtime_policy
+
+
+def _maybe_run_black(
+    override_timeout: int | None,
+    tool_args: Sequence[str],
+) -> int:
+    cwd = Path.cwd()
+    config = _load_config()
+    base_command, configured_timeout, retries, cleanup_patterns = _black_config_entry(
+        config
+    )
+    timeout = override_timeout or configured_timeout
+
+    try:
+        execution_constraints = load_execution_constraints(
+            cwd / EXECUTION_CONSTRAINTS_FILE
+        )
+    except ValueError as error:
+        print(f"[timeout-wrapper] {error}", file=sys.stderr)
+        return 2
+
+    wrapper_args, passthrough_args = _extract_black_wrapper_args(tool_args)
+    option_args, path_args = _black_option_and_path_args(passthrough_args)
+
+    if not _supports_black_profile_mode(option_args):
+        runtime_executable = resolve_runtime_policy_executable(
+            cwd,
+            _black_raw_runtime_policy(cwd),
+        )
+        command = _build_black_command(
+            runtime_executable,
+            base_command,
+            passthrough_args,
+            [],
+            target_version=None,
+        )
+        return _run_command_with_timeout(
+            command,
+            timeout=timeout,
+            retries=retries,
+            cleanup_patterns=cleanup_patterns,
+        )
+
+    discovered_paths = discover_black_paths(
+        cwd,
+        path_args or None,
+        include_ignored=BLACK_INCLUDE_IGNORED_FLAG in wrapper_args,
+    )
+    if discovered_paths is None:
+        runtime_executable = resolve_runtime_policy_executable(
+            cwd,
+            _black_raw_runtime_policy(cwd),
+        )
+        command = _build_black_command(
+            runtime_executable,
+            base_command,
+            passthrough_args,
+            [],
+            target_version=None,
+        )
+        return _run_command_with_timeout(
+            command,
+            timeout=timeout,
+            retries=retries,
+            cleanup_patterns=cleanup_patterns,
+        )
+
+    groups = group_black_paths_by_profile(cwd, discovered_paths)
+    if not groups:
+        print("[timeout-wrapper] black: no eligible files discovered for the scope.")
+        return 0
+
+    invocation_kind = "explicit_paths" if path_args else "default_scope"
+    serial_allowed = all(
+        bool(profile.get("allow_serial_fallback", False)) for profile, _ in groups
+    )
+    if serial_allowed:
+        constraint_label = serial_execution_constraint_label(
+            execution_constraints,
+            "black",
+            len(discovered_paths),
+            invocation_kind,
+        )
+        if constraint_label is not None:
+            print(
+                f"[timeout-wrapper] SERIAL black: matched {constraint_label}; "
+                f"running {len(discovered_paths)} files one at a time through the "
+                "timeout harness."
+            )
+            child_base_args = [*wrapper_args, *option_args]
+            for index, path_arg in enumerate(discovered_paths, start=1):
+                print(
+                    f"[timeout-wrapper] SERIAL black: "
+                    f"{index}/{len(discovered_paths)} {path_arg}"
+                )
+                child_command = _nested_timeout_command(
+                    "black",
+                    override_timeout,
+                    [*child_base_args, path_arg],
+                )
+                result = subprocess.run(child_command, check=False)
+                if result.returncode != 0:
+                    print(
+                        f"[timeout-wrapper] SERIAL black: {path_arg} exited "
+                        f"{result.returncode}.",
+                        file=sys.stderr,
+                    )
+                    return result.returncode
+            return 0
+
+    explicit_target_version = _black_has_explicit_target_version(option_args)
+    for profile, group_paths in groups:
+        runtime_policy = profile.get("runtime_policy")
+        if not isinstance(runtime_policy, str):
+            raise ValueError("Black profile runtime_policy must be a string")
+        runtime_executable = resolve_runtime_policy_executable(cwd, runtime_policy)
+        target_version = None
+        if not explicit_target_version:
+            profile_target = profile.get("target_version")
+            if not isinstance(profile_target, str):
+                raise ValueError("Black profile target_version must be a string")
+            target_version = profile_target
+        print(
+            f"[timeout-wrapper] PROFILE black: {profile.get('name')} "
+            f"({len(group_paths)} files)."
+        )
+        command = _build_black_command(
+            runtime_executable,
+            base_command,
+            option_args,
+            group_paths,
+            target_version=target_version,
+        )
+        returncode = _run_command_with_timeout(
+            command,
+            timeout=timeout,
+            retries=retries,
+            cleanup_patterns=cleanup_patterns,
+        )
+        if returncode != 0:
+            return returncode
+    return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = _parse_args(argv or sys.argv[1:])
+    if args.tool == "black":
+        return _maybe_run_black(args.timeout_seconds, args.tool_args)
+
+    config = _load_config()
+    command, timeout, retries, cleanup_patterns = _resolve_tool_run(
+        config=config,
+        tool=args.tool,
+        override_timeout=args.timeout_seconds,
+        tool_args=args.tool_args,
+    )
+    return _run_command_with_timeout(
+        command,
+        timeout=timeout,
+        retries=retries,
+        cleanup_patterns=cleanup_patterns,
+    )
 
 
 if __name__ == "__main__":

@@ -12,11 +12,13 @@ EXPECTED_FILES = [
     INTERNAL / "README.md",
     ROOT / "README.md",
     ROOT / "tool_execution_constraints.json",
+    ROOT / "tool_validation_profiles.json",
     TEMPLATES / "AGENTS-header.md",
     TEMPLATES / "AGENTS-footer.md",
     TEMPLATES / "README.md",
     TEMPLATES / "requirements-dev.txt",
     TEMPLATES / "scripts" / "dev_setup.py",
+    ROOT / "scripts" / "tool_validation_profiles.py",
     TEMPLATES / "project-management" / "git-flow.txt",
     TEMPLATES / "project-management" / "proposals" / "README.txt",
     TEMPLATES / "project-management" / "proposals" / "approved" / "README.txt",
@@ -34,6 +36,10 @@ EXPECTED_FILES = [
     / "codex_sandbox_file_safe_static_analysis.txt",
     STANDARDS / "docs" / "specifications" / "tool_execution_constraints_registry.txt",
     STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt",
+    STANDARDS
+    / "docs"
+    / "specifications"
+    / "tool_validation_profiles_and_python_runtime_selection.txt",
     STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt",
     STANDARDS / "docs" / "specifications" / "theknowledge_submodule_workflows.txt",
     STANDARDS
@@ -94,6 +100,12 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     pinning_spec_text = (
         STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt"
     ).read_text(encoding="utf-8")
+    profile_spec_text = (
+        STANDARDS
+        / "docs"
+        / "specifications"
+        / "tool_validation_profiles_and_python_runtime_selection.txt"
+    ).read_text(encoding="utf-8")
     submodule_spec_text = (
         STANDARDS / "docs" / "specifications" / "theknowledge_submodule_workflows.txt"
     ).read_text(encoding="utf-8")
@@ -133,8 +145,9 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "requirements-dev.txt" in templates_text
     assert "scripts/dev_setup.py" in templates_text
     assert "tool_execution_constraints.json" in templates_text
+    assert "tool_validation_profiles.json" in templates_text
     assert "default pinned" in templates_text
-    assert "Black, Ruff, and pytest toolchain" in templates_text
+    assert "Black, Ruff, and pytest" in templates_text
     assert "report_managed_agents_drift.py" in templates_text
     assert "update_theknowledge_submodule.py" in templates_text
     assert "send_theknowledge_feedback.py prepare" in templates_text
@@ -161,6 +174,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "python scripts/dev_setup.py" in footer_text
     assert "requirements-dev.txt" in footer_text
     assert "tool_execution_constraints.json" in footer_text
+    assert "tool_validation_profiles.json" in footer_text
     assert "send_theknowledge_feedback.py prepare" in footer_text
     assert "update_theknowledge_submodule.py" in footer_text
     assert "Before any `git add`, list the files about to be staged" in footer_text
@@ -181,6 +195,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "scripts/dev_setup.py" in repo_text
     assert "requirements-dev.txt" in repo_text
     assert "tool_execution_constraints.json" in repo_text
+    assert "tool_validation_profiles.json" in repo_text
     assert "update_theknowledge_submodule.py" in repo_text
     assert "send_theknowledge_feedback.py prepare" in repo_text
     assert "workflow profiling" in repo_text
@@ -198,6 +213,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "project-management/backlog.txt" in workflow_text
     assert "python scripts/dev_setup.py" in workflow_text
     assert "tool_execution_constraints.json" in workflow_text
+    assert "tool_validation_profiles.json" in workflow_text
     assert "./scripts/install_prerequisites.sh" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
     assert "review in Meld" in workflow_text
@@ -207,15 +223,20 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "`black -W 1`" in workflow_text
     assert "python scripts/dev_setup.py" in git_flow_text
     assert "requirements-dev.txt" in git_flow_text
+    assert "tool_validation_profiles.json" in git_flow_text
     assert "incoming upstream `trunk` delta" in git_flow_text
     assert "update_theknowledge_submodule.py" in git_flow_text
     assert "TheKnowledge submodule" in installation_text
     assert "tool_execution_constraints.json" in installation_text
     assert "--template tool_execution_constraints.json" in installation_text
+    assert "tool_validation_profiles.json" in installation_text
     assert "send_theknowledge_feedback.py prepare" in installation_text
     assert "pyproject.toml" in pinning_spec_text
     assert "templates/requirements-dev.txt" in pinning_spec_text
     assert "templates/scripts/dev_setup.py" in pinning_spec_text
+    assert "tool_validation_profiles.json" in pinning_spec_text
+    assert "placement plus extension" in profile_spec_text
+    assert "steady-state Python runtime" in profile_spec_text
     assert "review-and-adopt flow" in submodule_spec_text
     assert "active `TheKnowledge/` submodule checkout" in submodule_spec_text
     assert "update_theknowledge_submodule.py" in submodule_spec_text

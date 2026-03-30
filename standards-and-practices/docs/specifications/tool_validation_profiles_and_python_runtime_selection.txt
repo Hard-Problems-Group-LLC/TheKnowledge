@@ -1,0 +1,107 @@
+Tool Validation Profiles and Python Runtime Selection
+=====================================================
+
+Scope
+-----
+Define how TheKnowledge and its managed starter files select Black behavior
+from path placement and extension, and define how bootstrap entry points hand
+off to a steady-state Python runtime for pinned developer tools.
+
+Problem Statement
+-----------------
+TheKnowledge's Black workflow currently mixes three concerns without one
+shared policy:
+- which files Black should discover by default;
+- which Black target version should apply to a file; and
+- which Python interpreter should run the pinned Black toolchain.
+
+That ambiguity causes three repository bugs:
+- required Black validation can sweep unrelated tracked files when the
+  baseline drifts;
+- starter and repository bootstrap flows imply that the bootstrap Python
+  interpreter should also run pinned developer tools; and
+- the timeout wrapper's fallback path can diverge from Git intent because it
+  walks the filesystem instead of beginning from managed file placement.
+
+Requirements
+------------
+- The repository root must include `tool_validation_profiles.json`.
+- That file must be the repository-managed source of truth for:
+  - Black discovery roots;
+  - ordered Black validation profiles;
+  - eligible file extensions per profile;
+  - Black target versions per profile; and
+  - named Python runtime policies for steady-state tool execution.
+- Profile selection must be driven by path placement plus extension. A new
+  file placed inside a covered directory must inherit its validation profile
+  automatically without adding a filename-specific rule.
+- `scripts/run_tool_with_timeout.py` must load the Black profile registry and
+  use it for default Black discovery, explicit path expansion, profile
+  grouping, target-version selection, and runtime selection.
+- Default Black discovery must be Git-first. With no explicit paths,
+  `scripts/run_tool_with_timeout.py black` must begin from Git-tracked files
+  under the configured Black default roots and then filter by the configured
+  Black file extensions.
+- Explicit file paths may include untracked files when they exist and match a
+  configured Black suffix.
+- Git-ignored files must be skipped by default even when they are named
+  explicitly. The timeout wrapper may support an explicit override flag for
+  maintainers who intentionally want ignored files formatted.
+- A small hardcoded directory exclusion list may remain as defense in depth,
+  but that list must not be the primary definition of Black scope.
+- When the current environment matches a registry entry in
+  `tool_execution_constraints.json` that marks Black's multi-file path unsafe
+  to parallelize, the timeout wrapper must still serialize Black one file at
+  a time through the same timeout harness.
+- The Black serial fallback must preserve the profile-driven target-version
+  and runtime-selection behavior for each file.
+- `scripts/run_quality_gate_cached.py` must fingerprint the same default
+  Black-managed roots that the timeout wrapper would discover by default.
+- `scripts/install_prerequisites.sh` must stop precreating or activating a
+  virtual environment before the Python installer selects the managed tool
+  runtime.
+- `scripts/install_prerequisites.py` must be runnable on the bootstrap
+  interpreter but, unless `--python` overrides it, must create or refresh the
+  managed virtual environment using the configured steady-state tool runtime
+  policy instead of defaulting to `sys.executable`.
+- `templates/scripts/dev_setup.py` must follow the same rule as
+  `scripts/install_prerequisites.py`: the script itself remains bootstrap-
+  compatible, but the virtual environment it creates must default to the
+  managed steady-state tool runtime rather than to the bootstrap interpreter.
+- `scripts/initial_setup.py` must install `tool_validation_profiles.json`
+  into consuming projects as a managed starter file.
+- `README.md`, `templates/README.md`, `templates/AGENTS-footer.md`,
+  `templates/project-management/git-flow.txt`,
+  `standards-and-practices/docs/development-workflow.txt`, and
+  `standards-and-practices/docs/installation.txt` must explain the bootstrap-
+  versus-steady-state distinction and the presence of
+  `tool_validation_profiles.json` in the managed starter.
+- Tests must verify:
+  - profile resolution from placement plus extension;
+  - Git-first default Black discovery;
+  - default skipping of Git-ignored files;
+  - explicit inclusion of untracked files when named directly;
+  - steady-state Python runtime resolution behavior;
+  - managed starter installation of `tool_validation_profiles.json`; and
+  - drift-report guidance that includes the new managed file.
+
+Runtime Policy
+--------------
+- The bootstrap floor remains Python 3.9 unless raised explicitly elsewhere.
+- The managed steady-state Python tool runtime for pinned Black and pytest
+  must require Python 3.10 or newer.
+- The steady-state runtime resolver may prefer an existing project `.venv`
+  when it satisfies the configured minimum version and contains the required
+  module, but it must also support ordered fallback candidates from the
+  registry so bootstrap entry points can adopt a newer interpreter cleanly.
+- The runtime resolver may honor documented environment-variable overrides
+  ahead of the ordered fallback candidates.
+
+Non-Goals
+---------
+- Defining a universal profile system for every future tool on the first
+  implementation pass.
+- Formatting Git-ignored files by default.
+- Treating the bootstrap interpreter as the long-term developer-tool runtime.
+- Silently folding repository-wide Black normalization into unrelated change
+  sets.

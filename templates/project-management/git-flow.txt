@@ -112,8 +112,10 @@ Operational Notes
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
   through `{{THEKNOWLEDGE_ROOT}}/scripts/install_git_hooks.py`.
 - If the project is using the managed starter Python toolchain, rerun
-  `python scripts/dev_setup.py` whenever `requirements-dev.txt` changes or the
-  local Black, Ruff, or pytest install drifts from the pinned defaults.
+  `python scripts/dev_setup.py` whenever `requirements-dev.txt`,
+  `tool_validation_profiles.json`, or `scripts/tool_validation_profiles.py`
+  changes, or when the local Black, Ruff, or pytest install drifts from the
+  pinned defaults.
 - When updating a TheKnowledge submodule inside a consuming project, prefer
   `python {{THEKNOWLEDGE_ROOT}}/scripts/update_theknowledge_submodule.py`
   `--project-root . --knowledge-root {{THEKNOWLEDGE_ROOT}}`. That helper

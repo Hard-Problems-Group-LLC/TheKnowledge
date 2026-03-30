@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
 STANDARDS = ROOT / "standards-and-practices" / "docs" / "specifications"
 
@@ -12,6 +11,8 @@ EXPECTED_FILES = [
     ROOT / "knacks" / "authoring-guide.md",
     ROOT / "knacks" / "auditing" / "README.md",
     ROOT / "knacks" / "auditing" / "Software-Bill-of-Materials.knack.md",
+    ROOT / "knacks" / "debugging" / "README.md",
+    ROOT / "knacks" / "debugging" / "HighLevelDebugging.knack.md",
     ROOT / "knacks" / "licenses" / "README.md",
     ROOT / "knacks" / "licenses" / "mit-license.knack.md",
     ROOT / "knacks" / "licenses" / "apache-license-2.0.knack.md",
@@ -40,6 +41,12 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     auditing_readme = (ROOT / "knacks" / "auditing" / "README.md").read_text(
         encoding="utf-8"
     )
+    debugging_readme = (ROOT / "knacks" / "debugging" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    debugging_knack = (
+        ROOT / "knacks" / "debugging" / "HighLevelDebugging.knack.md"
+    ).read_text(encoding="utf-8")
     licenses_readme = (ROOT / "knacks" / "licenses" / "README.md").read_text(
         encoding="utf-8"
     )
@@ -65,8 +72,13 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert ".knack/" in knack_readme
     assert "project-local knack path collides" in knack_readme
     assert "skills" in knack_readme
+    assert "debugging/" in knack_readme
     assert "licenses/" in knack_readme
     assert "auditing/" in knack_readme
+    assert "HighLevelDebugging.knack.md" in debugging_readme
+    assert "AI-assisted debugging" in debugging_readme
+    assert "high-level debugging" in debugging_knack.lower()
+    assert "anti-patterns" in debugging_knack.lower()
     assert "1,250" in guide_text
     assert "2,500" in guide_text
     assert "5,000" in guide_text
