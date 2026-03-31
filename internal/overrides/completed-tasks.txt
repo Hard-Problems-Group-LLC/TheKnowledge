@@ -6,6 +6,18 @@ the template wording or examples are being revised.
 
 *
 
+  2026-03-31T15:38:05-07:00 - Drafted two new under-review ECRs on `trunk`:
+  one to replace the current install-prerequisites bootstrap with a minimal
+  `install.sh` plus Python stage-2, user-scoped `pyenv`, repo-local
+  `.python-version` and `.venv`, and mandatory `direnv`; and one to replace
+  the old `Feedback` side branch with a clearer `feedback/ECRs` intake
+  branch for structured cross-project proposals. While landing that intake,
+  also fixed `scripts/validate_knacks.py` so `.git/...` cache paths resolve
+  through the real git dir and the standard quality gate works in active
+  submodule-style checkouts.
+
+*
+
   2026-03-30T12:13:45-07:00 - Imported AutoTomato's external
   `ECRs/TheKnowledge/` bundle unchanged under
   `internal/overrides/proposals/under-review/imported-autotomato-ecrs/` so

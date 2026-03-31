@@ -23,9 +23,27 @@ def _run(project_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _make_project(tmp_path: Path) -> Path:
+def _git_dir(project_root: Path) -> Path:
+    result = subprocess.run(
+        ["git", "rev-parse", "--git-dir"],
+        cwd=project_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    git_dir = Path(result.stdout.strip())
+    if not git_dir.is_absolute():
+        git_dir = (project_root / git_dir).resolve()
+    return git_dir
+
+
+def _make_project(tmp_path: Path, *, separate_git_dir: bool = False) -> Path:
     project = tmp_path / "project"
-    (project / ".git").mkdir(parents=True)
+    init_command = ["git", "init", "--quiet"]
+    if separate_git_dir:
+        init_command.extend(["--separate-git-dir", str(tmp_path / "project-git")])
+    init_command.append(str(project))
+    subprocess.run(init_command, check=True, capture_output=True, text=True)
     (project / "knacks").mkdir(parents=True)
     return project
 
@@ -57,6 +75,25 @@ def test_knack_validator_uses_cache_for_unchanged_files(tmp_path: Path) -> None:
 
     cache = project / ".git" / "knack-validation-cache.json"
     assert cache.is_file()
+
+
+def test_knack_validator_uses_real_git_dir_for_separate_git_repo(
+    tmp_path: Path,
+) -> None:
+    project = _make_project(tmp_path, separate_git_dir=True)
+    knack = project / "knacks" / "demo.knack.md"
+    knack.write_text(
+        "# Demo\n\nPlain prose with stable wording.\n",
+        encoding="utf-8",
+    )
+
+    result = _run(project, "--knowledge-root", str(ROOT))
+
+    assert result.returncode == 0
+    git_dir = _git_dir(project)
+    assert (project / ".git").is_file()
+    assert (git_dir / "knack-validation-cache.json").is_file()
+    assert not (project / ".git" / "knack-validation-cache.json").exists()
 
 
 def test_knack_validator_reports_unclosed_fence_as_error(tmp_path: Path) -> None:

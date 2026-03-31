@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -106,6 +107,38 @@ def resolve_knowledge_root(project_root: Path, value: str | None) -> Path:
     if not candidate.is_absolute():
         candidate = project_root / candidate
     return candidate.resolve()
+
+
+def resolve_git_dir(project_root: Path) -> Path | None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--git-dir"],
+        cwd=project_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    git_dir_text = result.stdout.strip()
+    if result.returncode != 0 or not git_dir_text:
+        return None
+    git_dir = Path(git_dir_text)
+    if not git_dir.is_absolute():
+        git_dir = (project_root / git_dir).resolve()
+    return git_dir
+
+
+def resolve_cache_path(project_root: Path, cache_file: str) -> Path:
+    configured_path = Path(cache_file)
+    if configured_path.is_absolute():
+        return configured_path
+
+    if configured_path.parts and configured_path.parts[0] == ".git":
+        git_dir = resolve_git_dir(project_root)
+        if git_dir is not None:
+            if len(configured_path.parts) == 1:
+                return git_dir
+            return git_dir.joinpath(*configured_path.parts[1:])
+
+    return (project_root / configured_path).resolve()
 
 
 def load_cache(path: Path) -> Dict[str, object]:
@@ -296,7 +329,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     project_root = Path(args.project_root).resolve()
     knowledge_root = resolve_knowledge_root(project_root, args.knowledge_root)
-    cache_path = (project_root / args.cache_file).resolve()
+    cache_path = resolve_cache_path(project_root, args.cache_file)
 
     if not project_root.exists():
         emit_error(f"missing project root: {project_root}")

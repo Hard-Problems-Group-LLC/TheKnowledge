@@ -18,6 +18,14 @@ Completed Requests
 ------------------
 
 *
+  2026-03-31T15:38:05-07:00
+  Requestor: operator
+  Action: Draft and publish TheKnowledge ECRs for the proposed two-stage
+  cross-distro bootstrap model and for replacing the old `Feedback` intake
+  branch with a dedicated `feedback/ECRs` branch.
+  Status: completed by Codex on 2026-03-31T15:38:05-07:00.
+
+*
   2026-03-30T12:13:45-07:00
   Requestor: operator
   Action: Import the AutoTomato `ECRs/TheKnowledge/` files into this writable
