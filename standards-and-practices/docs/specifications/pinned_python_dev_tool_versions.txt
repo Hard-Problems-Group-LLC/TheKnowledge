@@ -35,14 +35,22 @@ Requirements
 - `tool_validation_profiles.json` must exist at the repository root and must
   define the managed steady-state Python tool runtime policy separately from
   the Python 3.9 bootstrap floor.
+- `python-environments.json` must exist at the repository root and must
+  define the named pyenv bootstrap/runtime environments and their preferred
+  base versions.
 - `scripts/tool_validation_profiles.py` must exist and must expose the managed
   runtime-selection logic that consuming projects inherit with the starter.
+- `bootstrap.sh`, `bootstrap-stage2.py`, `.python-version`,
+  `set-context-bootstrap.sh`, and `set-context.sh` must exist at the
+  repository root.
 - `scripts/initial_setup.py` must install `requirements-dev.txt`,
-  `scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`, and
-  `tool_validation_profiles.json` into consuming projects by default.
+  `scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`,
+  `scripts/python_environment_bootstrap.py`, `tool_validation_profiles.json`,
+  `python-environments.json`, `bootstrap.sh`, `bootstrap-stage2.py`,
+  `.python-version`, `set-context-bootstrap.sh`, and `set-context.sh` into
+  consuming projects by default.
 - `README.md` must explain that consuming projects receive starter toolchain
-  files and may run `python scripts/dev_setup.py` when they want the default
-  pinned setup.
+  files and may run `./bootstrap.sh` when they want the default pinned setup.
 - `templates/README.md`, `templates/AGENTS-footer.md`, and
   `templates/project-management/git-flow.txt` must explain how the managed
   starter toolchain is refreshed in consuming projects.
@@ -54,7 +62,8 @@ Requirements
   - the `pyproject.toml` dev dependencies remain exact pins;
   - `templates/requirements-dev.txt` stays in sync with those pins; and
   - `scripts/initial_setup.py` installs the managed starter toolchain files
-    into consuming projects, including the runtime-profile policy files.
+    into consuming projects, including the runtime-profile policy files and
+    the pyenv/bootstrap context files.
 
 Non-Goals
 ---------

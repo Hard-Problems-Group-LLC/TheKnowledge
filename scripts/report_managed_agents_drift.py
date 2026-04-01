@@ -17,6 +17,7 @@ from initial_setup import (
     infer_knowledge_root,
     installable_entries,
     iter_install_files,
+    project_slug,
     render_file,
     repo_root,
 )
@@ -69,8 +70,13 @@ def render_expected_block(
     templates_root: Path,
     template_name: str,
     knowledge_root: str,
+    project_name_slug: str,
 ) -> str:
-    return render_file(templates_root / template_name, knowledge_root).decode("utf-8")
+    return render_file(
+        templates_root / template_name,
+        knowledge_root,
+        project_name_slug,
+    ).decode("utf-8")
 
 
 def print_diff(label: str, current: str, expected: str) -> None:
@@ -99,13 +105,14 @@ def decode_text(content: bytes) -> str | None:
 def expected_managed_files(
     knowledge_repo_root: Path,
     templates_root: Path,
+    knowledge_root: str,
+    project_name_slug: str,
 ) -> list[tuple[Path, Path]]:
-    return iter_install_files(
-        [
-            installable_entries(knowledge_repo_root, templates_root)[name]
-            for name in MANAGED_REFRESH_TEMPLATES
-        ]
-    )
+    entries = [
+        installable_entries(knowledge_repo_root, templates_root)[name]
+        for name in MANAGED_REFRESH_TEMPLATES
+    ]
+    return iter_install_files(entries)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -123,6 +130,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             project_root=project_root,
             knowledge_repo_root=knowledge_repo_root,
         )
+        project_name_slug = project_slug(project_root)
     except RuntimeError as error:
         print(f"[managed-drift] FAIL: {error}", file=sys.stderr)
         return 2
@@ -142,11 +150,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         templates_root,
         AGENTS_HEADER,
         knowledge_root,
+        project_name_slug,
     )
     expected_footer = render_expected_block(
         templates_root,
         AGENTS_FOOTER,
         knowledge_root,
+        project_name_slug,
     )
 
     drift_found = False
@@ -172,9 +182,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     for source, relative_path in expected_managed_files(
         knowledge_repo_root,
         templates_root,
+        knowledge_root,
+        project_name_slug,
     ):
         destination = project_root / relative_path
-        expected_bytes = render_file(source, knowledge_root)
+        expected_bytes = render_file(source, knowledge_root, project_name_slug)
         current_bytes = destination.read_bytes() if destination.is_file() else None
         label = relative_path.as_posix()
         if current_bytes == expected_bytes:

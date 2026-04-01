@@ -8,6 +8,8 @@ TEMPLATE_REQUIREMENTS = ROOT / "templates" / "requirements-dev.txt"
 TEMPLATE_DEV_SETUP = ROOT / "templates" / "scripts" / "dev_setup.py"
 RUNTIME_PROFILES = ROOT / "tool_validation_profiles.json"
 VALIDATION_HELPER = ROOT / "scripts" / "tool_validation_profiles.py"
+PYTHON_ENVIRONMENTS = ROOT / "python-environments.json"
+PYTHON_VERSION = ROOT / ".python-version"
 
 EXPECTED_DEV_TOOLS = [
     "black==26.3.1",
@@ -83,6 +85,16 @@ def test_runtime_profiles_define_steady_state_tool_runtime() -> None:
     content = RUNTIME_PROFILES.read_text(encoding="utf-8")
 
     assert '"steady_state_python_tools"' in content
-    assert '"minimum_version": "3.10"' in content
+    assert '"minimum_version": "3.12"' in content
     assert '"target_version": "py39"' in content
     assert VALIDATION_HELPER.is_file()
+
+
+def test_python_environment_files_define_bootstrap_and_runtime_contexts() -> None:
+    config_text = PYTHON_ENVIRONMENTS.read_text(encoding="utf-8")
+    runtime_text = PYTHON_VERSION.read_text(encoding="utf-8")
+
+    assert '"required_version": "3.9"' in config_text
+    assert '"required_version": "3.12"' in config_text
+    assert "theknowledge-runtime-3.12" in config_text
+    assert runtime_text.strip() == "theknowledge-runtime-3.12"

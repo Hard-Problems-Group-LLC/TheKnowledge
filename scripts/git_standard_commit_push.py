@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Mapping, Optional, Sequence
 
 PENDING_COMMIT_CHANGES_PATHS = (
     Path("internal/overrides/state/pending-commit-changes.txt"),
@@ -238,6 +238,80 @@ def pending_commit_changes_text(path: Optional[Path]) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
+def git_config_value(
+    repo_root: Path,
+    key: str,
+    dry_run: bool = False,
+) -> Optional[str]:
+    if dry_run:
+        return None
+    result = run(["git", "config", "--get", key], cwd=repo_root, dry_run=dry_run)
+    if result.returncode == 1:
+        return None
+    ensure_ok(result, f"git config --get {key}")
+    value = (result.stdout or "").strip()
+    return value or None
+
+
+def explicit_env_identity(
+    environment: Mapping[str, str],
+    role: str,
+) -> Optional[tuple[str, str]]:
+    name_key = f"GIT_{role}_NAME"
+    email_key = f"GIT_{role}_EMAIL"
+    name = environment.get(name_key)
+    email = environment.get(email_key)
+    if name is None and email is None:
+        return None
+    if not name or not email:
+        raise RuntimeError(
+            f"Explicit git {role.lower()} identity is incomplete. Set both "
+            f"`{name_key}` and `{email_key}`, or unset both."
+        )
+    return name.strip(), email.strip()
+
+
+def configured_git_identity(
+    repo_root: Path,
+    dry_run: bool = False,
+) -> Optional[tuple[str, str]]:
+    name = git_config_value(repo_root, "user.name", dry_run=dry_run)
+    email = git_config_value(repo_root, "user.email", dry_run=dry_run)
+    if name is None and email is None:
+        return None
+    if not name or not email:
+        raise RuntimeError(
+            "Git identity is partially configured. Set both `user.name` and "
+            "`user.email`, or unset both."
+        )
+    return name, email
+
+
+def ensure_explicit_git_identity(
+    repo_root: Path,
+    dry_run: bool = False,
+    environment: Optional[Mapping[str, str]] = None,
+) -> None:
+    if dry_run:
+        return
+    environment = os.environ if environment is None else environment
+    author = explicit_env_identity(environment, "AUTHOR")
+    committer = explicit_env_identity(environment, "COMMITTER")
+    configured = configured_git_identity(repo_root, dry_run=dry_run)
+    resolved_author = author or committer or configured
+    resolved_committer = committer or configured
+    if resolved_author is not None and resolved_committer is not None:
+        return
+    raise RuntimeError(
+        "Git commit identity is not explicitly configured. Set `git config "
+        "user.name` and `git config user.email`, or set deliberate "
+        "`GIT_COMMITTER_NAME`/`GIT_COMMITTER_EMAIL` values and optional "
+        "separate `GIT_AUTHOR_NAME`/`GIT_AUTHOR_EMAIL` overrides. Never "
+        "infer addresses from commit history, hostnames, or network "
+        "identifiers."
+    )
+
+
 def build_commit_command(
     message: str, pending_body: str, allow_empty: bool
 ) -> list[str]:
@@ -421,6 +495,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         repo_root = repo_root_from_cwd(start_cwd, dry_run=args.dry_run)
         if args.resume_review_prompts:
             clear_review_prompt_state(repo_root, dry_run=args.dry_run)
+        ensure_explicit_git_identity(repo_root, dry_run=args.dry_run)
         pending_path = pending_commit_changes_path(repo_root)
         pending_body = pending_commit_changes_text(pending_path)
         pending_backup = ""

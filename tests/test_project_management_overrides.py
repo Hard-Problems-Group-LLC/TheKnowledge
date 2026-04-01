@@ -10,13 +10,28 @@ TEMPLATES = ROOT / "templates"
 
 EXPECTED_FILES = [
     INTERNAL / "README.md",
+    ROOT / ".python-version",
     ROOT / "README.md",
+    ROOT / "bootstrap.sh",
+    ROOT / "bootstrap-stage2.py",
+    ROOT / "python-environments.json",
+    ROOT / "set-context-bootstrap.sh",
+    ROOT / "set-context.sh",
+    ROOT / "scripts" / "python_environment_bootstrap.py",
     ROOT / "tool_execution_constraints.json",
     ROOT / "tool_validation_profiles.json",
     TEMPLATES / "AGENTS-header.md",
     TEMPLATES / "AGENTS-footer.md",
+    TEMPLATES / ".python-version",
     TEMPLATES / "README.md",
+    TEMPLATES / "bootstrap.sh",
+    TEMPLATES / "bootstrap-stage2.py",
+    TEMPLATES / "python-environments.json",
     TEMPLATES / "requirements-dev.txt",
+    TEMPLATES / "set-context-bootstrap.sh",
+    TEMPLATES / "set-context.sh",
+    TEMPLATES / "ECRs" / "README.md",
+    TEMPLATES / "ECRs" / "TheKnowledge" / "README.md",
     TEMPLATES / "scripts" / "dev_setup.py",
     ROOT / "scripts" / "tool_validation_profiles.py",
     TEMPLATES / "project-management" / "git-flow.txt",
@@ -36,6 +51,11 @@ EXPECTED_FILES = [
     / "codex_sandbox_file_safe_static_analysis.txt",
     STANDARDS / "docs" / "specifications" / "tool_execution_constraints_registry.txt",
     STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt",
+    STANDARDS / "docs" / "specifications" / "python_bootstrap_and_context_strategy.txt",
+    STANDARDS
+    / "docs"
+    / "specifications"
+    / "read_only_upstream_ecr_directory_structure.txt",
     STANDARDS
     / "docs"
     / "specifications"
@@ -100,11 +120,26 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     pinning_spec_text = (
         STANDARDS / "docs" / "specifications" / "pinned_python_dev_tool_versions.txt"
     ).read_text(encoding="utf-8")
+    bootstrap_spec_text = (
+        STANDARDS
+        / "docs"
+        / "specifications"
+        / "python_bootstrap_and_context_strategy.txt"
+    ).read_text(encoding="utf-8")
+    ecr_spec_text = (
+        STANDARDS
+        / "docs"
+        / "specifications"
+        / "read_only_upstream_ecr_directory_structure.txt"
+    ).read_text(encoding="utf-8")
     profile_spec_text = (
         STANDARDS
         / "docs"
         / "specifications"
         / "tool_validation_profiles_and_python_runtime_selection.txt"
+    ).read_text(encoding="utf-8")
+    pending_queue_spec_text = (
+        STANDARDS / "docs" / "specifications" / "pending_commit_change_queue.txt"
     ).read_text(encoding="utf-8")
     submodule_spec_text = (
         STANDARDS / "docs" / "specifications" / "theknowledge_submodule_workflows.txt"
@@ -125,9 +160,14 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "internal/overrides/proposals/" in agents_text
     assert "internal/overrides/bugs/" in agents_text
     assert "Load this file before running automated tooling" in agents_text
+    assert "Every maintained source file should" in agents_text
+    assert "Python 3.12 best practices" in agents_text
     assert "tool_execution_constraints.json" in agents_text
     assert "send_theknowledge_feedback.py prepare" in agents_text
+    assert "ECRs/TheKnowledge/" in agents_text
     assert "Before any `git add`, list the files about to be staged" in agents_text
+    assert "Never guess a Git author or committer email address" in agents_text
+    assert "explicit committer identity for author" in agents_text
     assert "Run `git diff --cached` before any commit" in agents_text
     assert "`TheKnowledge/` submodule" in agents_text
     assert "one file at a time" in agents_text
@@ -142,6 +182,9 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "bootstrap.sh" in templates_text
+    assert "python-environments.json" in templates_text
+    assert "ECRs/TheKnowledge/" in templates_text
     assert "requirements-dev.txt" in templates_text
     assert "scripts/dev_setup.py" in templates_text
     assert "tool_execution_constraints.json" in templates_text
@@ -168,10 +211,13 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "TheKnowledge Overrides" in footer_text
     assert "Feedback` branch" in footer_text
     assert "`{$KNOWLEDGE_ROOT}/` submodule checkout" in footer_text
+    assert "./bootstrap.sh" in footer_text
+    assert "python-environments.json" in footer_text
+    assert "ECRs/TheKnowledge/" in footer_text
+    assert "Python 3.12 best practices" in footer_text
     assert "incoming upstream `trunk` delta" in footer_text
     assert "one file at a time" in footer_text
     assert "`black -W 1`" in footer_text
-    assert "python scripts/dev_setup.py" in footer_text
     assert "requirements-dev.txt" in footer_text
     assert "tool_execution_constraints.json" in footer_text
     assert "tool_validation_profiles.json" in footer_text
@@ -186,12 +232,17 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "top-level `knacks/` directory" in footer_text
     assert "scripts/validate_knacks.py --project-root ." in footer_text
     assert ".git/knack-validation-cache.json" in footer_text
+    assert "Never guess a Git author or committer email address" in footer_text
+    assert "explicit committer identity for author" in footer_text
     assert "review in Meld" in footer_text
     assert "default visual review path" in footer_text
     assert "--resume-review-prompts" in footer_text
     assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
     assert "Timestamped Intermediary Updates" in repo_text
+    assert "./bootstrap.sh" in repo_text
+    assert "python-environments.json" in repo_text
+    assert "ECRs/TheKnowledge/" in repo_text
     assert "scripts/dev_setup.py" in repo_text
     assert "requirements-dev.txt" in repo_text
     assert "tool_execution_constraints.json" in repo_text
@@ -211,22 +262,30 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "workflow profiling" in workflow_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in workflow_text
     assert "project-management/backlog.txt" in workflow_text
-    assert "python scripts/dev_setup.py" in workflow_text
+    assert "./bootstrap.sh" in workflow_text
     assert "tool_execution_constraints.json" in workflow_text
     assert "tool_validation_profiles.json" in workflow_text
     assert "./scripts/install_prerequisites.sh" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
     assert "review in Meld" in workflow_text
     assert "default visual review path" in workflow_text
+    assert "Never infer a Git author or committer email address" in workflow_text
+    assert "committer identity for author" in workflow_text
     assert "git diff --cached" in workflow_text
     assert "one file at a time" in workflow_text
     assert "`black -W 1`" in workflow_text
-    assert "python scripts/dev_setup.py" in git_flow_text
+    assert "./bootstrap.sh" in git_flow_text
+    assert "ECRs/TheKnowledge/" in git_flow_text
+    assert "Never infer a Git author or committer email address" in git_flow_text
+    assert "committer identity for author" in git_flow_text
     assert "requirements-dev.txt" in git_flow_text
     assert "tool_validation_profiles.json" in git_flow_text
     assert "incoming upstream `trunk` delta" in git_flow_text
     assert "update_theknowledge_submodule.py" in git_flow_text
     assert "TheKnowledge submodule" in installation_text
+    assert "bootstrap.sh" in installation_text
+    assert "python-environments.json" in installation_text
+    assert "ECRs/TheKnowledge/" in installation_text
     assert "tool_execution_constraints.json" in installation_text
     assert "--template tool_execution_constraints.json" in installation_text
     assert "tool_validation_profiles.json" in installation_text
@@ -234,11 +293,20 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "pyproject.toml" in pinning_spec_text
     assert "templates/requirements-dev.txt" in pinning_spec_text
     assert "templates/scripts/dev_setup.py" in pinning_spec_text
+    assert "python-environments.json" in pinning_spec_text
+    assert "bootstrap.sh" in bootstrap_spec_text
+    assert "set-context.sh" in bootstrap_spec_text
+    assert "ECRs/TheKnowledge/" in ecr_spec_text
+    assert "ECRs/README.md" in ecr_spec_text
     assert "tool_validation_profiles.json" in pinning_spec_text
     assert "placement plus extension" in profile_spec_text
     assert "steady-state Python runtime" in profile_spec_text
+    assert "Python 3.12 or newer" in profile_spec_text
+    assert "must refuse to create a commit" in pending_queue_spec_text
+    assert "must never infer email addresses" in pending_queue_spec_text
     assert "review-and-adopt flow" in submodule_spec_text
     assert "active `TheKnowledge/` submodule checkout" in submodule_spec_text
+    assert "ECRs/TheKnowledge/" in submodule_spec_text
     assert "update_theknowledge_submodule.py" in submodule_spec_text
     assert "send_theknowledge_feedback.py" in submodule_spec_text
     assert "one file at a time" in sandbox_spec_text

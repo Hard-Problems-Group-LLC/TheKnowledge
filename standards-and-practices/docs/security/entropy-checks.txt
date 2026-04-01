@@ -101,7 +101,8 @@ Pre-commit and pre-push hook integration
 ----------------------------------------
 - Installer script: `scripts/install_git_hooks.py`
 - Setup flow: `scripts/install_prerequisites.py` calls the hook installer, so
-  `scripts/install_prerequisites.sh` installs/updates managed hooks.
+  `bootstrap.sh` and the compatibility wrapper
+  `scripts/install_prerequisites.sh` install/update managed hooks.
 - Managed `pre-commit` executes:
   - `python scripts/run_tool_with_timeout.py entropy_check`
   with a `python3` fallback when `python` is unavailable.

@@ -1,0 +1,50 @@
+Read-only Upstream ECR Directory Structure
+==========================================
+
+Scope
+-----
+Define the standard consuming-project location and starter scaffolding for
+TheKnowledge engineering change requests when the active TheKnowledge checkout
+is present read-only, usually as a submodule.
+
+Problem Statement
+-----------------
+Consuming projects often discover upstream improvements for TheKnowledge in
+environments where the local `TheKnowledge/` checkout is not the writable
+source of truth. Without a standard local holding area, those requests drift
+into ad hoc notes, general docs folders, or private chat history.
+
+Requirements
+------------
+- Managed starter files must install:
+  - `ECRs/README.md`
+  - `ECRs/TheKnowledge/README.md`
+- TheKnowledge guidance must define `ECRs/TheKnowledge/` as the standard
+  consuming-project directory for human-readable upstream requests when the
+  active `TheKnowledge/` checkout is read-only in that environment.
+- The guidance must explain that:
+  - `ECRs/` is the local home for external or upstream engineering change
+    requests;
+  - `ECRs/TheKnowledge/` is the dedicated area for requests aimed at
+    TheKnowledge; and
+  - direct maintenance in a writable TheKnowledge checkout still belongs in
+    TheKnowledge's own `trunk` workflow and project-management records.
+- The guidance must distinguish the local `ECRs/TheKnowledge/` staging area
+  from the existing TheKnowledge `Feedback` branch workflow:
+  - use `ECRs/TheKnowledge/` to draft and preserve requests locally in the
+    consuming project;
+  - use the `Feedback` branch or a writable TheKnowledge checkout when the
+    time comes to record or implement the upstream change itself.
+- `README.md`, `standards-and-practices/docs/installation.txt`,
+  `templates/README.md`, `templates/AGENTS-footer.md`, and
+  `standards-and-practices/docs/specifications/theknowledge_submodule_workflows.txt`
+  must mention the convention.
+- Tests must verify that starter installation includes the `ECRs/`
+  scaffolding and that the guidance remains wired into the repo and starter
+  docs.
+
+Non-Goals
+---------
+- Replacing the `Feedback` branch workflow for active TheKnowledge feedback.
+- Treating `ECRs/TheKnowledge/` as TheKnowledge's own internal live-state
+  directory when TheKnowledge is being maintained directly.

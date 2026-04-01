@@ -3,7 +3,11 @@ Non-Black Timeout-Wrapper Commands Still Depend on PATH Python
 
 Status
 ------
-Open.
+Closed.
+
+Date Closed
+-----------
+2026-03-30T14:45:54-07:00
 
 Date Opened
 -----------
@@ -73,3 +77,20 @@ Recommended Resolution
 3. Add regression coverage that launches the wrapper from one interpreter
    while a different `python` wins on `PATH`, then prove the intended
    interpreter is still used.
+
+Root Cause
+----------
+`scripts/run_tool_with_timeout.py` only gave Black special interpreter
+handling. The shared timeout-wrapper path kept executing literal `python`
+tokens from `scripts/tool_timeouts.json`, so tools such as `ruff`,
+`compileall`, `pytest`, `entropy_check`, `entropy_tripwire_verify`, and
+`knack_check` still depended on ambient `PATH` resolution.
+
+Resolution
+----------
+TheKnowledge now marks those non-Black timeout-wrapper commands with
+`use_wrapper_python` in `scripts/tool_timeouts.json`, and
+`scripts/run_tool_with_timeout.py` rewrites a leading `python` token to
+`sys.executable` before dispatch. Regression coverage in
+`tests/test_run_tool_with_timeout.py` now proves the wrapper uses the
+launching interpreter instead of whichever `python` wins on `PATH`.

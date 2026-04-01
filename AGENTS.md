@@ -16,8 +16,14 @@ live state.
 
 ## Style and Documentation
 - Write clear, direct prose aligned with Chicago Manual of Style guidance.
-- Prefer explicit, self-documenting code and scripts.
-- Maintain Python 3.9+ compatibility unless explicitly waived.
+- Treat documentation as delivery work. Every maintained source file should
+  carry top-of-file context, every type and callable should be documented,
+  and non-trivial control flow should carry local rationale where structure
+  alone would be ambiguous.
+- Bootstrap, setup, prerequisite, and environment-selection code should
+  follow Python 3.9 best practices unless a higher floor is documented.
+- Normal runtime, automation, test, and developer-tooling code should follow
+  Python 3.12 best practices unless a component is intentionally constrained.
 - Wrap documentation and standards text files to 78 columns.
 
 ## Contribution Rules
@@ -56,6 +62,15 @@ live state.
   available as the default visual review path. Otherwise offer
   file-by-file review in the conversation or abort the staging
   step.
+- Never guess a Git author or committer email address from commit history,
+  hostnames, remote URLs, network overlays, or similar context.
+- Require an explicit commit identity before creating a commit. Prefer
+  configured `git` properties such as `user.name` and `user.email`; explicit
+  `GIT_COMMITTER_*` and optional separate `GIT_AUTHOR_*` overrides are
+  acceptable when set deliberately.
+- When a separate author identity is not explicitly configured, reuse the
+  explicit committer identity for author instead of inventing a second
+  address.
 - Run `git diff` before any `git add`.
 - Run `git diff --cached` before any commit.
 
@@ -92,6 +107,10 @@ live state.
   `finish` so the helper captures and restores the submodule state for you.
   Use `--push` only when the configured remote push URL is writable for the
   current operator.
+- When that consuming-project checkout is effectively read-only for upstream
+  maintenance, draft the request first under `ECRs/TheKnowledge/` in the
+  consuming project so the handoff stays reviewable before it reaches a
+  writable TheKnowledge checkout.
 - When maintaining TheKnowledge directly as its own checkout, keep using
   the normal `trunk` workflow plus `internal/overrides/`, proposal
   records, and bug tracking. Do not route routine direct-checkout
@@ -160,7 +179,8 @@ Use standardized operations where available:
   The script lists files about to stage, asks for review unless
   `--assume-reviewed` is passed or prompts were disabled earlier in the
   current shell session, runs `git diff` before its own staging steps, runs
-  `git diff --cached` before commit, uses
+  `git diff --cached` before commit, rejects commits whose author/committer
+  identity is not explicitly configured, uses
   `internal/overrides/state/pending-commit-changes.txt` as commit body text
   when it is nonblank, and clears the file after a successful local commit.
   Use `--resume-review-prompts` to re-enable prompts for the current shell

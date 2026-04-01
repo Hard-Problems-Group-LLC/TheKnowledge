@@ -5,7 +5,14 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-03-31T16:07:22-07:00 - Tightened the standardized Git commit
+  workflow so it now rejects commits without an explicit author/committer
+  identity, documented the repository-wide rule to never infer email
+  addresses from history, hostnames, or network overlays, propagated that
+  guidance into the managed starter docs, and revalidated the full required
+  quality gate with `115` passing tests.
 
+*
   2026-03-31T15:38:05-07:00 - Drafted two new under-review ECRs on `trunk`:
   one to replace the current install-prerequisites bootstrap with a minimal
   `install.sh` plus Python stage-2, user-scoped `pyenv`, repo-local
@@ -15,6 +22,17 @@ the template wording or examples are being revised.
   also fixed `scripts/validate_knacks.py` so `.git/...` cache paths resolve
   through the real git dir and the standard quality gate works in active
   submodule-style checkouts.
+
+*
+
+  2026-03-30T14:45:54-07:00 - Implemented the imported AutoTomato
+  TheKnowledge ECR set by strengthening the repository documentation
+  standard, adding direct-checkout and starter `bootstrap.sh`,
+  `bootstrap-stage2.py`, `python-environments.json`, `.python-version`, and
+  `set-context*.sh` files plus `ECRs/TheKnowledge/` scaffolding, teaching
+  the timeout wrapper to reuse its launching interpreter for non-Black
+  tools, updating the managed specs/templates/docs, and revalidating the
+  full required check suite with `112` passing tests.
 
 *
 

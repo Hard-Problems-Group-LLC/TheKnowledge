@@ -21,23 +21,29 @@ Command:
 
 Behavior:
 1. Resolve repository root.
-2. Run `python scripts/run_quality_gate_cached.py`.
-3. List the files about to be staged and ask whether to review them.
-4. Offer `1` review at least one file in the changeset, `2` proceed without
+2. Verify that commit author/committer identity is explicitly configured.
+   Prefer `git config user.name` and `git config user.email`; explicit
+   `GIT_COMMITTER_*` plus optional separate `GIT_AUTHOR_*` overrides are
+   also acceptable. Never infer addresses from history, hostnames, or
+   network identifiers. If a separate author identity is absent, reuse the
+   explicit committer identity for author.
+3. Run `python scripts/run_quality_gate_cached.py`.
+4. List the files about to be staged and ask whether to review them.
+5. Offer `1` review at least one file in the changeset, `2` proceed without
    review for this changeset, and `3` proceed and suppress review prompts
    for the rest of the current session until resumed.
-5. If review is requested, offer file-by-file review outside the helper,
+6. If review is requested, offer file-by-file review outside the helper,
    changeset review in Meld when available, or aborting the staging step.
-6. Run `git diff` before any staging step so the pending changes are visible.
-7. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
-8. Read queued summary text from
+7. Run `git diff` before any staging step so the pending changes are visible.
+8. Stage all changes (`git add -A`) unless `--no-stage-all` is set.
+9. Read queued summary text from
    `project-management/state/pending-commit-changes.txt` or a repository-
    specific override path when present.
-9. Run `git diff --cached` before commit so the staged changes are visible.
-10. Commit with the provided subject and queued body text when the queue is
+10. Run `git diff --cached` before commit so the staged changes are visible.
+11. Commit with the provided subject and queued body text when the queue is
     nonblank.
-11. Push to `origin <current-branch>` unless overridden.
-12. After the local commit succeeds, truncate the queue file. The helper
+12. Push to `origin <current-branch>` unless overridden.
+13. After the local commit succeeds, truncate the queue file. The helper
     stages the truncation so the queue clears with the committed state even
     when `--no-stage-all` is set.
 
@@ -122,6 +128,13 @@ Verifier reports scan-count mismatch:
 Commit/push fails with no staged changes:
 - Either stage changes manually and rerun with `--no-stage-all`, or rerun
   without that flag so the script stages all tracked/untracked updates.
+
+Commit/push fails because identity is not configured:
+- Set `git config user.name "<name>"` and
+  `git config user.email "<email>"`, or rerun with explicit
+  `GIT_COMMITTER_*` and optional separate `GIT_AUTHOR_*` values.
+- Do not recover by copying an address from history, hostnames, VPN/Tailscale
+  names, or other inferred sources.
 
 Pull fails due dirty tree:
 - Commit or stash changes, then rerun.

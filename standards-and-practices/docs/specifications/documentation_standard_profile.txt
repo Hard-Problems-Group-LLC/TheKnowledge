@@ -3,8 +3,8 @@ Documentation Standard Profile
 
 Scope
 -----
-Define the repository documentation standard for module docstrings, function
-docstrings, inline rationale comments, and project-facing technical records.
+Define the repository documentation standard for source files, callables,
+types, non-trivial logic blocks, and project-facing technical records.
 
 Selected Standards
 ------------------
@@ -17,17 +17,30 @@ Selected Standards
 
 Repository Mapping
 ------------------
-- Module-level documentation:
-  - Public modules should begin with a concise docstring describing purpose,
-    major responsibilities, and important constraints.
-- Function and method documentation:
-  - Public and externally consumed call points should include docstrings with
-    intent, key parameters, return values, and error behavior when
-    non-obvious.
-- Inline comments:
-  - Add comments only for rationale, invariants, or behavior that is not
-    clear from code structure alone.
-  - Avoid comments that restate syntax.
+- Source-file documentation:
+  - Every maintained source file must begin with top-of-file documentation
+    that explains the file's purpose, role in the project, scope, important
+    dependencies or constraints, and any testing or maintenance context that
+    future readers need for safe modification.
+  - In languages with native module or file docstrings, prefer those. In
+    languages without them, use the nearest idiomatic block-comment form.
+- Type documentation:
+  - Every class, dataclass, struct, enum, protocol, typed configuration
+    object, or similar construct must be documented where the language
+    normally expects that documentation to live.
+  - Type documentation must explain responsibility, invariants, important
+    state, and notable lifecycle or usage constraints.
+- Callable documentation:
+  - Every function, method, coroutine, closure, callback, local helper, or
+    other callable at any scope must be documented.
+  - Callable documentation must explain intent, inputs, outputs, side
+    effects, failure behavior, and any non-obvious contracts or preconditions.
+- Local logic documentation:
+  - Structured blocks of logic with non-trivial McCabe complexity must carry
+    local documentation for rationale, invariants, or control-flow shape when
+    that context is not already obvious from surrounding structure.
+  - Local comments should explain why a branch, loop, or state transition
+    exists, not merely restate syntax.
 - Project-management traceability:
   - Proposal status, backlog transitions, bug lifecycle updates, and completed
     task notes must preserve decision history with ISO 8601 timestamps.
@@ -35,13 +48,15 @@ Repository Mapping
 Review Checklist
 ----------------
 - Documentation matches behavior in tests and implementation.
-- Public APIs and behavioral boundaries are documented where needed.
-- Rationale comments exist for non-obvious branches and invariants.
+- Every maintained source file has adequate top-of-file context.
+- Types and callables are documented at the scope where they are defined.
+- Non-trivial branches, loops, and state transitions carry rationale where
+  structure alone would be ambiguous.
 - Proposal and backlog history remains append-only and timestamped.
 - Text files outside fixture directories are wrapped to 78 columns.
 
 Non-Goals
 ---------
 - Mandating proprietary tooling for standards enforcement.
-- Requiring exhaustive line-by-line comments.
+- Requiring rote line-by-line comments that only restate syntax.
 - Rewriting historical documents solely for stylistic normalization.

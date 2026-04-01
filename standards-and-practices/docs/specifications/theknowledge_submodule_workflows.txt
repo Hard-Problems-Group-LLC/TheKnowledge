@@ -78,10 +78,16 @@ Requirements
   `templates/README.md`, `templates/AGENTS-footer.md`, and
   `templates/project-management/git-flow.txt` must document the review-before-
   adopt update sequence plus the helper entry points.
+- The same documentation set must also explain that consuming projects should
+  use `ECRs/README.md` and `ECRs/TheKnowledge/README.md` as the standard
+  local holding area for read-only upstream TheKnowledge requests.
 - TheKnowledge's own `AGENTS.md` and `README.md` must explain that feedback
   discovered while working in a consuming project must be filed from the
   active `TheKnowledge/` submodule checkout in that project, not from an
   unrelated sibling checkout.
+- TheKnowledge's own `AGENTS.md` and `README.md` must distinguish local
+  `ECRs/TheKnowledge/` drafting from actual writable maintenance in
+  TheKnowledge itself.
 - The Feedback workflow must tell contributors to capture the current branch
   or detached state, switch that same submodule checkout to `Feedback`,
   record, commit, and push the feedback there, and then switch the submodule

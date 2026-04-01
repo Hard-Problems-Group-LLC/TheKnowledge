@@ -108,6 +108,10 @@ def _resolve_tool_run(
     ):
         raise ValueError(f"tool '{tool}' must define command as a list of strings")
 
+    use_wrapper_python = entry.get("use_wrapper_python", False)
+    if not isinstance(use_wrapper_python, bool):
+        raise ValueError("use_wrapper_python must be a boolean")
+
     replace_default_scope_with_args = entry.get(
         "replace_default_scope_with_args", False
     )
@@ -160,7 +164,11 @@ def _resolve_tool_run(
         )
         args = []
 
-    return resolved_command + args, timeout, retries, cleanup_patterns
+    resolved_command += args
+    if use_wrapper_python and resolved_command[:1] == ["python"]:
+        resolved_command[0] = sys.executable
+
+    return resolved_command, timeout, retries, cleanup_patterns
 
 
 def _cleanup_processes(patterns: List[str]) -> None:

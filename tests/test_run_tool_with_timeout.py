@@ -105,6 +105,31 @@ def test_resolve_tool_run_keeps_default_scope_without_explicit_paths() -> None:
     assert cleanup_patterns == []
 
 
+def test_resolve_tool_run_can_reuse_wrapper_python() -> None:
+    module = _load_script_module()
+    config = {
+        "default_timeout_seconds": 60,
+        "tools": {
+            "pytest": {
+                "command": ["python", "-m", "pytest"],
+                "use_wrapper_python": True,
+            }
+        },
+    }
+
+    command, timeout, retries, cleanup_patterns = module._resolve_tool_run(
+        config,
+        "pytest",
+        None,
+        [],
+    )
+
+    assert command == [sys.executable, "-m", "pytest"]
+    assert timeout == 60
+    assert retries == 0
+    assert cleanup_patterns == []
+
+
 def _write_execution_constraints(repo_root: Path) -> None:
     (repo_root / "tool_execution_constraints.json").write_text(
         json.dumps(

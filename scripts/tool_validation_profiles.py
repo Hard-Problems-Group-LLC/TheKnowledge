@@ -29,7 +29,7 @@ DEFAULT_TOOL_VALIDATION_PROFILES: Dict[str, object] = {
             "required_modules": [],
         },
         "steady_state_python_tools": {
-            "minimum_version": "3.10",
+            "minimum_version": "3.12",
             "environment_variables": [
                 "THEKNOWLEDGE_BLACK_PYTHON",
                 "THEKNOWLEDGE_PYTHON_TOOLS",
@@ -38,8 +38,8 @@ DEFAULT_TOOL_VALIDATION_PROFILES: Dict[str, object] = {
                 ".venv/bin/python",
                 ".venv/Scripts/python.exe",
                 "python3.12",
-                "python3.11",
-                "python3.10",
+                "python",
+                "python3",
             ],
             "required_modules": ["black"],
         },

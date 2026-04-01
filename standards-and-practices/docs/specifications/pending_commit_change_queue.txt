@@ -19,6 +19,12 @@ Requirements
   the next commit records the full change set, not only the last interaction.
 - `scripts/git_standard_commit_push.py` must use the nonblank queue contents
   as commit body text in addition to the required commit subject.
+- `scripts/git_standard_commit_push.py` must refuse to create a commit when
+  author/committer identity is not explicitly configured through `git`
+  properties or deliberate `GIT_COMMITTER_*` plus optional
+  `GIT_AUTHOR_*` overrides.
+- The standardized commit helper must never infer email addresses from commit
+  history, hostnames, remote names, or network identifiers.
 - After the local commit succeeds, the queue file must be truncated.
 - If the local commit fails, the queue contents must remain available.
 - The queue file must be installed by template setup for consuming projects

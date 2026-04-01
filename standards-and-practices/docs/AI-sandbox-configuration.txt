@@ -8,9 +8,9 @@ management during automated runs.
 Sandbox checklist
 -----------------
 
-- Start in the repository root and run `./scripts/install_prerequisites.sh`.
-- Allow the shell wrapper to create `.venv`; it upgrades packaging tools and
-  calls the Python installer for system and pip dependencies.
+- Start in the repository root and run `./bootstrap.sh`.
+- Allow the bootstrap flow to create the named pyenv contexts, write
+  `.python-version`, and refresh `.venv` through the runtime installer.
 - Keep the working directory clean: the installer avoids global changes and
   prefers the project-local virtual environment.
 - Use `--dry-run` with the Python installer when validating changes in

@@ -7,6 +7,19 @@ closure records in `closed/`.
 
 *
 
+  2026-03-30T14:45:54-07:00
+  Summary: Non-Black timeout-wrapper tools resolved bare `python` from
+  `PATH` instead of inheriting the interpreter that launched the wrapper.
+  Root cause: the generic timeout-wrapper path executed static
+  `scripts/tool_timeouts.json` command arrays without rewriting a leading
+  `python` token to the wrapper's own interpreter.
+  Resolution: added `use_wrapper_python` coverage for the affected tools,
+  taught `scripts/run_tool_with_timeout.py` to replace a leading `python`
+  token with `sys.executable`, and added regression coverage proving the
+  wrapper now keeps the selected interpreter.
+
+*
+
   2026-03-27T12:38:45-07:00
   Summary: TheKnowledge's starter validation stack had drifted from its
   Python 3.9 bootstrap floor and its current Black wrapper behavior.

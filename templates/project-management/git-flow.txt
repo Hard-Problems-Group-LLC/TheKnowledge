@@ -105,6 +105,14 @@ Operational Notes
   available as the default visual review path. Otherwise offer
   file-by-file review in the conversation or abort the staging
   step.
+- Never infer a Git author or committer email address from commit history,
+  hostnames, remote URLs, network overlays, or similar context.
+- Require a deliberate identity before commit. Prefer configured
+  `git config user.name` and `git config user.email`; explicit
+  `GIT_COMMITTER_*` and optional separate `GIT_AUTHOR_*` overrides are also
+  valid when set intentionally.
+- If a separate author identity is not configured, reuse the explicit
+  committer identity for author instead of inventing another address.
 - Run `git diff` before any `git add` and `git diff --cached` before any
   commit. The standardized commit helper does both automatically.
 - Use the repository's configured SSH host alias for remote operations, as
@@ -112,10 +120,17 @@ Operational Notes
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
   through `{{THEKNOWLEDGE_ROOT}}/scripts/install_git_hooks.py`.
 - If the project is using the managed starter Python toolchain, rerun
-  `python scripts/dev_setup.py` whenever `requirements-dev.txt`,
-  `tool_validation_profiles.json`, or `scripts/tool_validation_profiles.py`
-  changes, or when the local Black, Ruff, or pytest install drifts from the
-  pinned defaults.
+  `./bootstrap.sh` whenever `bootstrap.sh`, `bootstrap-stage2.py`,
+  `python-environments.json`, `.python-version`, `set-context.sh`,
+  `set-context-bootstrap.sh`, `requirements-dev.txt`,
+  `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
+  `tool_validation_profiles.json`, or
+  `scripts/tool_validation_profiles.py` changes, or when the local Black,
+  Ruff, or pytest install drifts from the pinned defaults.
+- When TheKnowledge is read-only in the consuming project and an upstream
+  request needs local staging first, record it under `ECRs/TheKnowledge/`
+  before carrying it into a writable TheKnowledge checkout or the
+  `Feedback` branch workflow.
 - When updating a TheKnowledge submodule inside a consuming project, prefer
   `python {{THEKNOWLEDGE_ROOT}}/scripts/update_theknowledge_submodule.py`
   `--project-root . --knowledge-root {{THEKNOWLEDGE_ROOT}}`. That helper

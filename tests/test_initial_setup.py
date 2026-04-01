@@ -60,8 +60,17 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     pending_queue = (
         project_root / "project-management" / "state" / "pending-commit-changes.txt"
     )
+    bootstrap = project_root / "bootstrap.sh"
+    bootstrap_stage2 = project_root / "bootstrap-stage2.py"
+    python_version = project_root / ".python-version"
+    python_environments = project_root / "python-environments.json"
+    set_context = project_root / "set-context.sh"
+    set_context_bootstrap = project_root / "set-context-bootstrap.sh"
+    ecr_root_readme = project_root / "ECRs" / "README.md"
+    ecr_tk_readme = project_root / "ECRs" / "TheKnowledge" / "README.md"
     requirements_dev = project_root / "requirements-dev.txt"
     dev_setup = project_root / "scripts" / "dev_setup.py"
+    bootstrap_helper = project_root / "scripts" / "python_environment_bootstrap.py"
     validation_helper = project_root / "scripts" / "tool_validation_profiles.py"
     execution_constraints = project_root / "tool_execution_constraints.json"
     validation_profiles = project_root / "tool_validation_profiles.json"
@@ -84,8 +93,17 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert under_review_proposals.is_file()
     assert git_flow.is_file()
     assert pending_queue.is_file()
+    assert bootstrap.is_file()
+    assert bootstrap_stage2.is_file()
+    assert python_version.is_file()
+    assert python_environments.is_file()
+    assert set_context.is_file()
+    assert set_context_bootstrap.is_file()
+    assert ecr_root_readme.is_file()
+    assert ecr_tk_readme.is_file()
     assert requirements_dev.is_file()
     assert dev_setup.is_file()
+    assert bootstrap_helper.is_file()
     assert validation_helper.is_file()
     assert execution_constraints.is_file()
     assert validation_profiles.is_file()
@@ -106,10 +124,12 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "`TheKnowledge/` submodule checkout" in agents.read_text(encoding="utf-8")
     assert "normal internal trees on `trunk`" in agents.read_text(encoding="utf-8")
     assert "top-level `knacks/` directory" in agents.read_text(encoding="utf-8")
-    assert "python scripts/dev_setup.py" in agents.read_text(encoding="utf-8")
+    assert "./bootstrap.sh" in agents.read_text(encoding="utf-8")
+    assert "python-environments.json" in agents.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in agents.read_text(encoding="utf-8")
     assert "tool_execution_constraints.json" in agents.read_text(encoding="utf-8")
     assert "tool_validation_profiles.json" in agents.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/" in agents.read_text(encoding="utf-8")
     assert "must load `TheKnowledge/AGENTS.md` before running automated" in (
         agents.read_text(encoding="utf-8")
     )
@@ -139,12 +159,24 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "python TheKnowledge/scripts/run_tool_with_timeout.py black" in (
         git_flow.read_text(encoding="utf-8")
     )
-    assert "python scripts/dev_setup.py" in git_flow.read_text(encoding="utf-8")
+    assert "./bootstrap.sh" in git_flow.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/" in git_flow.read_text(encoding="utf-8")
     assert "update_theknowledge_submodule.py" in git_flow.read_text(encoding="utf-8")
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
+    assert "bootstrap-stage2.py" in bootstrap.read_text(encoding="utf-8")
+    assert (
+        "TestProject-runtime-3.12".lower()
+        in python_version.read_text(encoding="utf-8").lower()
+    )
+    assert "testproject-runtime-3.12" in python_environments.read_text(encoding="utf-8")
+    assert "PYENV_VERSION" in set_context.read_text(encoding="utf-8")
+    assert "PYENV_VERSION" in set_context_bootstrap.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/" in ecr_root_readme.read_text(encoding="utf-8")
+    assert "read-only" in ecr_tk_readme.read_text(encoding="utf-8")
     assert "black==26.3.1" in requirements_dev.read_text(encoding="utf-8")
     assert "pytest-timeout==2.4.0" in requirements_dev.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in dev_setup.read_text(encoding="utf-8")
+    assert "python-environments.json" in bootstrap_helper.read_text(encoding="utf-8")
     assert "resolve_runtime_policy_executable" in validation_helper.read_text(
         encoding="utf-8"
     )

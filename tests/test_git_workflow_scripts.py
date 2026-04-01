@@ -45,6 +45,75 @@ def test_git_standard_commit_push_dry_run_succeeds() -> None:
     assert result.stdout.index("git diff --cached") < result.stdout.index("git commit")
 
 
+def test_ensure_explicit_git_identity_requires_configuration(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(command, cwd, dry_run=False):
+        calls.append(list(command))
+        return subprocess.CompletedProcess(command, 1, "", "")
+
+    monkeypatch.setattr(git_standard_commit_push, "run", fake_run)
+
+    try:
+        git_standard_commit_push.ensure_explicit_git_identity(
+            tmp_path,
+            environment={},
+        )
+    except RuntimeError as error:
+        assert "not explicitly configured" in str(error)
+        assert "Never infer addresses" in str(error)
+    else:
+        raise AssertionError("expected missing-identity failure")
+
+    assert calls == [
+        ["git", "config", "--get", "user.name"],
+        ["git", "config", "--get", "user.email"],
+    ]
+
+
+def test_ensure_explicit_git_identity_rejects_partial_author_environment(
+    tmp_path: Path,
+) -> None:
+    try:
+        git_standard_commit_push.ensure_explicit_git_identity(
+            tmp_path,
+            environment={"GIT_AUTHOR_EMAIL": "test@example.com"},
+        )
+    except RuntimeError as error:
+        assert "Explicit git author identity is incomplete" in str(error)
+    else:
+        raise AssertionError("expected partial-author failure")
+
+
+def test_ensure_explicit_git_identity_allows_explicit_committer_for_author(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(command, cwd, dry_run=False):
+        calls.append(list(command))
+        return subprocess.CompletedProcess(command, 1, "", "")
+
+    monkeypatch.setattr(git_standard_commit_push, "run", fake_run)
+
+    git_standard_commit_push.ensure_explicit_git_identity(
+        tmp_path,
+        environment={
+            "GIT_COMMITTER_NAME": "Test User",
+            "GIT_COMMITTER_EMAIL": "test@example.com",
+        },
+    )
+
+    assert calls == [
+        ["git", "config", "--get", "user.name"],
+        ["git", "config", "--get", "user.email"],
+    ]
+
+
 def test_stage_path_runs_git_diff_before_git_add(
     tmp_path: Path,
     monkeypatch,

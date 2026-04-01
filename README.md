@@ -42,19 +42,23 @@ application business logic.
 1. Import this repository (or a subtree thereof) into active projects.
 2. Run `scripts/initial-setup.py` from the submodule to install starter files
    from `templates/` into the consuming project root.
-3. Use the starter `scripts/dev_setup.py` when you want the default pinned
-   Black, Ruff, and pytest toolchain in the consuming project. The starter
-   script itself stays bootstrap-compatible, but it selects the managed
-   steady-state Python tool runtime for the virtual environment it creates.
-4. Let the installed `tool_execution_constraints.json` and
-   `tool_validation_profiles.json` record managed environment-specific tool
-   execution constraints plus placement-driven Black/runtime policy for
-   shared helpers.
-5. Keep project state in the consuming project's own directories rather than
+3. Use the starter `./bootstrap.sh` when you want the default pinned Black,
+   Ruff, and pytest toolchain in the consuming project. The bootstrap path
+   starts from Python 3.9+, provisions the named pyenv bootstrap/runtime
+   contexts, writes `.python-version`, and then refreshes the tool
+   environment through `scripts/dev_setup.py`.
+4. Let the installed `python-environments.json`,
+   `tool_execution_constraints.json`, and `tool_validation_profiles.json`
+   record the starter's pyenv context names, managed execution constraints,
+   and placement-driven Black/runtime policy.
+5. When TheKnowledge is read-only in the consuming project, draft upstream
+   requests locally under `ECRs/TheKnowledge/` until they can be implemented
+   in a writable TheKnowledge checkout.
+6. Keep project state in the consuming project's own directories rather than
    inside the submodule.
-6. Add language/technology SOPs under
+7. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
-7. Add focused knack documents under `knacks/` when a reusable body of
+8. Add focused knack documents under `knacks/` when a reusable body of
    know-how deserves a dedicated `.knack.md` file.
 
 ## Using as a submodule
@@ -74,16 +78,20 @@ python TheKnowledge/scripts/initial-setup.py \
 For new or lightly customized consuming projects, then run:
 
 ```bash
-python scripts/dev_setup.py
+./bootstrap.sh
 ```
 
-The starter installs `requirements-dev.txt`, `scripts/dev_setup.py`,
-`scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`, and
-`tool_validation_profiles.json`. Together they provide TheKnowledge's default
-pinned Black, Ruff, and pytest toolchain plus managed registries for known
-environment-specific execution constraints and placement-driven Black/runtime
-selection. Projects with tighter local environment policy may replace or
-extend those files instead of using the starter unchanged.
+The starter installs `bootstrap.sh`, `bootstrap-stage2.py`,
+`python-environments.json`, `.python-version`, `set-context.sh`,
+`set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
+`scripts/python_environment_bootstrap.py`,
+`scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
+`tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
+Together they provide TheKnowledge's default pinned toolchain, named pyenv
+contexts, managed validation/runtime policy, and a standard local holding
+area for read-only upstream TheKnowledge requests. Projects with tighter
+local environment policy may replace or extend those files instead of using
+the starter unchanged.
 
 For a brand-new repository, initialize the repo first and then add the
 submodule:
@@ -103,7 +111,7 @@ python TheKnowledge/scripts/initial-setup.py \
 Then optionally install the default pinned Python developer toolchain:
 
 ```bash
-python scripts/dev_setup.py
+./bootstrap.sh
 ```
 
 After that setup, commit both the new `.gitmodules` file and the generated
@@ -154,9 +162,17 @@ python TheKnowledge/scripts/initial-setup.py \
   --project-root . \
   --knowledge-root TheKnowledge \
   --force \
+  --template .python-version \
+  --template ECRs \
+  --template bootstrap.sh \
+  --template bootstrap-stage2.py \
+  --template python-environments.json \
   --template requirements-dev.txt \
   --template scripts \
+  --template scripts/python_environment_bootstrap.py \
   --template scripts/tool_validation_profiles.py \
+  --template set-context-bootstrap.sh \
+  --template set-context.sh \
   --template tool_execution_constraints.json \
   --template tool_validation_profiles.json
 git diff
@@ -170,14 +186,26 @@ submodule pointer plus the resulting project-file changes together when they
 belong to the same upgrade so the reviewed version becomes the project's new
 shared baseline.
 
-If the upgrade also changes the starter `requirements-dev.txt`,
-`scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`, or
-`tool_validation_profiles.json`, rerun `python scripts/dev_setup.py` in the
-consuming project before the next validation pass unless the project
-intentionally uses its own bootstrap flow instead. When the upgrade changes
-`tool_execution_constraints.json` or `tool_validation_profiles.json`, review
-that policy diff alongside the submodule update so the project's shared
-helpers stay aligned with the new constraints.
+If the upgrade changes the starter bootstrap/runtime files such as
+`bootstrap.sh`, `bootstrap-stage2.py`, `python-environments.json`,
+`.python-version`, `set-context.sh`, `set-context-bootstrap.sh`,
+`requirements-dev.txt`, `scripts/dev_setup.py`,
+`scripts/python_environment_bootstrap.py`,
+`scripts/tool_validation_profiles.py`, or `tool_validation_profiles.json`,
+rerun `./bootstrap.sh` in the consuming project before the next validation
+pass unless the project intentionally uses its own bootstrap flow instead.
+When the upgrade changes `tool_execution_constraints.json` or
+`tool_validation_profiles.json`, review that policy diff alongside the
+submodule update so the project's shared helpers stay aligned with the new
+constraints.
+
+When a consuming project discovers an upstream TheKnowledge change while the
+active `TheKnowledge/` checkout is read-only, keep the request under
+`ECRs/TheKnowledge/` in the consuming project until it can be carried into a
+writable TheKnowledge checkout. Use that local ECR tree to preserve the
+reviewable request, and use TheKnowledge's `Feedback` branch or direct
+maintenance workflow when it is time to record or implement the upstream
+change itself.
 
 ## Review-first staging
 

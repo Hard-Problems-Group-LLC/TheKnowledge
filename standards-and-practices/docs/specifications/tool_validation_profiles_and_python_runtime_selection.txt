@@ -89,13 +89,16 @@ Runtime Policy
 --------------
 - The bootstrap floor remains Python 3.9 unless raised explicitly elsewhere.
 - The managed steady-state Python tool runtime for pinned Black and pytest
-  must require Python 3.10 or newer.
+  must require Python 3.12 or newer.
 - The steady-state runtime resolver may prefer an existing project `.venv`
   when it satisfies the configured minimum version and contains the required
   module, but it must also support ordered fallback candidates from the
   registry so bootstrap entry points can adopt a newer interpreter cleanly.
 - The runtime resolver may honor documented environment-variable overrides
   ahead of the ordered fallback candidates.
+- The generic timeout-wrapper path must not force non-Black tools back to an
+  ambient shell `python` when the wrapper was already launched from a
+  deliberate interpreter.
 
 Non-Goals
 ---------

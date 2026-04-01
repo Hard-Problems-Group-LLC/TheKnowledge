@@ -11,13 +11,17 @@ The `project-management/` starter tree includes proposal status directories
 directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
 project's live records in the installed copy, not inside this submodule.
 
-The starter set also includes `requirements-dev.txt`,
-`scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`,
-`tool_execution_constraints.json`, and `tool_validation_profiles.json`.
+The starter set also includes `bootstrap.sh`, `bootstrap-stage2.py`,
+`python-environments.json`, `.python-version`, `set-context.sh`,
+`set-context-bootstrap.sh`, `requirements-dev.txt`,
+`scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
+`scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
+`tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
 Together they install TheKnowledge's default pinned Black, Ruff, and pytest
-toolchain plus managed registries for known environment-specific tool
-execution constraints and placement-driven Black/runtime policy for consuming
-projects that have not yet defined a tighter local bootstrap policy.
+toolchain plus named pyenv bootstrap/runtime contexts, managed registries for
+known environment-specific tool execution constraints and placement-driven
+Black/runtime policy, and the standard local directory for read-only
+upstream TheKnowledge requests.
 
 When templates contain `{{THEKNOWLEDGE_ROOT}}` or `{$KNOWLEDGE_ROOT}`, the
 setup script replaces that placeholder with the submodule path relative to
@@ -34,11 +38,15 @@ TheKnowledge checkout, then run `scripts/report_managed_agents_drift.py` to
 compare the consuming project's managed `AGENTS.md` sections plus managed
 starter files with the updated templates. The helper prints unified diffs that
 both human and AI developers can review before rerunning
-`scripts/initial-setup.py --force --template requirements-dev.txt --template`
-`scripts --template scripts/tool_validation_profiles.py --template`
-`tool_execution_constraints.json --template tool_validation_profiles.json`,
-review `git diff`, and stage the resulting submodule-pointer update plus only
-the intended project-file changes.
+`scripts/initial-setup.py --force --template .python-version --template ECRs`
+`--template bootstrap.sh --template bootstrap-stage2.py --template`
+`python-environments.json --template requirements-dev.txt --template scripts`
+`--template scripts/python_environment_bootstrap.py --template`
+`scripts/tool_validation_profiles.py --template set-context-bootstrap.sh`
+`--template set-context.sh --template tool_execution_constraints.json`
+`--template tool_validation_profiles.json`, review `git diff`, and stage the
+resulting submodule-pointer update plus only the intended project-file
+changes.
 
 For the normal review-and-adopt path, prefer
 `python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`
@@ -47,13 +55,21 @@ and summarizes the upstream delta, adopts the reviewed `trunk` commit, runs
 managed drift detection, refreshes the managed starter files when needed, and
 leaves a reviewable parent-repo diff without auto-committing.
 
-If that rerun updates `requirements-dev.txt`, `scripts/dev_setup.py`,
+If that rerun updates `bootstrap.sh`, `bootstrap-stage2.py`,
+`python-environments.json`, `.python-version`, `set-context.sh`,
+`set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
+`scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, or `tool_validation_profiles.json`,
-refresh the starter toolchain with `python scripts/dev_setup.py` unless the
-consuming project intentionally overrides those files. If it updates
+refresh the starter toolchain with `./bootstrap.sh` unless the consuming
+project intentionally overrides those files. If it updates
 `tool_execution_constraints.json` or `tool_validation_profiles.json`, review
 the policy change alongside the submodule update so shared helpers stay
 aligned with the current managed constraints.
+
+When the active `TheKnowledge/` checkout is read-only in the consuming
+project and an upstream request needs a local holding area first, use
+`ECRs/TheKnowledge/`. Keep the request there until it can be carried into a
+writable TheKnowledge checkout or the TheKnowledge `Feedback` branch flow.
 
 When contributors need to file TheKnowledge feedback from a consuming project,
 prefer the helper flow:

@@ -6,19 +6,6 @@ the template wording or examples are being revised. Keep any expanded notes in
 `open/`.
 
 *
-  2026-03-27T12:38:45-07:00
-  Summary: Non-Black timeout-wrapper tools still resolve bare `python` from
-  `PATH` instead of inheriting the interpreter that launched the wrapper.
-  Impact: `ruff`, `compileall`, `pytest`, and similar checks can fail even
-  when the wrapper is launched from a correct managed environment, because
-  they still shell out to whatever `python` wins on `PATH`.
-  Current status: reproduced during the approved Black/runtime-profile
-  implementation while validating from `/tmp/theknowledge-py312`; direct
-  workaround is to prefix the desired interpreter on `PATH`.
-  Detailed record:
-  `open/non-black-timeout-wrapper-commands-still-depend-on-path-python.txt`
-
-*
   2026-03-25T15:58:54-07:00
   Summary: Knack authoring guidance does not clearly distinguish local knack
   storage from knack content style, so contributors can infer that project-

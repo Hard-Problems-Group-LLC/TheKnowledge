@@ -1,12 +1,14 @@
 Installation strategy
 =====================
 
-Use `scripts/install_prerequisites.sh` as the canonical bootstrap entry point.
-The shell wrapper locates or installs a bootstrap Python 3 interpreter and
-delegates system and Python package installation to
-`scripts/install_prerequisites.py`. The Python installer then selects the
-managed steady-state tool runtime for `.venv`, so the bootstrap interpreter
-and the developer-tool runtime are no longer assumed to be the same.
+Use `bootstrap.sh` as the canonical bootstrap entry point. The shell wrapper
+locates or installs a bootstrap Python 3.9+ interpreter, delegates the main
+context work to `bootstrap-stage2.py`, provisions the configured pyenv
+bootstrap/runtime environments from `python-environments.json`, writes
+`.python-version` for runtime-default behavior, and then hands off to
+`scripts/install_prerequisites.py` with the runtime interpreter. The legacy
+`scripts/install_prerequisites.sh` entry point remains as a compatibility
+wrapper that delegates to `bootstrap.sh`.
 
 Quick start
 -----------
@@ -14,7 +16,7 @@ Quick start
 From the repository root:
 
 ```
-./scripts/install_prerequisites.sh
+./bootstrap.sh
 ```
 
 The script defaults to installing project in editable mode with development
@@ -23,7 +25,7 @@ versions exactly so local validation stays reproducible. Pass `--production`
 through to the Python installer when you want to skip developer dependencies:
 
 ```
-./scripts/install_prerequisites.sh -- --production
+./bootstrap.sh -- --production
 ```
 
 The `--` separator ensures arguments reach the Python installer unchanged.
@@ -43,7 +45,10 @@ What the installer does
 
 - Detects the platform and chooses an available package manager.
 - Installs `python3`, `venv` tooling, `less`, and `git` using the native
-  package manager (with `sudo` when required).
+  package manager (with `sudo` when required) when a bootstrap interpreter is
+  missing.
+- Ensures the configured pyenv bootstrap and runtime environments exist and
+  writes `.python-version` to the runtime context.
 - Creates `.venv` if missing with the managed steady-state Python runtime and
   upgrades `pip`, `setuptools`, and `wheel`.
 - Installs the project in editable mode with optional pinned developer extras.
@@ -55,6 +60,9 @@ Notes and expectations
 
 - Run the installer from the repository root to ensure relative paths resolve
   correctly.
+- Source `./set-context-bootstrap.sh` or `./set-context.sh` when you need to
+  force one pyenv context explicitly. The tracked `.python-version` file
+  makes the runtime context the default local choice.
 - If the host lacks `sudo`, run the script as a privileged user or install the
   required system packages manually.
 - The Python logic supports a dry run for validation: `python scripts/
@@ -87,18 +95,25 @@ Notes and expectations
   prints the incoming commit summary and diffstat, adopts the reviewed
   upstream commit, runs the managed drift report, refreshes the managed
   starter files when needed, and leaves a reviewable parent-repo diff.
-- The managed starter for consuming projects also includes
-  `requirements-dev.txt`, `scripts/dev_setup.py`,
+- The managed starter for consuming projects also includes `bootstrap.sh`,
+  `bootstrap-stage2.py`, `python-environments.json`, `.python-version`,
+  `set-context.sh`, `set-context-bootstrap.sh`, `requirements-dev.txt`,
+  `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
   `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
-  and `tool_validation_profiles.json`, which install the same pinned Black,
-  Ruff, and pytest toolchain plus managed execution-constraints and
-  placement-driven runtime-policy registries by default unless a project
-  adopts a stricter local bootstrap flow.
+  `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding. That
+  set installs the same pinned Black, Ruff, and pytest toolchain plus named
+  pyenv contexts, managed execution constraints, placement-driven runtime
+  policy, and the standard local directory for read-only upstream
+  TheKnowledge requests.
 - The managed drift report compares `AGENTS.md` sections plus those starter
   files. When it reports drift, refresh only the managed starter entries:
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
-  `--knowledge-root TheKnowledge --force --template requirements-dev.txt`
-  `--template scripts --template scripts/tool_validation_profiles.py`
+  `--knowledge-root TheKnowledge --force --template .python-version`
+  `--template ECRs --template bootstrap.sh --template bootstrap-stage2.py`
+  `--template python-environments.json --template requirements-dev.txt`
+  `--template scripts --template scripts/python_environment_bootstrap.py`
+  `--template scripts/tool_validation_profiles.py`
+  `--template set-context-bootstrap.sh --template set-context.sh`
   `--template tool_execution_constraints.json`
   `--template tool_validation_profiles.json` and then review `git diff`
   before staging.
@@ -107,3 +122,6 @@ Notes and expectations
   followed by `finish --message ...` in the active submodule checkout. Add
   `--push` only when the configured push URL is writable for the current
   operator.
+- When the active TheKnowledge checkout is read-only and the request is not
+  yet ready for upstream filing, draft it first under `ECRs/TheKnowledge/`
+  in the consuming project.

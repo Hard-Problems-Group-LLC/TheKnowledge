@@ -4,23 +4,34 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Iterable, Sequence
 
-PLACEHOLDERS = ("{{THEKNOWLEDGE_ROOT}}", "{$KNOWLEDGE_ROOT}")
+KNOWLEDGE_ROOT_PLACEHOLDERS = ("{{THEKNOWLEDGE_ROOT}}", "{$KNOWLEDGE_ROOT}")
+PROJECT_SLUG_PLACEHOLDERS = ("{{PROJECT_SLUG}}", "{$PROJECT_SLUG}")
 AGENTS_PATH = Path("AGENTS.md")
 AGENTS_HEADER = "AGENTS-header.md"
 AGENTS_FOOTER = "AGENTS-footer.md"
 MANAGED_ROOT_FILES = (
+    Path("scripts/python_environment_bootstrap.py"),
     Path("tool_execution_constraints.json"),
     Path("tool_validation_profiles.json"),
     Path("scripts/tool_validation_profiles.py"),
 )
 MANAGED_REFRESH_TEMPLATES = (
+    ".python-version",
+    "ECRs",
+    "bootstrap.sh",
+    "bootstrap-stage2.py",
+    "python-environments.json",
     "requirements-dev.txt",
     "scripts",
+    "scripts/python_environment_bootstrap.py",
     "scripts/tool_validation_profiles.py",
+    "set-context-bootstrap.sh",
+    "set-context.sh",
     "tool_execution_constraints.json",
     "tool_validation_profiles.json",
 )
@@ -34,6 +45,12 @@ MANAGED_MARKERS = (
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parent.parent
+
+
+def project_slug(project_root: Path) -> str:
+    name = project_root.name.strip().lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", name)
+    return slug.strip("-") or "project"
 
 
 def infer_knowledge_root(project_root: Path, knowledge_repo_root: Path) -> str:
@@ -143,14 +160,16 @@ def iter_install_files(sources: Iterable[tuple[Path, Path]]) -> list[tuple[Path,
     return planned
 
 
-def render_file(source: Path, knowledge_root: str) -> bytes:
+def render_file(source: Path, knowledge_root: str, project_name_slug: str) -> bytes:
     content = source.read_bytes()
     try:
         text = content.decode("utf-8")
     except UnicodeDecodeError:
         return content
-    for placeholder in PLACEHOLDERS:
+    for placeholder in KNOWLEDGE_ROOT_PLACEHOLDERS:
         text = text.replace(placeholder, knowledge_root)
+    for placeholder in PROJECT_SLUG_PLACEHOLDERS:
+        text = text.replace(placeholder, project_name_slug)
     return text.encode("utf-8")
 
 
@@ -175,10 +194,19 @@ def install_agents_file(
     templates_root: Path,
     project_root: Path,
     knowledge_root: str,
+    project_name_slug: str,
     dry_run: bool,
 ) -> Path:
-    header = render_file(templates_root / AGENTS_HEADER, knowledge_root).decode("utf-8")
-    footer = render_file(templates_root / AGENTS_FOOTER, knowledge_root).decode("utf-8")
+    header = render_file(
+        templates_root / AGENTS_HEADER,
+        knowledge_root,
+        project_name_slug,
+    ).decode("utf-8")
+    footer = render_file(
+        templates_root / AGENTS_FOOTER,
+        knowledge_root,
+        project_name_slug,
+    ).decode("utf-8")
     destination = project_root / AGENTS_PATH
 
     existing = ""
@@ -205,6 +233,7 @@ def install_templates(
     templates_root: Path,
     project_root: Path,
     knowledge_root: str,
+    project_name_slug: str,
     requested: Iterable[str] | None,
     force: bool,
     dry_run: bool,
@@ -230,11 +259,19 @@ def install_templates(
         return [project_root / AGENTS_PATH] + destinations
 
     project_root.mkdir(parents=True, exist_ok=True)
-    written = [install_agents_file(templates_root, project_root, knowledge_root, False)]
+    written = [
+        install_agents_file(
+            templates_root,
+            project_root,
+            knowledge_root,
+            project_name_slug,
+            False,
+        )
+    ]
     for source, relative_path in files:
         destination = project_root / relative_path
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(render_file(source, knowledge_root))
+        destination.write_bytes(render_file(source, knowledge_root, project_name_slug))
         os.chmod(destination, source.stat().st_mode & 0o777)
         written.append(destination)
     return written
@@ -255,11 +292,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             project_root=project_root,
             knowledge_repo_root=knowledge_repo_root,
         )
+        project_name_slug = project_slug(project_root)
         destinations = install_templates(
             knowledge_repo_root=knowledge_repo_root,
             templates_root=templates_root,
             project_root=project_root,
             knowledge_root=knowledge_root,
+            project_name_slug=project_name_slug,
             requested=args.templates,
             force=args.force,
             dry_run=args.dry_run,

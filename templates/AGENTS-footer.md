@@ -21,15 +21,24 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `AI-backlog-iteration.txt` when told to iterate the backlog.
 - Use the consuming project's own `project-management/git-flow.txt` for branch
   and merge operations.
-- Use `python scripts/dev_setup.py` when the project is relying on the managed
-  starter Python toolchain. The default starter installs `requirements-dev.txt`
-  and `scripts/dev_setup.py` with pinned Black, Ruff, and pytest versions,
-  plus `scripts/tool_validation_profiles.py`,
-  `tool_execution_constraints.json`, and `tool_validation_profiles.json` for
-  managed execution constraints and placement-driven runtime policy. The
-  starter script itself stays bootstrap-compatible, but it creates the tool
-  virtual environment with the managed steady-state Python runtime unless the
-  project overrides that flow locally.
+- Treat source documentation as delivery work. Every maintained source file
+  should carry top-of-file context, every type and callable should be
+  documented, and non-trivial control flow should carry local rationale where
+  structure alone would be ambiguous.
+- Bootstrap, setup, prerequisite, and environment-selection code should
+  follow Python 3.9 best practices unless a higher floor is documented.
+- Normal runtime, automation, test, and developer-tooling code should follow
+  Python 3.12 best practices unless a component is intentionally constrained.
+- Use `./bootstrap.sh` when the project is relying on the managed starter
+  Python toolchain. The default starter installs `bootstrap.sh`,
+  `bootstrap-stage2.py`, `python-environments.json`, `.python-version`,
+  `set-context.sh`, `set-context-bootstrap.sh`, `requirements-dev.txt`,
+  `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
+  `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
+  and `tool_validation_profiles.json`. That flow starts from Python 3.9+,
+  provisions the named pyenv bootstrap/runtime contexts, and then refreshes
+  the tool virtual environment with the managed steady-state runtime unless
+  the project overrides that flow locally.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
@@ -51,6 +60,15 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   available as the default visual review path. Otherwise offer
   file-by-file review in the conversation or abort the staging
   step.
+- Never guess a Git author or committer email address from commit history,
+  hostnames, remote URLs, network overlays, or similar context.
+- Require an explicit commit identity before creating a commit. Prefer
+  configured `git` properties such as `user.name` and `user.email`; explicit
+  `GIT_COMMITTER_*` and optional separate `GIT_AUTHOR_*` overrides are also
+  acceptable when set deliberately.
+- When a separate author identity is not explicitly configured, reuse the
+  explicit committer identity for author instead of inventing a second
+  address.
 - Run `git diff` before any `git add` and `git diff --cached` before any
   commit. The standardized commit helper does both automatically.
 - Use `python {$KNOWLEDGE_ROOT}/scripts/git_standard_commit_push.py -m
@@ -58,7 +76,8 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   explicitly approved proceeding. Pass `--assume-reviewed` only after an
   explicit review decision made outside the helper. Use
   `--resume-review-prompts` to re-enable prompts for the current shell
-  session.
+  session. The helper rejects commits whose author/committer identity is not
+  explicitly configured.
 - When working primarily in the consuming project and discovering bugs,
   proposals, complaints, or general notes about TheKnowledge itself,
   record them on the TheKnowledge `Feedback` branch.
@@ -69,6 +88,10 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   you. Use `--push` only when the configured remote push URL is writable for
   the current operator, and use `abort` when you want to restore the prior
   state without publishing.
+- When the active `{$KNOWLEDGE_ROOT}/` checkout is read-only for upstream
+  maintenance, draft the request first under `ECRs/TheKnowledge/` in the
+  consuming project so the handoff stays reviewable before it reaches a
+  writable TheKnowledge checkout.
 - The `Feedback` branch is only for cross-project feedback flowing back
   into TheKnowledge. Direct maintenance of TheKnowledge itself should keep
   using its normal internal trees on `trunk`.

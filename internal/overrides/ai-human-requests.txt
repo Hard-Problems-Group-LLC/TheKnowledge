@@ -18,12 +18,32 @@ Completed Requests
 ------------------
 
 *
+  2026-03-31T16:07:22-07:00
+  Requestor: operator
+  Action: Never guess commit email addresses; require explicit Git identity
+  configuration, commit that guidance, and then resume the interrupted work.
+  Status: completed by Codex on 2026-03-31T16:07:22-07:00. The standardized
+  commit helper now rejects missing identity configuration, the managed Git
+  guidance forbids inferred addresses, and the full required validation suite
+  passed with `115` tests before the pending work resumed.
+
+*
   2026-03-31T15:38:05-07:00
   Requestor: operator
   Action: Draft and publish TheKnowledge ECRs for the proposed two-stage
   cross-distro bootstrap model and for replacing the old `Feedback` intake
   branch with a dedicated `feedback/ECRs` branch.
   Status: completed by Codex on 2026-03-31T15:38:05-07:00.
+
+*
+  2026-03-30T14:45:54-07:00
+  Requestor: operator
+  Action: Implement the imported AutoTomato TheKnowledge ECR set.
+  Status: completed by Codex on 2026-03-30T14:45:54-07:00. The repository
+  now carries the stronger documentation standard, the managed
+  bootstrap/context and `ECRs/TheKnowledge/` starter files, the non-Black
+  timeout-wrapper interpreter fix, and a full passing required validation
+  suite with `112` tests.
 
 *
   2026-03-30T12:13:45-07:00
