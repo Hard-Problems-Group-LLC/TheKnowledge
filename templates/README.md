@@ -11,17 +11,25 @@ The `project-management/` starter tree includes proposal status directories
 directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
 project's live records in the installed copy, not inside this submodule.
 
-The starter set also includes `bootstrap.sh`, `bootstrap-stage2.py`,
+The starter set also includes `install.sh`, `bootstrap.sh`,
+`scripts/install-stage-2.py`, `bootstrap-stage2.py`,
 `python-environments.json`, `.python-version`, `set-context.sh`,
 `set-context-bootstrap.sh`, `requirements-dev.txt`,
 `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
 `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
 Together they install TheKnowledge's default pinned Black, Ruff, and pytest
-toolchain plus named pyenv bootstrap/runtime contexts, managed registries for
-known environment-specific tool execution constraints and placement-driven
-Black/runtime policy, and the standard local directory for read-only
-upstream TheKnowledge requests.
+toolchain plus a default user-local standard install, an explicit repo-local
+development mode with pinned pyenv runtime selection plus `.venv`, managed
+registries for known environment-specific tool execution constraints and
+placement-driven Black/runtime policy, development-mode `direnv`
+integration, and the standard local directory for read-only upstream
+TheKnowledge requests. `bootstrap.sh` and `bootstrap-stage2.py` remain
+compatibility wrappers around the canonical `install.sh` and
+`scripts/install-stage-2.py` entry points. Consuming projects may also
+provide `scripts/install_project.py` when they need custom development,
+user-local standard, or system-standard install semantics beyond the managed
+default behavior.
 
 When templates contain `{{THEKNOWLEDGE_ROOT}}` or `{$KNOWLEDGE_ROOT}`, the
 setup script replaces that placeholder with the submodule path relative to
@@ -39,14 +47,15 @@ compare the consuming project's managed `AGENTS.md` sections plus managed
 starter files with the updated templates. The helper prints unified diffs that
 both human and AI developers can review before rerunning
 `scripts/initial-setup.py --force --template .python-version --template ECRs`
-`--template bootstrap.sh --template bootstrap-stage2.py --template`
-`python-environments.json --template requirements-dev.txt --template scripts`
-`--template scripts/python_environment_bootstrap.py --template`
-`scripts/tool_validation_profiles.py --template set-context-bootstrap.sh`
-`--template set-context.sh --template tool_execution_constraints.json`
-`--template tool_validation_profiles.json`, review `git diff`, and stage the
-resulting submodule-pointer update plus only the intended project-file
-changes.
+`--template install.sh --template bootstrap.sh --template`
+`bootstrap-stage2.py --template python-environments.json --template`
+`requirements-dev.txt --template scripts --template`
+`scripts/install-stage-2.py --template scripts/python_environment_bootstrap.py`
+`--template scripts/tool_validation_profiles.py --template`
+`set-context-bootstrap.sh --template set-context.sh --template`
+`tool_execution_constraints.json --template tool_validation_profiles.json`,
+review `git diff`, and stage the resulting submodule-pointer update plus only
+the intended project-file changes.
 
 For the normal review-and-adopt path, prefer
 `python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`
@@ -55,12 +64,13 @@ and summarizes the upstream delta, adopts the reviewed `trunk` commit, runs
 managed drift detection, refreshes the managed starter files when needed, and
 leaves a reviewable parent-repo diff without auto-committing.
 
-If that rerun updates `bootstrap.sh`, `bootstrap-stage2.py`,
+If that rerun updates `install.sh`, `bootstrap.sh`,
+`scripts/install-stage-2.py`, `bootstrap-stage2.py`,
 `python-environments.json`, `.python-version`, `set-context.sh`,
 `set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
 `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, or `tool_validation_profiles.json`,
-refresh the starter toolchain with `./bootstrap.sh` unless the consuming
+refresh the starter toolchain with `./install.sh` unless the consuming
 project intentionally overrides those files. If it updates
 `tool_execution_constraints.json` or `tool_validation_profiles.json`, review
 the policy change alongside the submodule update so shared helpers stay

@@ -42,11 +42,13 @@ application business logic.
 1. Import this repository (or a subtree thereof) into active projects.
 2. Run `scripts/initial-setup.py` from the submodule to install starter files
    from `templates/` into the consuming project root.
-3. Use the starter `./bootstrap.sh` when you want the default pinned Black,
-   Ruff, and pytest toolchain in the consuming project. The bootstrap path
-   starts from Python 3.9+, provisions the named pyenv bootstrap/runtime
-   contexts, writes `.python-version`, and then refreshes the tool
-   environment through `scripts/dev_setup.py`.
+3. Use the starter `./install.sh` for the default user-local
+   non-development install, `./install.sh --mode dev` for the repo-local
+   development toolchain, and `sudo ./install.sh --system` for explicit
+   system installs. The managed path starts from Python 3.9+, uses
+   repo-local `.venv` plus pinned pyenv runtime selection for development
+   mode, and requires `direnv` only for development mode. `bootstrap.sh`
+   remains a compatibility wrapper.
 4. Let the installed `python-environments.json`,
    `tool_execution_constraints.json`, and `tool_validation_profiles.json`
    record the starter's pyenv context names, managed execution constraints,
@@ -78,20 +80,26 @@ python TheKnowledge/scripts/initial-setup.py \
 For new or lightly customized consuming projects, then run:
 
 ```bash
-./bootstrap.sh
+./install.sh
 ```
 
-The starter installs `bootstrap.sh`, `bootstrap-stage2.py`,
+The starter installs `install.sh`, `bootstrap.sh`,
+`scripts/install-stage-2.py`, `bootstrap-stage2.py`,
 `python-environments.json`, `.python-version`, `set-context.sh`,
 `set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
 `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
 `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
-Together they provide TheKnowledge's default pinned toolchain, named pyenv
-contexts, managed validation/runtime policy, and a standard local holding
-area for read-only upstream TheKnowledge requests. Projects with tighter
-local environment policy may replace or extend those files instead of using
-the starter unchanged.
+Together they provide TheKnowledge's default pinned toolchain, a default
+user-local standard install, an explicit repo-local development mode with
+pyenv plus `.venv`, development-mode `direnv` integration, managed
+validation/runtime policy, and a standard local holding area for read-only
+upstream TheKnowledge requests. `bootstrap.sh` and `bootstrap-stage2.py`
+remain compatibility wrappers. Projects with tighter local environment policy
+may replace or extend those files instead of using the starter unchanged.
+Projects that need custom install semantics may also provide
+`scripts/install_project.py`, which `scripts/install-stage-2.py` will prefer
+over the managed default behavior.
 
 For a brand-new repository, initialize the repo first and then add the
 submodule:
@@ -111,7 +119,7 @@ python TheKnowledge/scripts/initial-setup.py \
 Then optionally install the default pinned Python developer toolchain:
 
 ```bash
-./bootstrap.sh
+./install.sh
 ```
 
 After that setup, commit both the new `.gitmodules` file and the generated
@@ -164,11 +172,13 @@ python TheKnowledge/scripts/initial-setup.py \
   --force \
   --template .python-version \
   --template ECRs \
+  --template install.sh \
   --template bootstrap.sh \
   --template bootstrap-stage2.py \
   --template python-environments.json \
   --template requirements-dev.txt \
   --template scripts \
+  --template scripts/install-stage-2.py \
   --template scripts/python_environment_bootstrap.py \
   --template scripts/tool_validation_profiles.py \
   --template set-context-bootstrap.sh \
@@ -187,13 +197,13 @@ belong to the same upgrade so the reviewed version becomes the project's new
 shared baseline.
 
 If the upgrade changes the starter bootstrap/runtime files such as
-`bootstrap.sh`, `bootstrap-stage2.py`, `python-environments.json`,
-`.python-version`, `set-context.sh`, `set-context-bootstrap.sh`,
-`requirements-dev.txt`, `scripts/dev_setup.py`,
-`scripts/python_environment_bootstrap.py`,
+`install.sh`, `bootstrap.sh`, `scripts/install-stage-2.py`,
+`bootstrap-stage2.py`, `python-environments.json`, `.python-version`,
+`set-context.sh`, `set-context-bootstrap.sh`, `requirements-dev.txt`,
+`scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, or `tool_validation_profiles.json`,
-rerun `./bootstrap.sh` in the consuming project before the next validation
-pass unless the project intentionally uses its own bootstrap flow instead.
+rerun `./install.sh` in the consuming project before the next validation pass
+unless the project intentionally uses its own bootstrap flow instead.
 When the upgrade changes `tool_execution_constraints.json` or
 `tool_validation_profiles.json`, review that policy diff alongside the
 submodule update so the project's shared helpers stay aligned with the new

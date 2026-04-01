@@ -25,6 +25,8 @@ except ImportError:  # pragma: no cover - the installed starter has the helper.
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
+    """Parse command-line arguments for starter dev-tool setup."""
+
     parser = argparse.ArgumentParser(
         description=(
             "Create or refresh the starter Python environment from the pinned "
@@ -54,14 +56,18 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
 
 
 def venv_python_path(venv_path: Path) -> Path:
+    """Return the interpreter path inside one virtual environment."""
+
     bin_dir = "Scripts" if os.name == "nt" else "bin"
     executable = "python.exe" if os.name == "nt" else "python"
     return venv_path / bin_dir / executable
 
 
 def run(command: Sequence[object]) -> None:
+    """Run one dev-setup command in the repository root."""
+
     printable = " ".join(str(part) for part in command)
-    print(f"[dev-setup] -> {printable}")
+    print("[dev-setup] -> {}".format(printable))
     subprocess.run([str(part) for part in command], cwd=REPO_ROOT, check=True)
 
 
@@ -98,6 +104,8 @@ def ensure_virtualenv(python_executable: str, venv_path: Path) -> Path:
 
 
 def select_tool_python(python_override: Optional[str]) -> str:
+    """Resolve the managed steady-state interpreter for tool installation."""
+
     return resolve_runtime_policy_executable(
         REPO_ROOT,
         STEADY_STATE_RUNTIME_POLICY,
@@ -107,8 +115,10 @@ def select_tool_python(python_override: Optional[str]) -> str:
 
 
 def install_requirements(python_executable: Path) -> None:
+    """Install the pinned starter dev-tool requirements into `.venv`."""
+
     if not REQUIREMENTS_FILE.is_file():
-        raise RuntimeError(f"Missing requirements file: {REQUIREMENTS_FILE}")
+        raise RuntimeError("Missing requirements file: {}".format(REQUIREMENTS_FILE))
 
     run(
         [
@@ -122,29 +132,22 @@ def install_requirements(python_executable: Path) -> None:
             "wheel",
         ]
     )
-    run(
-        [
-            python_executable,
-            "-m",
-            "pip",
-            "install",
-            "-r",
-            REQUIREMENTS_FILE,
-        ]
-    )
+    run([python_executable, "-m", "pip", "install", "-r", REQUIREMENTS_FILE])
     run([python_executable, "--version"])
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    """Create or refresh the starter `.venv` and pinned tool installs."""
+
     args = parse_args(argv or sys.argv[1:])
     try:
         tool_python = select_tool_python(args.python)
-        print(f"[dev-setup] managed tool runtime: {tool_python}")
+        print("[dev-setup] managed tool runtime: {}".format(tool_python))
         python_executable = ensure_virtualenv(tool_python, args.venv)
         if not args.skip_install:
             install_requirements(python_executable)
     except (RuntimeError, subprocess.CalledProcessError) as error:
-        print(f"[dev-setup] FAIL: {error}", file=sys.stderr)
+        print("[dev-setup] FAIL: {}".format(error), file=sys.stderr)
         return 1
 
     print("[dev-setup] PASS: pinned starter Python tooling is ready.")

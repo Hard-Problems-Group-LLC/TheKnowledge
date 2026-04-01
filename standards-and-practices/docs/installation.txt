@@ -1,14 +1,20 @@
 Installation strategy
 =====================
 
-Use `bootstrap.sh` as the canonical bootstrap entry point. The shell wrapper
-locates or installs a bootstrap Python 3.9+ interpreter, delegates the main
-context work to `bootstrap-stage2.py`, provisions the configured pyenv
-bootstrap/runtime environments from `python-environments.json`, writes
-`.python-version` for runtime-default behavior, and then hands off to
-`scripts/install_prerequisites.py` with the runtime interpreter. The legacy
-`scripts/install_prerequisites.sh` entry point remains as a compatibility
-wrapper that delegates to `bootstrap.sh`.
+Use `install.sh` as the canonical POSIX bootstrap entry point. The shell
+wrapper locates or installs a bootstrap Python 3.9+ interpreter, delegates
+the main context work to `scripts/install-stage-2.py`, and then chooses one
+of three scopes:
+- default user-local standard install;
+- explicit repo-local development or venv-only install; or
+- explicit system-standard install with `--system`.
+Development mode provisions the configured pyenv bootstrap/runtime selections
+from `python-environments.json`, writes `.python-version`, refreshes the
+repo-local `.venv`, and requires `direnv`. `bootstrap.sh`,
+`bootstrap-stage2.py`, and `scripts/install_prerequisites.sh` remain
+compatibility wrappers. For the broader interpreter and package-environment
+precedence model that future multi-language bootstrap flows should follow, see
+`standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`.
 
 Quick start
 -----------
@@ -16,19 +22,19 @@ Quick start
 From the repository root:
 
 ```
-./bootstrap.sh
+./install.sh
 ```
 
-The script defaults to installing project in editable mode with development
-extras. Those extras pin the repository's default Black, Ruff, and pytest tool
-versions exactly so local validation stays reproducible. Pass `--production`
-through to the Python installer when you want to skip developer dependencies:
+That default is a user-local non-development install. Use development mode
+when you want the pinned repo-local toolchain:
 
 ```
-./bootstrap.sh -- --production
+./install.sh --mode dev
 ```
 
-The `--` separator ensures arguments reach the Python installer unchanged.
+Use `sudo ./install.sh --system` when you explicitly want a system-level
+non-development install. Use `--mode venv-only` when you want only the
+managed repo-local `.venv` and toolchain.
 
 Supported platforms
 -------------------
@@ -44,16 +50,29 @@ What the installer does
 -----------------------
 
 - Detects the platform and chooses an available package manager.
-- Installs `python3`, `venv` tooling, `less`, and `git` using the native
-  package manager (with `sudo` when required) when a bootstrap interpreter is
-  missing.
-- Ensures the configured pyenv bootstrap and runtime environments exist and
-  writes `.python-version` to the runtime context.
-- Creates `.venv` if missing with the managed steady-state Python runtime and
-  upgrades `pip`, `setuptools`, and `wheel`.
-- Installs the project in editable mode with optional pinned developer extras.
-- Installs/updates managed git `pre-commit` and `pre-push` hook wrappers via
-  `scripts/install_git_hooks.py`.
+- Installs `python3`, `venv` tooling, `git`, `curl`, and pyenv build
+  dependencies when a bootstrap interpreter is missing and root access is
+  available.
+- Falls back to a user-scoped pyenv bootstrap when root access is not in use
+  and a suitable interpreter is still missing.
+- Uses standard mode as the default install mode.
+- Installs standard mode into a user-local venv by default.
+- Installs standard mode into system paths only when `--system` is present
+  under root.
+- Ensures the configured pyenv bootstrap and runtime selections exist,
+  writes `.python-version`, and refreshes `.venv` only for development or
+  venv-only repo-local modes.
+- Delegates installation semantics to `scripts/install_project.py` when the
+  consuming project provides that hook; otherwise uses the managed default
+  Python-venv install behavior for development and standard mode.
+- A consuming project's install hook may also publish or remove a
+  project-bound developer launcher for development mode or manage the stable
+  user/system launcher for standard mode.
+- Installs or updates `direnv` and managed shell hooks only for development
+  mode.
+- Installs or updates managed git hooks only for repo-local development or
+  venv-only mode when `scripts/install_git_hooks.py` is available in the
+  repository or in a `TheKnowledge/` submodule.
 
 Notes and expectations
 ----------------------
@@ -63,10 +82,19 @@ Notes and expectations
 - Source `./set-context-bootstrap.sh` or `./set-context.sh` when you need to
   force one pyenv context explicitly. The tracked `.python-version` file
   makes the runtime context the default local choice.
-- If the host lacks `sudo`, run the script as a privileged user or install the
-  required system packages manually.
-- The Python logic supports a dry run for validation: `python scripts/
-  install_prerequisites.py --dry-run`.
+- `sudo ./install.sh` without `--system` must fail with an explanation. Use
+  `sudo` only for explicit system installs.
+- `./install.sh --system` without root privileges must fail with an
+  explanation.
+- Running `./install.sh` directly as `root` without `--system` must ask for
+  confirmation before doing a root-only user-local install. In
+  non-interactive contexts it should abort instead.
+- If the host lacks `sudo`, run `./install.sh` for a user-local install or
+  install the required system packages manually before retrying
+  `./install.sh --system`.
+- `bootstrap.sh` and `bootstrap-stage2.py` remain valid compatibility entry
+  points, but new docs and consuming-project guidance should prefer
+  `./install.sh`.
 - Entropy-secret checks are wired into managed hooks:
   - `pre-commit` runs entropy checks.
   - `pre-push` runs cached quality-gate checks.
@@ -95,23 +123,28 @@ Notes and expectations
   prints the incoming commit summary and diffstat, adopts the reviewed
   upstream commit, runs the managed drift report, refreshes the managed
   starter files when needed, and leaves a reviewable parent-repo diff.
-- The managed starter for consuming projects also includes `bootstrap.sh`,
-  `bootstrap-stage2.py`, `python-environments.json`, `.python-version`,
-  `set-context.sh`, `set-context-bootstrap.sh`, `requirements-dev.txt`,
-  `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
+- The managed starter for consuming projects also includes `install.sh`,
+  `bootstrap.sh`, `scripts/install-stage-2.py`, `bootstrap-stage2.py`,
+  `python-environments.json`, `.python-version`, `set-context.sh`,
+  `set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
+  `scripts/python_environment_bootstrap.py`,
   `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
   `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding. That
-  set installs the same pinned Black, Ruff, and pytest toolchain plus named
-  pyenv contexts, managed execution constraints, placement-driven runtime
+  set installs the same pinned Black, Ruff, and pytest toolchain plus a
+  default user-local standard install, explicit repo-local development mode
+  with pinned pyenv selections and `.venv`, development-mode `direnv`
+  integration, managed execution constraints, placement-driven runtime
   policy, and the standard local directory for read-only upstream
   TheKnowledge requests.
 - The managed drift report compares `AGENTS.md` sections plus those starter
   files. When it reports drift, refresh only the managed starter entries:
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
   `--knowledge-root TheKnowledge --force --template .python-version`
-  `--template ECRs --template bootstrap.sh --template bootstrap-stage2.py`
-  `--template python-environments.json --template requirements-dev.txt`
-  `--template scripts --template scripts/python_environment_bootstrap.py`
+  `--template ECRs --template install.sh --template bootstrap.sh`
+  `--template bootstrap-stage2.py --template python-environments.json`
+  `--template requirements-dev.txt --template scripts`
+  `--template scripts/install-stage-2.py`
+  `--template scripts/python_environment_bootstrap.py`
   `--template scripts/tool_validation_profiles.py`
   `--template set-context-bootstrap.sh --template set-context.sh`
   `--template tool_execution_constraints.json`

@@ -9,7 +9,6 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Sequence
 
-
 CONFIG_FILE_NAME = "tool_validation_profiles.json"
 
 DEFAULT_TOOL_VALIDATION_PROFILES: Dict[str, object] = {
@@ -258,8 +257,7 @@ def _walk_black_paths(
                     not include_ignored
                     and path_is_git_ignored(
                         repo_root,
-                        _relative_repo_path(repo_root, current_path / name)
-                        or "",
+                        _relative_repo_path(repo_root, current_path / name) or "",
                     )
                 )
             ]
@@ -275,7 +273,9 @@ def _walk_black_paths(
                     excluded_dirs=excluded_dirs,
                 ):
                     continue
-                if not include_ignored and path_is_git_ignored(repo_root, relative_path):
+                if not include_ignored and path_is_git_ignored(
+                    repo_root, relative_path
+                ):
                     continue
                 discovered.append(relative_path)
     return sorted(set(discovered))
@@ -388,7 +388,9 @@ def resolve_black_profile(repo_root: Path, relative_path: str) -> Dict[str, obje
             isinstance(extension, str) for extension in extensions
         ):
             raise ValueError("Black profile extensions must be a list of strings")
-        if Path(path).suffix.lower() not in {extension.lower() for extension in extensions}:
+        if Path(path).suffix.lower() not in {
+            extension.lower() for extension in extensions
+        }:
             continue
         if profile.get("default_profile") is True:
             default_profile = profile
@@ -482,7 +484,9 @@ def _probe_python_candidate(
         return None
     version = payload.get("version")
     modules = payload.get("modules")
-    if not isinstance(version, list) or not all(isinstance(part, int) for part in version):
+    if not isinstance(version, list) or not all(
+        isinstance(part, int) for part in version
+    ):
         return None
     if not isinstance(modules, dict):
         return None
@@ -518,7 +522,9 @@ def resolve_runtime_policy_executable(
         candidate = _normalize_executable_candidate(repo_root, explicit_candidate)
         probe = _probe_python_candidate(candidate, requested_modules)
         if probe is None:
-            raise RuntimeError(f"Python runtime '{explicit_candidate}' is not runnable.")
+            raise RuntimeError(
+                f"Python runtime '{explicit_candidate}' is not runnable."
+            )
         version, modules_ok = probe
         if version < minimum:
             raise RuntimeError(

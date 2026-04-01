@@ -102,9 +102,14 @@ Operational Notes
   review for this changeset, and `3` proceed and suppress review prompts for
   the rest of the current session until resumed.
 - If review is requested, prefer changeset review in Meld when
-  available as the default visual review path. Otherwise offer
-  file-by-file review in the conversation or abort the staging
-  step.
+  available as the default visual review path.
+- Launch `meld .` from the repository or submodule root so Meld opens its
+  version-control view for the full working tree.
+- If Meld version-control view is unavailable or unsuitable, compare a
+  temporary clean snapshot directory against the working tree in Meld's
+  folder-comparison mode.
+- Otherwise offer file-by-file review in the conversation or abort the
+  staging step.
 - Never infer a Git author or committer email address from commit history,
   hostnames, remote URLs, network overlays, or similar context.
 - Require a deliberate identity before commit. Prefer configured
@@ -120,7 +125,8 @@ Operational Notes
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
   through `{{THEKNOWLEDGE_ROOT}}/scripts/install_git_hooks.py`.
 - If the project is using the managed starter Python toolchain, rerun
-  `./bootstrap.sh` whenever `bootstrap.sh`, `bootstrap-stage2.py`,
+  `./install.sh` whenever `install.sh`, `bootstrap.sh`,
+  `scripts/install-stage-2.py`, `bootstrap-stage2.py`,
   `python-environments.json`, `.python-version`, `set-context.sh`,
   `set-context-bootstrap.sh`, `requirements-dev.txt`,
   `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,

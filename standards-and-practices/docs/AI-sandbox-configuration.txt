@@ -8,7 +8,7 @@ management during automated runs.
 Sandbox checklist
 -----------------
 
-- Start in the repository root and run `./bootstrap.sh`.
+- Start in the repository root and run `./install.sh`.
 - Allow the bootstrap flow to create the named pyenv contexts, write
   `.python-version`, and refresh `.venv` through the runtime installer.
 - Keep the working directory clean: the installer avoids global changes and

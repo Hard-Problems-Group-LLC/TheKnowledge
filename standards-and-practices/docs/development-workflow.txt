@@ -94,16 +94,17 @@ The managed pre-commit hook installed by setup scripts runs
 and CI-adjacent sandboxes where commits are authored.
 
 Keep the Python toolchain reproducible. In TheKnowledge itself, rerun
-`./bootstrap.sh` when the pinned toolchain drifts or when
-`python-environments.json`, `.python-version`, `bootstrap-stage2.py`, or the
-runtime-policy helpers change. `./scripts/install_prerequisites.sh` remains a
-compatibility wrapper that delegates to `./bootstrap.sh`. In consuming
-projects that adopt the managed starter bootstrap, rerun `./bootstrap.sh`
-after the starter bootstrap/runtime files, `requirements-dev.txt`,
-`tool_validation_profiles.json`, or `scripts/tool_validation_profiles.py`
-change, or when the local tool versions drift. The bootstrap entry point may
-still run on the bootstrap Python floor while creating the steady-state
-developer-tool environment with the managed runtime policy.
+`./install.sh` when the pinned toolchain drifts or when `install.sh`,
+`scripts/install-stage-2.py`, `python-environments.json`,
+`.python-version`, or the runtime-policy helpers change. `./bootstrap.sh`
+and `./scripts/install_prerequisites.sh` remain compatibility wrappers. In
+consuming projects that adopt the managed starter bootstrap, rerun
+`./install.sh` after the starter bootstrap/runtime files,
+`requirements-dev.txt`, `tool_validation_profiles.json`, or
+`scripts/tool_validation_profiles.py` change, or when the local tool
+versions drift. The bootstrap entry point may still run on the bootstrap
+Python floor while creating the steady-state developer-tool environment with
+the managed runtime policy.
 
 If `tool_execution_constraints.json` marks a tool-and-environment
 combination unsafe to parallelize, follow the recorded workaround. In a
@@ -124,9 +125,14 @@ For standardized git operations, use:
   review for this changeset, and `3` proceed and suppress review prompts for
   the rest of the current session until they are resumed.
 - If review is requested, prefer changeset review in Meld when
-  available as the default visual review path. Otherwise offer
-  file-by-file review in the conversation or abort the staging
-  step.
+  available as the default visual review path.
+- Launch `meld .` from the repository or submodule root so Meld opens its
+  version-control view for the full working tree.
+- If Meld version-control view is unavailable or unsuitable, compare a
+  temporary clean snapshot directory against the working tree in Meld's
+  folder-comparison mode.
+- Otherwise offer file-by-file review in the conversation or abort the
+  staging step.
 - Never infer a Git author or committer email address from commit history,
   hostnames, remote URLs, network overlays, or similar context.
 - Require a deliberate identity before commit. Prefer configured

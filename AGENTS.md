@@ -59,9 +59,14 @@ live state.
   suppress review prompts for the rest of the current session until the
   operator asks to resume them.
 - If review is requested, prefer changeset review in Meld when
-  available as the default visual review path. Otherwise offer
-  file-by-file review in the conversation or abort the staging
-  step.
+  available as the default visual review path.
+- Launch `meld .` from the repository or submodule root so Meld opens its
+  version-control view for the full working tree.
+- If Meld version-control view is unavailable or unsuitable, compare a
+  temporary clean snapshot directory against the working tree in Meld's
+  folder-comparison mode.
+- Otherwise offer file-by-file review in the conversation or abort the
+  staging step.
 - Never guess a Git author or committer email address from commit history,
   hostnames, remote URLs, network overlays, or similar context.
 - Require an explicit commit identity before creating a commit. Prefer

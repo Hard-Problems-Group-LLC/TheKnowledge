@@ -80,6 +80,7 @@ def test_report_managed_agents_drift_passes_when_sections_match(
     assert "managed header is up to date" in result.stdout
     assert "managed footer is up to date" in result.stdout
     assert "managed file .python-version is up to date" in result.stdout
+    assert "managed file install.sh is up to date" in result.stdout
     assert "managed file bootstrap.sh is up to date" in result.stdout
     assert "managed file tool_execution_constraints.json is up to date" in (
         result.stdout
@@ -115,13 +116,14 @@ def test_report_managed_agents_drift_reports_header_or_footer_changes(
     assert (
         "initial-setup.py --project-root . --knowledge-root TheKnowledge "
         "--force --template .python-version --template ECRs --template "
-        "bootstrap.sh --template bootstrap-stage2.py --template "
-        "python-environments.json --template requirements-dev.txt --template "
-        "scripts --template scripts/python_environment_bootstrap.py "
-        "--template scripts/tool_validation_profiles.py --template "
+        "install.sh --template bootstrap.sh --template bootstrap-stage2.py "
+        "--template python-environments.json --template requirements-dev.txt "
+        "--template scripts --template scripts/install-stage-2.py --template "
+        "scripts/python_environment_bootstrap.py --template "
+        "scripts/tool_validation_profiles.py --template "
         "set-context-bootstrap.sh --template set-context.sh --template "
-        "tool_execution_constraints.json --template "
-        "tool_validation_profiles.json" in result.stdout
+        "tool_execution_constraints.json --template tool_validation_profiles.json"
+        in result.stdout
     )
 
 

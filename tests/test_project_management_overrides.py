@@ -12,11 +12,14 @@ EXPECTED_FILES = [
     INTERNAL / "README.md",
     ROOT / ".python-version",
     ROOT / "README.md",
+    ROOT / "install.sh",
     ROOT / "bootstrap.sh",
     ROOT / "bootstrap-stage2.py",
     ROOT / "python-environments.json",
     ROOT / "set-context-bootstrap.sh",
     ROOT / "set-context.sh",
+    ROOT / "scripts" / "dev_setup.py",
+    ROOT / "scripts" / "install-stage-2.py",
     ROOT / "scripts" / "python_environment_bootstrap.py",
     ROOT / "tool_execution_constraints.json",
     ROOT / "tool_validation_profiles.json",
@@ -24,6 +27,7 @@ EXPECTED_FILES = [
     TEMPLATES / "AGENTS-footer.md",
     TEMPLATES / ".python-version",
     TEMPLATES / "README.md",
+    TEMPLATES / "install.sh",
     TEMPLATES / "bootstrap.sh",
     TEMPLATES / "bootstrap-stage2.py",
     TEMPLATES / "python-environments.json",
@@ -182,6 +186,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
     assert "scripts/initial-setup.py" in templates_text
+    assert "install.sh" in templates_text
     assert "bootstrap.sh" in templates_text
     assert "python-environments.json" in templates_text
     assert "ECRs/TheKnowledge/" in templates_text
@@ -211,7 +216,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "TheKnowledge Overrides" in footer_text
     assert "Feedback` branch" in footer_text
     assert "`{$KNOWLEDGE_ROOT}/` submodule checkout" in footer_text
-    assert "./bootstrap.sh" in footer_text
+    assert "./install.sh" in footer_text
     assert "python-environments.json" in footer_text
     assert "ECRs/TheKnowledge/" in footer_text
     assert "Python 3.12 best practices" in footer_text
@@ -240,7 +245,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "project-management/proposals/" in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
     assert "Timestamped Intermediary Updates" in repo_text
-    assert "./bootstrap.sh" in repo_text
+    assert "./install.sh" in repo_text
     assert "python-environments.json" in repo_text
     assert "ECRs/TheKnowledge/" in repo_text
     assert "scripts/dev_setup.py" in repo_text
@@ -262,7 +267,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "workflow profiling" in workflow_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in workflow_text
     assert "project-management/backlog.txt" in workflow_text
-    assert "./bootstrap.sh" in workflow_text
+    assert "./install.sh" in workflow_text
     assert "tool_execution_constraints.json" in workflow_text
     assert "tool_validation_profiles.json" in workflow_text
     assert "./scripts/install_prerequisites.sh" in workflow_text
@@ -274,7 +279,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "git diff --cached" in workflow_text
     assert "one file at a time" in workflow_text
     assert "`black -W 1`" in workflow_text
-    assert "./bootstrap.sh" in git_flow_text
+    assert "./install.sh" in git_flow_text
     assert "ECRs/TheKnowledge/" in git_flow_text
     assert "Never infer a Git author or committer email address" in git_flow_text
     assert "committer identity for author" in git_flow_text
@@ -283,7 +288,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "incoming upstream `trunk` delta" in git_flow_text
     assert "update_theknowledge_submodule.py" in git_flow_text
     assert "TheKnowledge submodule" in installation_text
-    assert "bootstrap.sh" in installation_text
+    assert "install.sh" in installation_text
     assert "python-environments.json" in installation_text
     assert "ECRs/TheKnowledge/" in installation_text
     assert "tool_execution_constraints.json" in installation_text
@@ -294,7 +299,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "templates/requirements-dev.txt" in pinning_spec_text
     assert "templates/scripts/dev_setup.py" in pinning_spec_text
     assert "python-environments.json" in pinning_spec_text
-    assert "bootstrap.sh" in bootstrap_spec_text
+    assert "install.sh" in bootstrap_spec_text
     assert "set-context.sh" in bootstrap_spec_text
     assert "ECRs/TheKnowledge/" in ecr_spec_text
     assert "ECRs/README.md" in ecr_spec_text

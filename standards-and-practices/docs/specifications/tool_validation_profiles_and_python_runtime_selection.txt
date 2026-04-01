@@ -57,15 +57,15 @@ Requirements
   and runtime-selection behavior for each file.
 - `scripts/run_quality_gate_cached.py` must fingerprint the same default
   Black-managed roots that the timeout wrapper would discover by default.
-- `scripts/install_prerequisites.sh` must stop precreating or activating a
-  virtual environment before the Python installer selects the managed tool
-  runtime.
-- `scripts/install_prerequisites.py` must be runnable on the bootstrap
-  interpreter but, unless `--python` overrides it, must create or refresh the
-  managed virtual environment using the configured steady-state tool runtime
-  policy instead of defaulting to `sys.executable`.
+- `install.sh` and `scripts/install_prerequisites.sh` must stop precreating
+  or activating a virtual environment before stage 2 selects the managed
+  tool runtime.
+- `scripts/install-stage-2.py` must be runnable on the bootstrap
+  interpreter and must create or refresh the managed virtual environment
+  using the configured steady-state tool runtime policy instead of defaulting
+  to `sys.executable`.
 - `templates/scripts/dev_setup.py` must follow the same rule as
-  `scripts/install_prerequisites.py`: the script itself remains bootstrap-
+  `scripts/install-stage-2.py`: the script itself remains bootstrap-
   compatible, but the virtual environment it creates must default to the
   managed steady-state tool runtime rather than to the bootstrap interpreter.
 - `scripts/initial_setup.py` must install `tool_validation_profiles.json`

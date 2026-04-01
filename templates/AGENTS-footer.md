@@ -29,16 +29,19 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   follow Python 3.9 best practices unless a higher floor is documented.
 - Normal runtime, automation, test, and developer-tooling code should follow
   Python 3.12 best practices unless a component is intentionally constrained.
-- Use `./bootstrap.sh` when the project is relying on the managed starter
-  Python toolchain. The default starter installs `bootstrap.sh`,
-  `bootstrap-stage2.py`, `python-environments.json`, `.python-version`,
-  `set-context.sh`, `set-context-bootstrap.sh`, `requirements-dev.txt`,
+- Use `./install.sh` when the project is relying on the managed starter
+  Python toolchain. The default starter installs `install.sh`,
+  `bootstrap.sh`, `scripts/install-stage-2.py`, `bootstrap-stage2.py`,
+  `python-environments.json`, `.python-version`, `set-context.sh`,
+  `set-context-bootstrap.sh`, `requirements-dev.txt`,
   `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
   `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
   and `tool_validation_profiles.json`. That flow starts from Python 3.9+,
-  provisions the named pyenv bootstrap/runtime contexts, and then refreshes
-  the tool virtual environment with the managed steady-state runtime unless
-  the project overrides that flow locally.
+  defaults to a user-local standard install, supports explicit repo-local
+  development mode and venv-only mode, permits system installs only with
+  `--system` under root, and requires `direnv` for development mode.
+  `bootstrap.sh` and
+  `bootstrap-stage2.py` remain compatibility wrappers.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
@@ -57,9 +60,14 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   suppress review prompts for the rest of the current session until the
   operator asks to resume them.
 - If review is requested, prefer changeset review in Meld when
-  available as the default visual review path. Otherwise offer
-  file-by-file review in the conversation or abort the staging
-  step.
+  available as the default visual review path.
+- Launch `meld .` from the repository or submodule root so Meld opens its
+  version-control view for the full working tree.
+- If Meld version-control view is unavailable or unsuitable, compare a
+  temporary clean snapshot directory against the working tree in Meld's
+  folder-comparison mode.
+- Otherwise offer file-by-file review in the conversation or abort the
+  staging step.
 - Never guess a Git author or committer email address from commit history,
   hostnames, remote URLs, network overlays, or similar context.
 - Require an explicit commit identity before creating a commit. Prefer

@@ -96,5 +96,5 @@ def test_python_environment_files_define_bootstrap_and_runtime_contexts() -> Non
 
     assert '"required_version": "3.9"' in config_text
     assert '"required_version": "3.12"' in config_text
-    assert "theknowledge-runtime-3.12" in config_text
-    assert runtime_text.strip() == "theknowledge-runtime-3.12"
+    assert '"environment_name": "3.12.12"' in config_text
+    assert runtime_text.strip() == "3.12.12"

@@ -25,8 +25,9 @@ Requirements
   - `ruff==0.15.7`
   - `pytest==9.0.2`
   - `pytest-timeout==2.4.0`
-- `scripts/install_prerequisites.py` may keep using editable installs with dev
-  extras, but those extras must resolve to the exact pinned versions above.
+- `scripts/install-stage-2.py` must install the managed project in
+  development mode with pinned tool dependencies, and those dependencies must
+  resolve to the exact pinned versions above.
 - `templates/requirements-dev.txt` must exist and must mirror the exact pinned
   dev-tool versions from `pyproject.toml`.
 - `templates/scripts/dev_setup.py` must install the managed
@@ -36,21 +37,22 @@ Requirements
   define the managed steady-state Python tool runtime policy separately from
   the Python 3.9 bootstrap floor.
 - `python-environments.json` must exist at the repository root and must
-  define the named pyenv bootstrap/runtime environments and their preferred
-  base versions.
+  define the bootstrap/runtime pyenv selections and their preferred base
+  versions.
 - `scripts/tool_validation_profiles.py` must exist and must expose the managed
   runtime-selection logic that consuming projects inherit with the starter.
-- `bootstrap.sh`, `bootstrap-stage2.py`, `.python-version`,
-  `set-context-bootstrap.sh`, and `set-context.sh` must exist at the
-  repository root.
+- `install.sh`, `bootstrap.sh`, `scripts/install-stage-2.py`,
+  `bootstrap-stage2.py`, `.python-version`, `set-context-bootstrap.sh`, and
+  `set-context.sh` must exist at the repository root.
 - `scripts/initial_setup.py` must install `requirements-dev.txt`,
   `scripts/dev_setup.py`, `scripts/tool_validation_profiles.py`,
   `scripts/python_environment_bootstrap.py`, `tool_validation_profiles.json`,
-  `python-environments.json`, `bootstrap.sh`, `bootstrap-stage2.py`,
-  `.python-version`, `set-context-bootstrap.sh`, and `set-context.sh` into
-  consuming projects by default.
+  `python-environments.json`, `install.sh`, `bootstrap.sh`,
+  `scripts/install-stage-2.py`, `bootstrap-stage2.py`, `.python-version`,
+  `set-context-bootstrap.sh`, and `set-context.sh` into consuming projects by
+  default.
 - `README.md` must explain that consuming projects receive starter toolchain
-  files and may run `./bootstrap.sh` when they want the default pinned setup.
+  files and may run `./install.sh` when they want the default pinned setup.
 - `templates/README.md`, `templates/AGENTS-footer.md`, and
   `templates/project-management/git-flow.txt` must explain how the managed
   starter toolchain is refreshed in consuming projects.

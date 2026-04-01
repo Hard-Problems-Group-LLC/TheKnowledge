@@ -5,21 +5,24 @@ Scope
 -----
 Define the repository-standard bootstrap, pyenv context, and steady-state
 Python tool-runtime model for TheKnowledge itself and for consuming projects
-that adopt TheKnowledge's managed starter files.
+that adopt TheKnowledge's managed starter files. This is the Python-specific
+implementation of the broader precedence model documented in
+`standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`.
 
 Problem Statement
 -----------------
 TheKnowledge now distinguishes between a bootstrap Python floor and a
-steady-state runtime for heavier developer tooling, but it still lacks a
-single starter story that makes that split explicit and repeatable.
+steady-state runtime for heavier developer tooling, but it still needs a
+single starter story that makes that split explicit, repeatable, and easier
+to adopt across Rocky and Ubuntu.
 
 Without a canonical bootstrap entry point, a checked-in runtime-default
-context file, and clear pyenv environment names, maintainers have to infer
-too much:
+context file, and a default model that works with plain `pyenv` plus
+repo-local `.venv`, maintainers have to infer too much:
 - which Python version may start setup work;
 - which Python version should run the pinned toolchain afterward;
 - how the repository should select between bootstrap and runtime contexts;
-  and
+- how the repository should refresh `.venv`; and
 - how consuming projects should inherit that same model.
 
 Requirements
@@ -29,47 +32,80 @@ Requirements
   contexts:
   - the required major/minor version;
   - the preferred base version used for pyenv installation; and
-  - the named pyenv virtual environment to activate for that context.
+  - the pyenv selection name to activate for that context.
 - The repository root must include:
+  - `install.sh`
   - `bootstrap.sh`
+  - `scripts/install-stage-2.py`
   - `bootstrap-stage2.py`
   - `.python-version`
   - `set-context-bootstrap.sh`
   - `set-context.sh`
-- `bootstrap.sh` must be the canonical direct-checkout bootstrap entry point.
-- `bootstrap.sh` must locate a Python interpreter that satisfies the
+- `install.sh` must be the canonical direct-checkout bootstrap entry point.
+- `install.sh` must locate a Python interpreter that satisfies the
   configured bootstrap floor and then delegate the main environment work to
-  `bootstrap-stage2.py`.
-- `bootstrap-stage2.py` must:
+  `scripts/install-stage-2.py`.
+- `install.sh` must default to a user-local standard install when it is run
+  as a normal user with no explicit mode overrides.
+- `install.sh` must reject `sudo ./install.sh` unless `--system` is also
+  present.
+- `install.sh` must reject `./install.sh --system` when the current process
+  is not running as root.
+- `install.sh` must prompt before allowing a non-system install when it is
+  run directly as `root`. When no interactive confirmation is possible, it
+  must abort instead.
+- `scripts/install-stage-2.py` must:
   - read `python-environments.json`;
-  - verify that `pyenv` and `pyenv-virtualenv` are available;
-  - ensure the configured bootstrap and runtime base versions exist;
-  - ensure the configured bootstrap and runtime virtual environments exist;
-  - write `.python-version` so the runtime environment is the default local
-    context; and
-  - hand off to the repository's normal installer or starter-refresh path
-    using the runtime environment's Python executable.
+  - install or update user-scoped `pyenv` when needed for repo-local
+    development or venv-only mode;
+  - ensure the configured bootstrap and runtime base versions exist for
+    repo-local development or venv-only mode;
+  - support plain-version pyenv selections by default;
+  - keep compatibility with named `pyenv-virtualenv` selections when a
+    context name differs from its base version;
+  - write `.python-version` so the runtime selection is the default local
+    context for repo-local development mode; and
+  - choose install scope based on mode plus `--system` rather than by
+    privilege level alone.
+- `scripts/install-stage-2.py` must support:
+  - standard mode with non-editable install semantics;
+  - development mode with editable install semantics;
+  - venv-only mode that skips project installation;
+  - system scope for standard mode only; and
+  - an optional consuming-project hook at `scripts/install_project.py` for
+    projects whose install behavior differs from the managed default.
+- Standard mode must install into a user-local venv by default and into a
+  system-scoped venv only when `--system` is present.
+- Repo-local development or venv-only mode must refresh the repo-local
+  `.venv` using the runtime selection's Python executable.
+- That optional consuming-project hook may also install or remove a
+  project-bound developer launcher so the project-specific Python override can
+  remain active outside the repository directory, or manage stable user/system
+  launchers for non-development installs.
+- Development mode must ensure `direnv`, managed shell-hook blocks, and a
+  managed `.envrc`.
+- `bootstrap.sh` and `bootstrap-stage2.py` must remain valid compatibility
+  wrappers around the canonical entry points.
 - `set-context-bootstrap.sh` and `set-context.sh` must be designed to be
-  sourced and must force the bootstrap or runtime pyenv context
+  sourced and must force the bootstrap or runtime pyenv selection
   respectively.
 - `scripts/install_prerequisites.sh` must remain valid as a compatibility
-  wrapper, delegating to `bootstrap.sh`.
+  wrapper, delegating to `install.sh`.
 - The managed starter for consuming projects must install the same bootstrap
   model with starter-local versions of:
+  - `install.sh`
   - `python-environments.json`
   - `bootstrap.sh`
+  - `scripts/install-stage-2.py`
   - `bootstrap-stage2.py`
   - `.python-version`
   - `set-context-bootstrap.sh`
   - `set-context.sh`
 - The managed starter must also install any shared Python helper module that
-  the bootstrap-stage2 or context scripts depend on.
+  the stage-two or context scripts depend on.
 - `scripts/initial_setup.py`, `scripts/report_managed_agents_drift.py`, and
   the corresponding documentation/tests must treat those files as managed
   starter content.
-- The consuming-project starter templates may use project-name-derived
-  placeholders so pyenv environment names stay project-local without requiring
-  manual edits immediately after install.
 - The managed runtime policies used by validation tooling must align with the
   runtime context declared in `python-environments.json`.
 
@@ -80,7 +116,7 @@ Runtime Policy
 - The steady-state runtime for local validation, test execution, and pinned
   developer tooling must target Python 3.12 unless a narrower exception is
   documented.
-- `.python-version` must point to the runtime pyenv environment so an active
+- `.python-version` must point to the runtime pyenv selection so an active
   pyenv shell defaults the repository to the runtime context.
 
 Documentation Requirements
@@ -89,10 +125,13 @@ Documentation Requirements
   `standards-and-practices/docs/development-workflow.txt`,
   `templates/README.md`, `templates/AGENTS-footer.md`, and
   `templates/project-management/git-flow.txt` must document:
-  - the bootstrap versus runtime split;
+  - the default user-local standard install versus explicit repo-local
+    development install split;
   - the role of `python-environments.json`;
-  - the top-level `bootstrap.sh` entry point;
-  - the compatibility status of `scripts/install_prerequisites.sh`; and
+  - the top-level `install.sh` entry point;
+  - the root, sudo, and `--system` policy;
+  - the compatibility status of `bootstrap.sh`,
+    `bootstrap-stage2.py`, and `scripts/install_prerequisites.sh`; and
   - deliberate use of `set-context-bootstrap.sh` versus `set-context.sh`.
 
 Test Requirements
@@ -100,7 +139,7 @@ Test Requirements
 - Tests must verify that:
   - `python-environments.json` exists and carries the expected bootstrap and
     runtime keys;
-  - starter installation includes the new bootstrap/context files;
+  - starter installation includes the bootstrap/context files;
   - managed-drift reporting includes those files;
   - helper code correctly loads the config and derives runtime paths; and
   - validation/runtime helpers stay aligned with the runtime policy.
@@ -111,5 +150,5 @@ Non-Goals
   stricter local bootstrap model.
 - Removing the compatibility wrappers for long-standing installer entry
   points in the same change that introduces the new canonical bootstrap path.
-- Forcing this change to mutate a contributor's shell startup files unless
-  they opt into that behavior.
+- Removing repo-local `.venv` from the managed development default in favor
+  of named `pyenv-virtualenv` environments.

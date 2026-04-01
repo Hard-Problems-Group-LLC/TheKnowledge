@@ -5,6 +5,38 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-04-01T01:42:16-07:00 - Corrected the managed install-policy contract
+  after review so `install.sh` now defaults to a user-local standard install,
+  development mode is explicit via `--mode dev`, system installs require
+  `--system` under root, `sudo` without `--system` is rejected, and direct
+  root use without `--system` requires confirmation. Updated the managed
+  bootstrap code, starter docs/templates/specs, and added entrypoint
+  regression tests for the privilege/mode matrix. Revalidated the full
+  required TheKnowledge tool sequence with `127` passing tests.
+
+*
+  2026-03-31T20:48:26-07:00 - Added the approved follow-up ECR for
+  interpreter-environment precedence and project-bound developer launchers,
+  documented the broader cross-language environment-selection standard in
+  `standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`,
+  connected the Python bootstrap docs to that standard, and revalidated the
+  relevant guideline/SOP doc checks plus entropy coverage after the updates.
+
+*
+  2026-03-31T20:08:27-07:00 - Adopted the approved converged managed
+  bootstrap design on `trunk` by making `install.sh` plus
+  `scripts/install-stage-2.py` the canonical POSIX starter, keeping
+  `bootstrap.sh`, `bootstrap-stage2.py`, and
+  `scripts/install_prerequisites.sh` as compatibility wrappers, switching the
+  default runtime model to `pyenv` plus repo-local `.venv`, documenting the
+  shared development/standard/venv-only install contract and optional
+  `scripts/install_project.py` hook, fixing the
+  stale managed-refresh import bug and the `dev_setup.py` helper-path
+  regression, and revalidating the full required suite with `122` passing
+  tests plus the explicit Black/Ruff passes on the new untracked starter
+  files.
+
+*
   2026-03-31T16:07:22-07:00 - Tightened the standardized Git commit
   workflow so it now rejects commits without an explicit author/committer
   identity, documented the repository-wide rule to never infer email

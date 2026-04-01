@@ -4,11 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import sys
 from pathlib import Path
 from typing import Sequence
 
-from initial_setup import MANAGED_REFRESH_TEMPLATES
+import initial_setup
 from theknowledge_submodule_common import (
     current_commit,
     describe_remote,
@@ -148,6 +149,7 @@ def refresh_managed_files(project_root: Path, *, knowledge_root: str) -> None:
         ensure_ok(drift_result, context="check managed downstream drift", prefix=PREFIX)
 
     print(f"[{PREFIX}] Managed drift detected; refreshing managed files.")
+    refresh_templates = importlib.reload(initial_setup).MANAGED_REFRESH_TEMPLATES
     refresh_command = [
         sys.executable,
         "scripts/initial-setup.py",
@@ -157,7 +159,7 @@ def refresh_managed_files(project_root: Path, *, knowledge_root: str) -> None:
         knowledge_root,
         "--force",
     ]
-    for template_name in MANAGED_REFRESH_TEMPLATES:
+    for template_name in refresh_templates:
         refresh_command.extend(["--template", template_name])
     refresh_result = run(
         refresh_command,

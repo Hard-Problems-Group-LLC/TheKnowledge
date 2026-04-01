@@ -18,6 +18,50 @@ Completed Requests
 ------------------
 
 *
+  2026-04-01T01:42:16-07:00
+  Requestor: operator
+  Action: Correct the install-policy docs and implementation so the default
+  `install.sh` path is user-local standard install, development mode is
+  explicit, and system installs require `--system`.
+  Status: completed by Codex on 2026-04-01T01:42:16-07:00. TheKnowledge now
+  enforces the corrected root/sudo/default-mode policy in the managed
+  bootstrap code, documents that contract throughout the starter guidance,
+  and passed the full required validation sequence with `127` tests green.
+
+*
+  2026-03-31T20:48:26-07:00
+  Requestor: operator
+  Action: Document the cross-language interpreter/package environment
+  precedence model, write the follow-up proposal for the remaining Python
+  gaps, and begin implementing that direction.
+  Status: completed by Codex on 2026-03-31T20:48:26-07:00. TheKnowledge now
+  includes the new environment-standard doc, the approved follow-up ECR, and
+  the related Python-bootstrap doc cross-references.
+
+*
+  2026-03-31T20:21:39-07:00
+  Requestor: operator
+  Action: Document the desired cross-language interpreter and package
+  environment precedence model in TheKnowledge docs and assess whether the
+  converged bootstrap work already meets that standard.
+  Status: completed by Codex on 2026-03-31T20:21:39-07:00. TheKnowledge now
+  includes
+  `standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`
+  and the current implementation gap analysis is ready for operator review.
+
+*
+  2026-03-31T20:08:27-07:00
+  Requestor: operator
+  Action: Adopt the converged managed bootstrap design on TheKnowledge `trunk`
+  and in the active consuming project, write it up as an approved proposal,
+  and implement the shared stage-1/stage-2 framework.
+  Status: completed by Codex on 2026-03-31T20:08:27-07:00. TheKnowledge now
+  ships the converged managed bootstrap as the default starter, carries the
+  related approved ECR, documents the install-mode and install-hook contract,
+  fixes the refresh/helper regressions found during adoption, and passed the
+  full required validation sequence with `122` tests green.
+
+*
   2026-03-31T16:07:22-07:00
   Requestor: operator
   Action: Never guess commit email addresses; require explicit Git identity

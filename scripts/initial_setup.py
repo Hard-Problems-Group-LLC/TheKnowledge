@@ -15,6 +15,7 @@ AGENTS_PATH = Path("AGENTS.md")
 AGENTS_HEADER = "AGENTS-header.md"
 AGENTS_FOOTER = "AGENTS-footer.md"
 MANAGED_ROOT_FILES = (
+    Path("scripts/install-stage-2.py"),
     Path("scripts/python_environment_bootstrap.py"),
     Path("tool_execution_constraints.json"),
     Path("tool_validation_profiles.json"),
@@ -23,11 +24,13 @@ MANAGED_ROOT_FILES = (
 MANAGED_REFRESH_TEMPLATES = (
     ".python-version",
     "ECRs",
+    "install.sh",
     "bootstrap.sh",
     "bootstrap-stage2.py",
     "python-environments.json",
     "requirements-dev.txt",
     "scripts",
+    "scripts/install-stage-2.py",
     "scripts/python_environment_bootstrap.py",
     "scripts/tool_validation_profiles.py",
     "set-context-bootstrap.sh",
