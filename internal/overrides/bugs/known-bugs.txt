@@ -6,6 +6,21 @@ the template wording or examples are being revised. Keep any expanded notes in
 `open/`.
 
 *
+  2026-04-01T01:35:00-07:00
+  Summary: TheKnowledge does not yet define a shared managed-installer
+  contract for refusing to overwrite unrelated launcher or command targets.
+  Impact: consuming projects that adopt TheKnowledge's managed install
+  guidance can independently reinvent overwrite safety rules, `--force`
+  semantics, and wrapper-failure behavior, which makes launcher replacement
+  less consistent and risks obscuring the final actionable error line users
+  need.
+  Current status: reproduced and locally corrected in the active `mdview`
+  consuming project; no upstream TheKnowledge bug record captured that shared
+  installer requirement beforehand.
+  Detailed record:
+  `open/managed-installer-overwrite-guidance-missing-force-contract.txt`
+
+*
   2026-03-25T21:59:00-07:00
   Summary: TheKnowledge's starter validation stack no longer aligns with its
   declared Python 3.9 floor or its current Black sandbox guidance.

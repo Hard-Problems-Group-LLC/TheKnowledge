@@ -1,0 +1,93 @@
+Managed Installer Overwrite Guidance Missing a Shared `--force` Contract
+========================================================================
+
+Status
+------
+Open.
+
+Date Opened
+-----------
+2026-04-01T01:35:00-07:00
+
+Scope
+-----
+This is a TheKnowledge starter-material and shared-guidance bug. It affects
+consuming projects that use TheKnowledge's managed installer patterns and need
+to publish a stable user or developer launcher outside the repository.
+
+Summary
+-------
+TheKnowledge currently does not define one shared contract for how a managed
+installer should behave when it discovers an unrelated existing launcher or
+command target at the destination it wants to control.
+
+That gap showed up while updating `mdview`, which has a local
+`scripts/install_project.py` hook that manages both a development launcher and
+the stable `mdview` command. The project needed to invent and test its own
+policy for refusing to overwrite an unrelated existing target, telling the
+operator how to proceed, and making sure wrapper output did not bury that
+guidance.
+
+Observed Reproduction From the Consuming Project
+------------------------------------------------
+Repository:
+- `/home/mheck/codebase/HPG/actual/mdview/`
+
+Observed facts from this session:
+1. `mdview` needed to detect an existing unmanaged launcher or command target
+   before replacing it.
+2. The desired user-facing behavior was for the final output line to be:
+   `Use --force if you really want to overwrite your existing installed copy`
+   `at <directory>.`
+3. The consuming project's outer installer wrapper also needed to avoid
+   appending a later generic failure line after the inner hook had already
+   printed that actionable guidance, because otherwise the final line was no
+   longer the operator instruction.
+4. The consuming project added local tests to cover the refusal path, the
+   `--force` overwrite path, and the wrapper-summary suppression.
+
+Why This Matters
+----------------
+TheKnowledge is supposed to give consuming projects repeatable operational
+defaults. When a project has to invent its own overwrite-safety contract for
+managed launchers, several risks appear:
+- one project may silently replace unrelated binaries while another refuses;
+- user-facing wording and escalation expectations drift from project to
+  project;
+- wrapper scripts may accidentally obscure the actionable final line even when
+  the project-specific hook prints the right guidance; and
+- shared docs/specs no longer capture a behavior that downstream projects have
+  already proven necessary.
+
+Likely Root Cause
+-----------------
+TheKnowledge's current shared installer guidance explains how a consuming
+project may expose a project-local install hook or launcher behavior, but it
+does not yet spell out the safety contract for replacing an unrelated
+existing target or the output-shaping rule that keeps the force guidance as
+the last visible line.
+
+Recommended Next Steps
+----------------------
+1. Update the managed Python bootstrap/install specification so the optional
+   consuming-project install hook must refuse to overwrite an unrelated
+   existing launcher or command target unless `--force` was explicitly
+   provided.
+2. Standardize the user-facing refusal wording so the last line tells the
+   operator to rerun with `--force` only if they really want to overwrite the
+   existing installed copy at the target directory.
+3. When the newer managed stage-two starter flow is refreshed on `trunk`,
+   pass `--force` through to the project install hook and suppress any later
+   wrapper summary that would displace that final actionable line.
+4. Add shared tests that cover the refusal path, the explicit-force path, and
+   the wrapper-summary suppression behavior.
+
+References
+----------
+Local downstream implementation and validation:
+- `mdview/scripts/install_prerequisites.py`
+- `mdview/scripts/install_project.py`
+- `mdview/scripts/install-stage-2.py`
+- `mdview/tests/test_install_prerequisites.py`
+- `mdview/tests/test_install_project.py`
+- `mdview/tests/test_install_stage_2.py`
