@@ -88,6 +88,13 @@ For broad exploratory smoke runs, avoid ad hoc shell snippets. Implement
 repeatable checks as formal tests or reusable scripts under
 `standards-and-practices/dev-utils/`, and document usage in
 `standards-and-practices/docs/testing/` so they can be rerun consistently.
+For project-specific diagnostics or maintenance commands that may need elevated
+authorization, prefer documented reusable scripts in the consuming project's
+`scripts/` directory over one-off inline Python or shell. Include a useful
+`--help` path, comments for non-obvious safety boundaries, and a `--json`
+or equivalently machine-readable output mode unless there is a clear reason
+it would not apply. Future operators and AI agents should be able to authorize
+the script once and rerun the same general entry point with narrower options.
 
 The managed pre-commit hook installed by setup scripts runs
 `entropy_check` automatically. Keep that hook installed on developer machines
