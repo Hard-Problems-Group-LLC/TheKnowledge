@@ -39,11 +39,11 @@ EXPECTED_FILES = [
     TEMPLATES / "scripts" / "dev_setup.py",
     ROOT / "scripts" / "tool_validation_profiles.py",
     TEMPLATES / "project-management" / "git-flow.txt",
-    TEMPLATES / "project-management" / "proposals" / "README.txt",
-    TEMPLATES / "project-management" / "proposals" / "approved" / "README.txt",
-    TEMPLATES / "project-management" / "proposals" / "rejected" / "README.txt",
-    TEMPLATES / "project-management" / "proposals" / "deferred" / "README.txt",
-    TEMPLATES / "project-management" / "proposals" / "under-review" / "README.txt",
+    TEMPLATES / "project-management" / "proposals" / "README.md",
+    TEMPLATES / "project-management" / "proposals" / "approved" / "README.md",
+    TEMPLATES / "project-management" / "proposals" / "rejected" / "README.md",
+    TEMPLATES / "project-management" / "proposals" / "deferred" / "README.md",
+    TEMPLATES / "project-management" / "proposals" / "under-review" / "README.md",
     TEMPLATES / "project-management" / "bugs" / "README.txt",
     TEMPLATES / "project-management" / "bugs" / "open" / "README.txt",
     TEMPLATES / "project-management" / "bugs" / "in-progress" / "README.txt",
@@ -76,11 +76,11 @@ EXPECTED_FILES = [
     OVERRIDES / "completed-tasks.txt",
     OVERRIDES / "deferred.txt",
     OVERRIDES / "ai-human-requests.txt",
-    OVERRIDES / "proposals" / "README.txt",
-    OVERRIDES / "proposals" / "approved" / "README.txt",
-    OVERRIDES / "proposals" / "rejected" / "README.txt",
-    OVERRIDES / "proposals" / "deferred" / "README.txt",
-    OVERRIDES / "proposals" / "under-review" / "README.txt",
+    OVERRIDES / "proposals" / "README.md",
+    OVERRIDES / "proposals" / "approved" / "README.md",
+    OVERRIDES / "proposals" / "rejected" / "README.md",
+    OVERRIDES / "proposals" / "deferred" / "README.md",
+    OVERRIDES / "proposals" / "under-review" / "README.md",
     OVERRIDES / "state" / "README.txt",
     OVERRIDES / "state" / "pending-commit-changes.txt",
     OVERRIDES / "bugs" / "README.txt",
@@ -165,6 +165,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "internal/overrides/bugs/" in agents_text
     assert "Load this file before running automated tooling" in agents_text
     assert "Every maintained source file should" in agents_text
+    assert "Prefer Markdown (`.md`)" in agents_text
+    assert '`ACP` means "add, commit, push"' in agents_text
     assert "Python 3.12 best practices" in agents_text
     assert "tool_execution_constraints.json" in agents_text
     assert "send_theknowledge_feedback.py prepare" in agents_text
@@ -181,7 +183,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "default visual review path" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
-    assert "proposals/approved/README.txt" in overrides_text
+    assert "proposals/approved/README.md" in overrides_text
     assert "state/pending-commit-changes.txt" in overrides_text
     assert "bugs/open/README.txt" in overrides_text
     assert "bugs/resolved-bugs.txt" in overrides_text
@@ -243,6 +245,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "default visual review path" in footer_text
     assert "--resume-review-prompts" in footer_text
     assert "project-management/proposals/" in footer_text
+    assert '`ACP` means "add, commit, push"' in footer_text
     assert "project-management/state/pending-commit-changes.txt" in footer_text
     assert "Timestamped Intermediary Updates" in repo_text
     assert "./install.sh" in repo_text
@@ -257,6 +260,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "workflow profiling" in repo_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in repo_text
     assert "Review-first staging" in repo_text
+    assert "When an operator says `ACP`" in repo_text
     assert "git diff --cached" in repo_text
     assert "--assume-reviewed" in repo_text
     assert "https://gnome.pages.gitlab.gnome.org/meld/" in repo_text
@@ -264,6 +268,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "git log --oneline HEAD..origin/trunk" in repo_text
     assert "active `TheKnowledge/` submodule checkout" in repo_text
     assert "project-management/proposals/" in workflow_text
+    assert "format-for-proposals.md" in workflow_text
+    assert "`ACP` as operator shorthand" in workflow_text
     assert "workflow profiling" in workflow_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in workflow_text
     assert "project-management/backlog.txt" in workflow_text
@@ -286,6 +292,7 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "requirements-dev.txt" in git_flow_text
     assert "tool_validation_profiles.json" in git_flow_text
     assert "incoming upstream `trunk` delta" in git_flow_text
+    assert "`ACP` is accepted operator shorthand" in git_flow_text
     assert "update_theknowledge_submodule.py" in git_flow_text
     assert "TheKnowledge submodule" in installation_text
     assert "install.sh" in installation_text

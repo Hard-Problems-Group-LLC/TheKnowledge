@@ -1,5 +1,4 @@
-Repository Maintenance Deferred Proposals
-========================================
+# Repository Maintenance Deferred Proposals
 
 Keep deferred TheKnowledge proposal records here.
 

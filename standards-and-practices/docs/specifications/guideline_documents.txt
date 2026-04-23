@@ -16,7 +16,7 @@ Requirements
   the source material supports a strict rule.
 - When source material is mixed or disputed, the guideline must note that
   briefly and still state the repository's recommended operating default.
-- File names should use lowercase, hyphen-separated words with a `.txt`
+- File names should use lowercase, hyphen-separated words with a `.md`
   suffix.
 
 Non-Goals

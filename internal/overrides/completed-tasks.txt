@@ -5,6 +5,15 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-04-22T12:20:20-07:00 - Normalized proposal records and generated
+  proposal starter files to Markdown, renamed the proposal-format standard to
+  `standards-and-practices/docs/format-for-proposals.md`, updated the
+  documentation profile to prefer Markdown for prose records and generated
+  guidance, documented `ACP` as the add/commit/push shortcut for direct
+  TheKnowledge maintenance and consuming projects, and revalidated the
+  required check sequence with `127` passing tests.
+
+*
   2026-04-01T01:42:16-07:00 - Corrected the managed install-policy contract
   after review so `install.sh` now defaults to a user-local standard install,
   development mode is explicit via `--mode dev`, system installs require

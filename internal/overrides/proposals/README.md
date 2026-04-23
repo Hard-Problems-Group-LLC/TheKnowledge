@@ -1,7 +1,7 @@
-Repository Maintenance Proposals
-================================
+# Repository Maintenance Proposals
 
 Keep TheKnowledge proposal records here instead of in the starter templates.
+Proposal records should be Markdown (`.md`) files.
 
 Use the status directories to reflect each proposal's current state:
 - `approved/`

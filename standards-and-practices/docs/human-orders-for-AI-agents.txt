@@ -11,8 +11,8 @@ Use the following command phrases in prompts to direct AI agents that follow
 - Iterate on the buglist: Apply the backlog-style iteration steps to the top
   entry in `/project-management/bugs/known-bugs.txt`, updating the bug
   tracking files with ISO 8601 timestamps when moving items between lists and
-  updating any corresponding detailed records under `/project-management/bugs/`
-  `open/`, `in-progress/`, or `closed/`.
+  updating any corresponding detailed records under
+  `/project-management/bugs/` `open/`, `in-progress/`, or `closed/`.
 - Start bug triage: Review `/project-management/bugs/known-bugs.txt` for
   completeness, reproductions, owners, and timestamps. Review
   `/project-management/bugs/open/` for detailed notes when present. Reorder or
@@ -35,6 +35,10 @@ Use the following command phrases in prompts to direct AI agents that follow
   `/project-management/ai-human-requests.txt`, add any newly discovered
   operator actions to `Pending Requests`, and report likely-complete entries
   that still need human confirmation before closure.
+- ACP: Add, commit, and push through the active repository's VCS workflow.
+  Stage, commit, and push coherent blocks with appropriate comments. Do not
+  collapse unrelated work into one commit just because the shortcut was used,
+  and do not bypass the repository's review, validation, or identity rules.
 
 When issuing these orders, provide context, acceptance criteria, and any
 constraints so the agent can complete the cycle without unnecessary

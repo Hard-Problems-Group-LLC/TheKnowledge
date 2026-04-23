@@ -1,5 +1,4 @@
-Repository Maintenance Proposals Under Review
-=============================================
+# Repository Maintenance Proposals Under Review
 
 Keep TheKnowledge proposals awaiting a decision here.
 

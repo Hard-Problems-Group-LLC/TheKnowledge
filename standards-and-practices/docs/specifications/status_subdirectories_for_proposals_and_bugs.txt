@@ -18,8 +18,8 @@ Requirements
 ------------
 - Proposal record trees must provide the subordinate status directories
   `approved/`, `rejected/`, `deferred/`, and `under-review/`.
-- Proposal files must live in the status directory that matches their current
-  `Status:` metadata.
+- Proposal files must be Markdown (`.md`) files and must live in the status
+  directory that matches their current `Status:` metadata.
 - Proposal-tree root documentation must explain when proposals move between
   the four status directories.
 - Bug record trees must provide the subordinate status directories `open/`,
@@ -30,7 +30,9 @@ Requirements
 - Workflow guidance, starter templates, and repository-local override records
   must describe the same status-directory names.
 - Empty starter directories must remain representable in Git through
-  explanatory placeholder files such as `README.txt`.
+  explanatory placeholder files. Proposal trees should use `README.md`;
+  legacy bug trees may continue using `README.txt` until a dedicated bug
+  record migration is approved.
 
 Non-Goals
 ---------

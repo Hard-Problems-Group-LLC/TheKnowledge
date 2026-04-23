@@ -65,6 +65,9 @@ Run all required checks via timeout wrapper:
   `project-management/state/pending-commit-changes.txt` is nonblank, the
   command uses it as commit body text and clears the file after a successful
   local commit.
+- `ACP` is accepted operator shorthand for "add, commit, push." Use the same
+  review-first, quality-gated workflow and split unrelated changes into
+  separate meaningful commits.
 - Standardized pull path:
   - `python {{THEKNOWLEDGE_ROOT}}/scripts/git_veteran_pull.py`
   This command enforces a guarded fast-forward pull workflow.

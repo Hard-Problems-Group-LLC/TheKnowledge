@@ -1,6 +1,4 @@
-Engineering Change Request: Two-stage POSIX Bootstrap With `install.sh`,
-Python Stage 2, `pyenv`, and Mandatory `direnv`
-=======================================================================
+# Two-stage POSIX Bootstrap With install.sh, pyenv, and direnv
 
 Title: Engineering Change Request: Two-stage POSIX Bootstrap With
 `install.sh`, Python Stage 2, `pyenv`, and Mandatory `direnv`
@@ -13,10 +11,10 @@ cross-distro bootstrap investigation in `codex-wrangler`; README.md section
 "Direct Checkout"; standards-and-practices/docs/installation.txt;
 standards-and-practices/docs/development-workflow.txt;
 standards-and-practices/docs/AI-sandbox-configuration.txt;
-standards-and-practices/docs/specifications/pinned_python_dev_tool_versions.txt
+standards-and-practices/docs/specifications/
+pinned_python_dev_tool_versions.txt
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge currently treats `scripts/install_prerequisites.sh` plus
 `scripts/install_prerequisites.py` as the canonical bootstrap path. That flow
 has three problems.
@@ -39,8 +37,7 @@ that actually makes a repo-local environment ergonomic. If `pyenv` selects
 the Python but nothing auto-activates the environment, maintainers still have
 to remember additional manual steps on every shell entry.
 
-Goals
------
+## Goals
 - Provide one canonical developer bootstrap entry point that works cleanly on
   current Rocky and Ubuntu systems.
 - Keep stage 1 small, auditable, and limited to host-level prerequisite
@@ -55,8 +52,7 @@ Goals
 - Preserve a separate simpler path for non-development user installs where a
   project only wants the user-facing command.
 
-Non-Goals
----------
+## Non-Goals
 - Replace project-local overrides in consuming projects that intentionally use
   a different bootstrap flow.
 - Guarantee a native Windows bootstrap path in the same script family.
@@ -67,8 +63,7 @@ Non-Goals
 - Force `pyenv-virtualenv` or named global virtualenvs when repo-local `.venv`
   remains sufficient.
 
-Use Cases
----------
+## Use Cases
 1. A maintainer on Ubuntu clones a TheKnowledge-based project and wants one
    documented command that tells them exactly which host packages are missing
    before creating the working environment.
@@ -79,8 +74,7 @@ Use Cases
 4. A direct TheKnowledge checkout wants automatic environment activation on
    `cd` instead of manual `source .venv/bin/activate` repetition.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - Stage 1 should stay POSIX-shell-based and as small as possible.
 - Stage 2 should be stdlib-only and Python 3.9-compatible.
 - Installing Python toolchains with `pyenv` still requires system-level build
@@ -95,8 +89,7 @@ Constraints and Assumptions
 - The new default must continue installing managed hooks and any other setup
   side effects that the current canonical bootstrap already promises.
 
-Proposed Approach
------------------
+## Proposed Approach
 Replace the current default developer bootstrap story with a two-stage model.
 
 Stage 1 should be a repo-root `install.sh`:
@@ -129,8 +122,7 @@ For migration, TheKnowledge may keep `scripts/install_prerequisites.sh` as a
 temporary compatibility shim that delegates to `./install.sh`, but the
 documentation and tests should treat `install.sh` as canonical.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: the POSIX-only default leaves Windows expectations ambiguous.
   Mitigation: document WSL2 or a separate Windows path explicitly instead of
   implying unsupported parity.
@@ -149,8 +141,7 @@ Risks and Mitigations
   Mitigation: keep a compatibility shim for at least one transition period and
   update the docs/tests in the same change.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 - Add unit tests for `install.sh --help` behavior and stage-1 option
   pass-through where practical.
 - Add unit tests for `scripts/install-stage-2.py` argument parsing, direct-run
@@ -163,8 +154,7 @@ Testing and Validation
 - Run manual smoke checks on at least one Rocky machine and one Ubuntu machine
   before declaring the migration complete.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Keep `scripts/install_prerequisites.sh` and only patch its docs.
    Rejected because the current contract is split and underspecified, not just
    poorly documented.
@@ -182,8 +172,7 @@ Alternatives Considered
    Rejected because the environment-selection story stays incomplete if shell
    entry still requires manual activation.
 
-Open Questions
---------------
+## Open Questions
 1. Should TheKnowledge pin a specific Python 3.12 patch release in stage 2,
    or intentionally take the newest available `3.12.x` patch from `pyenv`?
 2. How long should the compatibility shim for
@@ -192,8 +181,7 @@ Open Questions
    unavailable but a user-local install is possible, or should that remain a
    manual prerequisite with explicit instructions?
 
-Milestones
-----------
+## Milestones
 1. Review and approve or revise this ECR.
    Target date: 2026-04-02.
    Owners: operator, AI maintainers.
@@ -222,8 +210,7 @@ Milestones
    Entry criteria: bootstrap code and docs are updated.
    Exit criteria: manual smoke checks and the automated validation suite pass.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 If approved, land the new bootstrap on `trunk`, keep a short-lived
 compatibility shim for the old script name if needed, and update all managed
 template/docs surfaces together so consuming projects receive one consistent
@@ -237,8 +224,7 @@ The rollout should explicitly distinguish:
 That separation keeps the developer path coherent without forcing every
 downstream project to look identical.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-31T15:38:05-07:00 - Drafted by Codex after a consuming-project
   maintenance session showed that TheKnowledge's current canonical bootstrap
   guidance is too Rocky-shaped, under-specifies Ubuntu behavior, and does not

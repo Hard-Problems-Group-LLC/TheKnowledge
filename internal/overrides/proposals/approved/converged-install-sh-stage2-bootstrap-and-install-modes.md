@@ -1,6 +1,4 @@
-Engineering Change Request: Converged `install.sh` Bootstrap and Install
-Modes
-=======================================================================
+# Converged install.sh Bootstrap and Install Modes
 
 Title: Engineering Change Request: Converged `install.sh` Bootstrap and
 Install Modes
@@ -13,8 +11,7 @@ Related Work: Direct operator request on 2026-03-31; existing
 `codex-wrangler` `install.sh` and `scripts/install-stage-2.py` flow;
 `python_bootstrap_and_context_strategy.txt`
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge's current managed starter and `codex-wrangler`'s stronger local
 bootstrap each solve different parts of the same problem. TheKnowledge ships
 managed pinned-context files, starter refresh machinery, and drift checking,
@@ -25,8 +22,7 @@ operator flow with a minimal stage 1, user-scoped `pyenv` setup, repo-local
 as a local override. New consuming projects therefore inherit an incomplete
 default, while improved behavior remains hard to propagate safely.
 
-Goals
------
+## Goals
 - Make `install.sh` the canonical managed POSIX bootstrap entry point.
 - Provide one Python 3.9-safe managed stage-2 installer at
   `scripts/install-stage-2.py`.
@@ -38,15 +34,13 @@ Goals
 - Preserve compatibility wrappers for existing `bootstrap.sh`,
   `bootstrap-stage2.py`, and legacy prerequisite entry points.
 
-Non-Goals
----------
+## Non-Goals
 - Remove Windows-specific compatibility shims in this change.
 - Remove all legacy wrappers in the same release.
 - Force every project to support a user-global installer.
 - Change the requirement that bootstrap/setup code remain Python 3.9-safe.
 
-Use Cases
----------
+## Use Cases
 1. A newly created consuming project runs `./install.sh` on Ubuntu or Rocky
    and gets a known-good developer environment.
 2. A maintainer reruns the managed bootstrap after starter drift and receives
@@ -56,15 +50,13 @@ Use Cases
 4. TheKnowledge's own repository uses the same managed default it prescribes
    to consuming projects.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - Managed stage-2 logic must stay stdlib-only and Python 3.9-safe.
 - Managed starter refresh must remain deterministic and reviewable.
 - Compatibility shims should remain thin wrappers, not competing workflows.
 - `direnv` installation and shell-hook updates must be idempotent.
 
-Proposed Approach
------------------
+## Proposed Approach
 Add `install.sh` and `scripts/install-stage-2.py` to the managed starter and
 shift documentation to treat them as canonical. Keep `bootstrap.sh` as a
 shim to `install.sh`, and keep `bootstrap-stage2.py` as a shim to
@@ -88,8 +80,7 @@ generic project installation, optional project hook delegation, and mandatory
 Fix the submodule-update helper to load the managed refresh template set from
 the adopted TheKnowledge revision instead of from the pre-update import.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: starter refresh still lands only part of the new surface.
   Mitigation: update both the managed template list and the submodule-update
   import timing, and add regression coverage.
@@ -102,8 +93,7 @@ Risks and Mitigations
 - Risk: automatic `direnv` and `pyenv` shell edits feel intrusive.
   Mitigation: use clearly marked managed blocks and stable idempotent writes.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 - Extend bootstrap helper tests to cover the plain-`pyenv` default path and
   any legacy `pyenv-virtualenv` compatibility branch.
 - Update initial-setup and managed-drift tests for the new file set and
@@ -112,8 +102,7 @@ Testing and Validation
   still delegate correctly.
 - Run TheKnowledge's required tool suite before staging.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Keep `bootstrap.sh` as canonical and copy only selected local behavior.
    Rejected because `install.sh` is clearer and already validated here.
 2. Move entirely to `pyenv-virtualenv`.
@@ -122,8 +111,7 @@ Alternatives Considered
 3. Leave improved bootstrap behavior as a consuming-project override.
    Rejected because it defeats the point of a managed default.
 
-Open Questions
---------------
+## Open Questions
 1. Whether TheKnowledge should eventually template an explicit project
    install-hook stub instead of only documenting the optional hook.
    Owner: AI maintainers and operator.
@@ -133,8 +121,7 @@ Open Questions
    Owner: TheKnowledge maintainers.
    Target date: 2026-04-14.
 
-Milestones
-----------
+## Milestones
 1. Approve the converged managed-bootstrap direction.
    Target date: 2026-03-31.
    Owners: operator, AI maintainers.
@@ -154,15 +141,13 @@ Milestones
    Entry criteria: starter changes land locally.
    Exit criteria: consuming-project adoption validates cleanly.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 Roll out the converged design in TheKnowledge `trunk`, keep compatibility
 wrappers for one or more maintenance cycles, and update docs to direct new
 POSIX users to `./install.sh`. Consuming projects can then refresh managed
 starter files without having to preserve a large local bootstrap override.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-31T21:28:54-07:00 - Drafted and marked approved by Codex after the
   operator directed TheKnowledge and `codex-wrangler` to adopt the converged
   managed stage-1 and stage-2 design on `trunk`.

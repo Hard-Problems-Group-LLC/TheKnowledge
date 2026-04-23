@@ -13,9 +13,9 @@ Proposals
 ---------
 
 Use proposals to drive discussion before drafting a full specification. Follow
-the template in `standards-and-practices/docs/format-for-proposals.txt` and
-store each file in the matching status directory under
-`project-management/proposals/` with a descriptive name. Use
+the template in `standards-and-practices/docs/format-for-proposals.md` and
+store each proposal as a Markdown (`.md`) file in the matching status
+directory under `project-management/proposals/` with a descriptive name. Use
 `under-review/` while a proposal is awaiting a decision, then move the file
 to `approved/`, `rejected/`, or `deferred/` as the status changes. Stamp
 every proposal with an ISO 8601 date, status, and reviewer list. Keep the
@@ -88,10 +88,10 @@ For broad exploratory smoke runs, avoid ad hoc shell snippets. Implement
 repeatable checks as formal tests or reusable scripts under
 `standards-and-practices/dev-utils/`, and document usage in
 `standards-and-practices/docs/testing/` so they can be rerun consistently.
-For project-specific diagnostics or maintenance commands that may need elevated
-authorization, prefer documented reusable scripts in the consuming project's
-`scripts/` directory over one-off inline Python or shell. Include a useful
-`--help` path, comments for non-obvious safety boundaries, and a `--json`
+For project-specific diagnostics or maintenance commands that may need
+elevated authorization, prefer documented reusable scripts in the consuming
+project's `scripts/` directory over one-off inline Python or shell. Include a
+useful help path, comments for non-obvious safety boundaries, and a `--json`
 or equivalently machine-readable output mode unless there is a clear reason
 it would not apply. Future operators and AI agents should be able to authorize
 the script once and rerun the same general entry point with narrower options.
@@ -161,6 +161,10 @@ For standardized git operations, use:
   Use `--resume-review-prompts` to re-enable prompts for the current shell
   session.
 - `python scripts/git_veteran_pull.py` for guarded fast-forward pull updates.
+- `ACP` as operator shorthand for "add, commit, push." Treat it as a request
+  to stage, commit, and push meaningful VCS blocks with appropriate comments;
+  it does not override review-first staging, required checks, identity rules,
+  or the need to split unrelated work into separate commits.
 See `standards-and-practices/docs/security/git-tripwire-operations.txt` for
 failure diagnostics and maintenance guidance.
 

@@ -1,6 +1,4 @@
-Engineering Change Request: Replace TheKnowledge `Feedback` Branch With a
-Dedicated `feedback/ECRs` Intake Branch
-========================================================================
+# Replace the Feedback Branch With a feedback/ECRs Intake Branch
 
 Title: Engineering Change Request: Replace TheKnowledge `Feedback` Branch
 With a Dedicated `feedback/ECRs` Intake Branch
@@ -11,10 +9,10 @@ Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-31; AGENTS.md section
 "Feedback Branch"; README.md section "Feedback Branch";
 scripts/send_theknowledge_feedback.py;
-standards-and-practices/docs/specifications/theknowledge_submodule_workflows.txt
+standards-and-practices/docs/specifications/
+theknowledge_submodule_workflows.txt
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge currently routes cross-project feedback through a special branch
 named `Feedback`. That branch was intended to isolate bugs, complaints,
 proposals, and general notes discovered while working primarily in consuming
@@ -33,8 +31,7 @@ kind of feedback belongs on `Feedback`, maintainers have to periodically
 reconcile that side branch with `trunk`, and helper/docs complexity grows
 around a workflow that is still easy to misunderstand.
 
-Goals
------
+## Goals
 - Replace the vague special-purpose `Feedback` branch with a more explicit
   intake branch named `feedback/ECRs`.
 - Narrow the intake branch's purpose to reviewable Engineering Change
@@ -45,8 +42,7 @@ Goals
 - Update helper/documentation language so contributors know exactly where to
   place structured cross-project feedback.
 
-Non-Goals
----------
+## Non-Goals
 - Eliminate TheKnowledge's ordinary `trunk` maintenance workflow.
 - Force every transient note or investigation scratchpad onto
   `feedback/ECRs`.
@@ -55,8 +51,7 @@ Non-Goals
 - Redesign the whole project-management record model inside
   `internal/overrides/`.
 
-Use Cases
----------
+## Use Cases
 1. A consuming-project maintainer discovers a cross-project TheKnowledge
    improvement and wants to file a structured ECR without interrupting the
    main project flow.
@@ -67,8 +62,7 @@ Use Cases
 4. Documentation needs to stop implying that a long-lived side branch should
    carry every kind of unresolved thought.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - Some contributors work through active submodule checkouts inside consuming
   projects, so any intake workflow still has to handle detached HEAD state and
   separate git-dir layouts safely.
@@ -79,8 +73,7 @@ Constraints and Assumptions
   who can only commit but not push.
 - Existing unresolved `Feedback` items may need a migration or closure plan.
 
-Proposed Approach
------------------
+## Proposed Approach
 Replace the old branch policy with a narrower, clearer one.
 
 Cross-project structured feedback should go to `feedback/ECRs`, not
@@ -103,8 +96,7 @@ This proposal intentionally does not require every unstructured comment to
 become an ECR. It only says that the dedicated cross-project branch should
 have a clear intake contract instead of acting as a vague side channel.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: contributors may still treat `feedback/ECRs` as a general dumping
   ground.
   Mitigation: define the branch purpose narrowly around structured ECR-style
@@ -121,8 +113,7 @@ Risks and Mitigations
   Mitigation: keep the proposal scoped so a later follow-up can retire the
   branch model entirely if trunk-only intake turns out to be better.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 - Add or update tests for `scripts/send_theknowledge_feedback.py` so the
   default branch name and help text use `feedback/ECRs`.
 - Update doc-wiring tests that assert branch-policy language in TheKnowledge
@@ -133,8 +124,7 @@ Testing and Validation
 - Review and document the disposition of any existing `Feedback` items before
   declaring the migration complete.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Keep `Feedback` and only clarify its docs.
    Rejected because the name and branch purpose remain too broad and keep the
    existing ambiguity alive.
@@ -149,8 +139,7 @@ Alternatives Considered
    Rejected because submodule state capture/restore remains valuable even if
    the branch name changes.
 
-Open Questions
---------------
+## Open Questions
 1. Should `feedback/ECRs` be created fresh from `trunk`, or should it inherit
    the current `Feedback` history first?
 2. Which existing `Feedback` items, if any, should be migrated verbatim into
@@ -159,8 +148,7 @@ Open Questions
    (`send_theknowledge_feedback.py`) for compatibility even if the branch
    becomes ECR-focused?
 
-Milestones
-----------
+## Milestones
 1. Review and approve or revise this ECR.
    Target date: 2026-04-02.
    Owners: operator, AI maintainers.
@@ -181,8 +169,7 @@ Milestones
    Exit criteria: helper defaults, docs, and tests all point at
    `feedback/ECRs`.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 If approved, land the branch-policy update on `trunk`, create or migrate the
 new intake branch deliberately, and update helper/docs/tests together so
 contributors get one coherent story.
@@ -192,8 +179,7 @@ an intake ECR becomes an implemented trunk change, a deferred proposal, or a
 rejected idea. The intake branch should stay for structured cross-project
 feedback only.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-31T15:38:05-07:00 - Drafted by Codex after an operator requested a
   clearer replacement for the old `Feedback` side branch, which had become a
   source of workflow friction and branch-management overhead.

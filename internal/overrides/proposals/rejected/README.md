@@ -1,5 +1,4 @@
-Repository Maintenance Rejected Proposals
-========================================
+# Repository Maintenance Rejected Proposals
 
 Keep rejected TheKnowledge proposal records here.
 

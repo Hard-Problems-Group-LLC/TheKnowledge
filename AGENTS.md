@@ -10,12 +10,16 @@ sequencing and status tracking. Then read
 When working inside TheKnowledge itself, interpret `{{THEKNOWLEDGE_ROOT}}` in
 that template as the repository root. Finally, check
 `.git/codex-local-notes.txt` for local-only operator notes when present. When
-`internal/README.md` exists, read it next. When `internal/overrides/README.txt`
-exists, use the override record locations it defines for this repository's
-live state.
+`internal/README.md` exists, read it next. When
+`internal/overrides/README.txt` exists, use the override record locations it
+defines for this repository's live state.
 
 ## Style and Documentation
 - Write clear, direct prose aligned with Chicago Manual of Style guidance.
+- Prefer Markdown (`.md`) for maintained prose documents, internal records,
+  starter documents, and generated consumer-project guidance unless a file is
+  machine-consumed, intentionally extensionless, or temporarily kept in a
+  legacy format during an explicit migration.
 - Treat documentation as delivery work. Every maintained source file should
   carry top-of-file context, every type and callable should be documented,
   and non-trivial control flow should carry local rationale where structure
@@ -24,7 +28,10 @@ live state.
   follow Python 3.9 best practices unless a higher floor is documented.
 - Normal runtime, automation, test, and developer-tooling code should follow
   Python 3.12 best practices unless a component is intentionally constrained.
-- Wrap documentation and standards text files to 78 columns.
+- Wrap documentation and standards Markdown/text files to 78 columns. Tables
+  and other Markdown structures that cannot tolerate that width should stay
+  at 118 columns when practical, or use the narrowest readable open-ended
+  width when the structure requires it.
 
 ## Contribution Rules
 - Write or update specifications before implementation when behavior changes.
@@ -85,7 +92,8 @@ live state.
 - Record finished work at the top of
   `internal/overrides/completed-tasks.txt` with ISO 8601 timestamps.
 - Track operator actions for AI in `internal/overrides/ai-human-requests.txt`.
-- Track proposal records under `internal/overrides/proposals/` using the
+- Track proposal records as Markdown files under
+  `internal/overrides/proposals/` using the
   status subdirectories `approved/`, `rejected/`, `deferred/`, and
   `under-review/`.
 - Use `internal/overrides/deferred.txt` for explicitly deferred work.
@@ -191,6 +199,12 @@ Use standardized operations where available:
   Use `--resume-review-prompts` to re-enable prompts for the current shell
   session.
 - Pull: `python scripts/git_veteran_pull.py`
+
+Shortcut:
+- `ACP` means "add, commit, push" through the repository's VCS workflow. It
+  is an order to stage, commit, and push meaningful blocks of work with
+  appropriate commit messages; it is not an instruction to collapse unrelated
+  changes into one monolithic commit.
 
 ## Codex Log Handling
 - Do not inspect Codex logs unless explicitly instructed for iteration-log

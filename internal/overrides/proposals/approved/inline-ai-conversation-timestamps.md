@@ -1,5 +1,4 @@
-Inline Timestamps for AI Development Conversations
-==================================================
+# Inline Timestamps for AI Development Conversations
 
 Title: Inline Timestamps for AI Development Conversations
 Author: Codex
@@ -7,12 +6,12 @@ Date: 2026-03-25T00:57:35-07:00
 Status: Approved
 Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-25;
-standards-and-practices/docs/specifications/inline_ai_conversation_timestamps.txt; AGENTS.md;
+standards-and-practices/docs/specifications/
+inline_ai_conversation_timestamps.txt; AGENTS.md;
 standards-and-practices/docs/development-workflow.txt;
 templates/project-management/git-flow.txt; templates/AGENTS-footer.md
 
-Problem Statement
------------------
+## Problem Statement
 Development conversations that automate repository work currently expose only
 coarse status text such as "running tests" or "waiting on review." When the
 workflow feels slow, reviewers can see that delay happened, but they cannot
@@ -26,8 +25,7 @@ That leaves a visibility gap precisely where most perceived latency occurs:
 model thinking time, command startup overhead, long-running validation,
 network-bound operations, GUI review pauses, and human approval waits.
 
-Goals
------
+## Goals
 - Make end-to-end workflow latency visible inside the AI conversation itself.
 - Give both TheKnowledge maintainers and consuming projects a lightweight,
   shared profiling format that works without proprietary logs.
@@ -38,15 +36,13 @@ Goals
 - Keep the guidance portable across direct checkouts of TheKnowledge and
   projects that consume it as a submodule.
 
-Non-Goals
----------
+## Non-Goals
 - Replace project-management records or their existing ISO 8601 timestamps.
 - Build a full telemetry pipeline, dashboard, or database in this proposal.
 - Require timestamps in every final answer paragraph or casual chat exchange.
 - Expose hidden model-internal reasoning or private platform diagnostics.
 
-Use Cases
----------
+## Use Cases
 1. A maintainer suspects TheKnowledge's validation workflow is slow but cannot
    tell whether the delay is in test execution, sandbox startup, or repeated
    approval waits.
@@ -58,8 +54,7 @@ Use Cases
 4. An AI maintainer wants to improve status-update cadence and needs a way to
    measure whether changes actually reduce idle time and conversational churn.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - The format must use ISO 8601 timestamps with timezone offsets so entries are
   comparable across machines and sessions.
 - The guidance must be readable in plain-text chats, terminal transcripts, and
@@ -70,8 +65,7 @@ Constraints and Assumptions
 - Some tool runtimes already report durations. The proposal assumes those can
   complement, but not replace, inline conversation timestamps.
 
-Proposed Approach
------------------
+## Proposed Approach
 Adopt a standard requirement that AI intermediary updates for active
 development work include inline timestamps at the start of the message.
 Require timestamped updates in these situations:
@@ -92,17 +86,17 @@ Use a compact house format such as:
 - `[2026-03-25T01:06:03-07:00] Waiting on Meld review.`
 - `[2026-03-25T01:09:41-07:00] Meld review complete; resuming staging flow.`
 
-Apply this guidance in both TheKnowledge's own repository instructions and the
-managed downstream templates so consuming projects inherit the same behavior by
-default. Document that these timestamps are for conversational profiling and do
-not replace timestamps in backlog, proposal, bug, or completed-task records.
+Apply this guidance in both TheKnowledge's own repository instructions and
+the managed downstream templates so consuming projects inherit the same
+behavior by default. Document that these timestamps are for conversational
+profiling and do not replace timestamps in backlog, proposal, bug, or
+completed-task records.
 
 Prefer this conversational method over log scraping because it keeps timing
 visible to both humans and AI in the shared working context. It also respects
 existing guidance not to inspect Codex logs unless explicitly instructed.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: Timestamped updates add noise and token overhead.
   Mitigation: Limit the requirement to intermediary development updates and
   major phase boundaries, not every sentence.
@@ -119,8 +113,7 @@ Risks and Mitigations
   Mitigation: Treat tool-reported durations as supporting detail and use the
   chat timestamps as the primary end-to-end timeline.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 Validate the eventual implementation through documentation and template tests.
 At minimum:
 - add coverage that generated `AGENTS.md` files and workflow docs mention the
@@ -137,8 +130,7 @@ Per Joel Spolsky's shipping guidance, treat the documentation change as
 unfinished until both the automated checks and the manual transcript review
 show the timing guidance is practical in real use.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Rely on Codex logs or local terminal transcripts.
    Rejected because those are not always accessible, are harder to share, and
    conflict with the current guidance to avoid log inspection unless asked.
@@ -151,15 +143,13 @@ Alternatives Considered
    Rejected because those files capture state transitions, not the fine-grain
    pacing of active development conversations.
 
-Open Questions
---------------
+## Open Questions
 None at approval time. Approval fixed the default behavior: timestamped
 intermediary updates are required for substantive development work, the
 bracketed ISO 8601 format is fixed, and final summary messages do not need a
 timestamp unless a project-local override requires one.
 
-Milestones
-----------
+## Milestones
 1. Proposal review and decision.
    Target date: 2026-03-26.
    Owners: operator, AI maintainers.
@@ -182,8 +172,7 @@ Milestones
    Exit criteria: TheKnowledge docs, templates, and tests reflect the adopted
    timestamp guidance.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 Roll out in two layers.
 
 First, add the guidance to TheKnowledge's own AGENTS and workflow documents so
@@ -196,8 +185,7 @@ the same profiling behavior by default. Document that local project overrides
 may tighten or relax the cadence, but the default should remain timestamped
 intermediary updates for substantive development work.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-25T00:57:35-07:00 - Proposal drafted by Codex and placed under
   review in response to an operator request for better workflow profiling.
 - 2026-03-25T01:17:55-07:00 - Approved by the operator for immediate

@@ -19,6 +19,11 @@ Standard commit and push
 Command:
 - `python scripts/git_standard_commit_push.py -m "<subject>"`
 
+Operator shorthand:
+- `ACP` means "add, commit, push." It invokes the same review-first,
+  quality-gated VCS workflow in meaningful blocks of work; it does not mean
+  one monolithic commit, and it does not bypass validation or identity rules.
+
 Behavior:
 1. Resolve repository root.
 2. Verify that commit author/committer identity is explicitly configured.

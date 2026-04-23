@@ -1,10 +1,10 @@
-Proposals Directory
-===================
+# Proposals Directory
 
 Store proposal files in the matching status directory here before final
 specifications are drafted. Use the proposal format guide in
-`{{THEKNOWLEDGE_ROOT}}/standards-and-practices/docs/format-for-proposals.txt`
-and keep decision history append-only.
+`{{THEKNOWLEDGE_ROOT}}/standards-and-practices/docs/format-for-proposals.md`
+and keep decision history append-only. Proposal files should use Markdown
+(`.md`) filenames.
 
 Status directories:
 - `under-review/`: proposals awaiting a decision.

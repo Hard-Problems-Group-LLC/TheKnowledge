@@ -1,5 +1,4 @@
-Placement-Driven Black Validation and Runtime Profiles
-======================================================
+# Placement-Driven Black Validation and Runtime Profiles
 
 Title: Placement-Driven Black Validation and Runtime Profiles
 Author: Codex
@@ -15,7 +14,7 @@ internal/overrides/bugs/open/full-scope-black-validation-reformats-
 unrelated-tracked-files-on-supported-interpreter.txt;
 internal/overrides/bugs/open/codex-sandbox-asyncio-wakeup-fails-for-multi-
 file-static-analysis.txt;
-internal/overrides/proposals/approved/pin_python_dev_tool_versions.txt;
+internal/overrides/proposals/approved/pin_python_dev_tool_versions.md;
 internal/overrides/proposals/approved/serial-file-safe-static-analysis-in-
 affected-sandboxes.txt;
 standards-and-practices/docs/specifications/pinned_python_dev_tool_versions.
@@ -23,8 +22,7 @@ txt;
 standards-and-practices/docs/specifications/codex_sandbox_file_safe_static_
 analysis.txt
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge now has several Black-related failures that share one deeper
 cause: formatter behavior, file discovery, and Python runtime selection are
 not described by a coherent placement-driven policy.
@@ -46,8 +44,7 @@ The repository therefore lacks a durable answer to a simple question: when a
 new Python-like file appears, what validation should apply based on its
 location and extension, without adding a rule for that exact filename?
 
-Goals
------
+## Goals
 - Make Black file discovery honor Git intent by default.
 - Resolve Black target behavior from placement and extension rather than from
   filename-specific rules.
@@ -58,8 +55,7 @@ Goals
   correct validation profile automatically.
 - Keep the configuration inspectable, testable, and repository-managed.
 
-Non-Goals
----------
+## Non-Goals
 - Fix the upstream Codex sandbox wakeup defect inside TheKnowledge.
 - Guarantee that every possible future tool can use the same profile system
   unchanged.
@@ -68,8 +64,7 @@ Non-Goals
 - Resolve repository-wide Black baseline drift silently inside unrelated
   changesets.
 
-Use Cases
----------
+## Use Cases
 1. A maintainer adds a new bootstrap installer script and wants it validated
    as Python-3.9-compatible while the formatter itself still runs from the
    supported steady-state toolchain.
@@ -82,8 +77,7 @@ Use Cases
    same placement-based profile resolution while still benefiting from serial
    one-file-at-a-time execution where required.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - The repository still needs a Python-3.9-compatible bootstrap story for
   installer entry points unless the declared floor is raised explicitly.
 - The pinned Black toolchain currently needs a newer runtime than Python 3.9.
@@ -95,8 +89,7 @@ Constraints and Assumptions
 - Existing user-facing entry-point paths may need compatibility shims if code
   is reorganized into clearer directories.
 
-Proposed Approach
------------------
+## Proposed Approach
 Adopt one repository-managed validation-profile registry for Black. A JSON
 file such as `tool_validation_profiles.json` should define:
 - ordered validation profiles;
@@ -154,8 +147,7 @@ Black execution should then work in three stages:
 This should also become the basis for future formatter and linter policy, but
 the first implementation scope should stay Black-focused.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: introducing a new JSON profile registry adds configuration
   complexity.
   Mitigation: keep one registry with ordered profiles and a tested schema,
@@ -174,8 +166,7 @@ Risks and Mitigations
   Mitigation: make the serial-dispatch decision part of the same profile and
   constraint-resolution path, not a separate ad hoc branch.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 Validation should cover both policy logic and workflow behavior:
 - unit tests for profile resolution from path plus extension;
 - tests that full-scope discovery uses tracked files and skips Git-ignored
@@ -195,8 +186,7 @@ Per Joel Spolsky's shipping guidance, do not treat this work as complete
 until the automated tests cover discovery, profile resolution, and runtime
 selection, and one approved normalization changeset lands cleanly.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Rely on `.gitignore` alone.
    Rejected because `.gitignore` can exclude local state, but it does not
    express Python target versions, runtime selection, or profile grouping.
@@ -215,15 +205,13 @@ Alternatives Considered
    solve file discovery, placement-driven classification, or the
    bootstrap-versus-steady-state runtime split.
 
-Open Questions
---------------
+## Open Questions
 None at approval time. The approved implementation keeps the first registry
 Black-focused, uses placement-plus-extension profile selection, keeps the
 existing entry-point paths, and adopts an ordered steady-state runtime policy
 with a Python 3.10 minimum and Python 3.12 preference.
 
-Milestones
-----------
+## Milestones
 1. Approve or revise this proposal.
    Target date: 2026-03-28.
    Owners: operator, AI maintainers.
@@ -252,8 +240,7 @@ Milestones
    Exit criteria: one deliberate formatter normalization changeset lands and
    documentation explains the bootstrap-versus-steady-state runtime split.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 Roll this out in phases.
 
 First, approve the model and publish the profile registry plus the
@@ -271,8 +258,7 @@ Finally, run one intentional repository-wide normalization pass on the chosen
 steady-state runtime so future scoped changes can clear Black without
 unrelated churn.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-27T00:30:54-07:00 - Proposal drafted by Codex in response to an
   operator request to resolve the known Black-related bugs with a placement-
   driven validation strategy.

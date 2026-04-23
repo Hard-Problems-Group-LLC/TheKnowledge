@@ -1,5 +1,4 @@
-Repository Maintenance Approved Proposals
-========================================
+# Repository Maintenance Approved Proposals
 
 Keep approved TheKnowledge proposal records here.
 

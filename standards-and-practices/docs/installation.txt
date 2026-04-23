@@ -14,7 +14,8 @@ repo-local `.venv`, and requires `direnv`. `bootstrap.sh`,
 `bootstrap-stage2.py`, and `scripts/install_prerequisites.sh` remain
 compatibility wrappers. For the broader interpreter and package-environment
 precedence model that future multi-language bootstrap flows should follow, see
-`standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`.
+`standards-and-practices/docs/`
+`Interpreters-and-Package-Management-Environments.md`.
 
 Quick start
 -----------
@@ -111,6 +112,9 @@ Notes and expectations
     as commit body text when that file is nonblank, and clears the queue
     after a successful local commit. Use `--resume-review-prompts` to
     re-enable prompts for the current shell session.
+  - Operator shortcut: `ACP` means "add, commit, push." Treat it as a
+    request to run the normal VCS workflow in meaningful commit-sized blocks,
+    not as permission to make one monolithic commit or skip review and checks.
   - `python scripts/git_veteran_pull.py`
   - Cache file used by push quality gate: `.git/project-quality-cache.json`
   - Runbook:
@@ -118,8 +122,9 @@ Notes and expectations
 - Consuming projects that update a TheKnowledge submodule should first fetch
   and briefly review the incoming upstream `trunk` delta in the submodule
   checkout. Prefer
-  `python TheKnowledge/scripts/update_theknowledge_submodule.py --project-root`
-  `. --knowledge-root TheKnowledge` for that workflow. The helper fetches,
+  `python TheKnowledge/scripts/update_theknowledge_submodule.py`
+  `--project-root . --knowledge-root TheKnowledge` for that workflow. The
+  helper fetches,
   prints the incoming commit summary and diffstat, adopts the reviewed
   upstream commit, runs the managed drift report, refreshes the managed
   starter files when needed, and leaves a reviewable parent-repo diff.

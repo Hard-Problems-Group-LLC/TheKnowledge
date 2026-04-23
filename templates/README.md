@@ -10,6 +10,8 @@ The `project-management/` starter tree includes proposal status directories
 (`approved/`, `rejected/`, `deferred/`, and `under-review/`) plus bug status
 directories (`open/`, `in-progress/`, and `closed/`). Keep the consuming
 project's live records in the installed copy, not inside this submodule.
+Proposal records and proposal directory README files are Markdown (`.md`) by
+default.
 
 The starter set also includes `install.sh`, `bootstrap.sh`,
 `scripts/install-stage-2.py`, `bootstrap-stage2.py`,
@@ -105,6 +107,9 @@ path. It can also pause for file-by-file review and runs
 `git diff --cached` before commit. Use `--assume-reviewed` only
 after an explicit review decision made outside the helper, and use
 `--resume-review-prompts` to re-enable prompts for the current shell session.
+If an operator says `ACP`, treat that as "add, commit, push" through the same
+VCS workflow. Stage, commit, and push meaningful blocks with appropriate
+comments rather than creating one monolithic commit.
 
 Managed downstream `AGENTS.md` files also inherit timestamped
 intermediary-update guidance for workflow profiling. Use inline

@@ -123,7 +123,7 @@ Related TheKnowledge materials:
 - `../../known-bugs.txt`
 - `../../proposals/approved/serial-file-safe-static-analysis-in-`
   `affected-sandboxes.txt`
-- `../../proposals/approved/pin_python_dev_tool_versions.txt`
+- `../../proposals/approved/pin_python_dev_tool_versions.md`
 
 Root Cause
 ----------

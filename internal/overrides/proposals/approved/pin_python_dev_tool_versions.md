@@ -1,5 +1,4 @@
-Pin Default Python Tool Versions Across TheKnowledge and Starter Projects
-=========================================================================
+# Pin Default Python Tool Versions Across TheKnowledge and Starter Projects
 
 Title: Pin Default Python Tool Versions Across TheKnowledge and Starter
 Projects
@@ -8,11 +7,11 @@ Date: 2026-03-25T14:34:52-07:00
 Status: Approved
 Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-25;
-standards-and-practices/docs/specifications/pinned_python_dev_tool_versions.txt;
+standards-and-practices/docs/specifications/
+pinned_python_dev_tool_versions.txt;
 pyproject.toml; templates/requirements-dev.txt; templates/scripts/dev_setup.py
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge currently leaves its default Python quality-gate tools loosely
 versioned with `>=` constraints. That means Black, Ruff, and pytest behavior
 can drift across machines and over time even when contributors are following
@@ -23,13 +22,12 @@ newer Black release.
 
 The mismatch is worse for consuming projects. TheKnowledge's
 `scripts/initial-setup.py` currently installs project-management records and
-managed `AGENTS.md` content, but it does not install a starter Python toolchain
-manifest or setup script. As a result, downstream projects can inherit
-TheKnowledge's workflow commands without inheriting the exact tool versions
-those commands were written and tested against.
+managed `AGENTS.md` content, but it does not install a starter Python
+toolchain manifest or setup script. As a result, downstream projects can
+inherit TheKnowledge's workflow commands without inheriting the exact tool
+versions those commands were written and tested against.
 
-Goals
------
+## Goals
 - Make TheKnowledge's default Python formatter, linter, and test toolchain
   reproducible across machines.
 - Ensure new and lightly customized consuming projects inherit the same pinned
@@ -39,8 +37,7 @@ Goals
   managed starter files.
 - Document how maintainers and consuming projects refresh the pinned tools.
 
-Non-Goals
----------
+## Non-Goals
 - Pin every application dependency a consuming project may need.
 - Prevent mature projects from using stricter or more specialized local
   environment management.
@@ -48,8 +45,7 @@ Non-Goals
   proposal alone.
 - Replace the existing quality-gate commands or timeout-wrapper workflow.
 
-Use Cases
----------
+## Use Cases
 1. A maintainer clones TheKnowledge on a new machine and expects `black`,
    `ruff`, and `pytest` behavior to match the rest of the team.
 2. A consuming project runs `python TheKnowledge/scripts/initial-setup.py`
@@ -60,8 +56,7 @@ Use Cases
 4. A project with custom bootstrap needs to keep its override, while still
    understanding what TheKnowledge considers the default pinned stack.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - TheKnowledge must stay usable both as its own repository and as a submodule
   consumed by other repositories.
 - Consuming projects often have local override files, so the managed starter
@@ -73,8 +68,7 @@ Constraints and Assumptions
 - Documentation and templates must stay aligned because many users learn the
   workflow from generated files rather than from TheKnowledge's root README.
 
-Proposed Approach
------------------
+## Proposed Approach
 Pin TheKnowledge's own dev-tool versions exactly in `pyproject.toml` so
 `scripts/install_prerequisites.py` installs a stable default stack when it
 pulls the editable dev extras.
@@ -97,8 +91,7 @@ the downstream git-flow template. Add tests that verify:
 - the managed `requirements-dev.txt` stays synchronized with those pins; and
 - initial setup installs the starter files into consuming projects.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: Adding managed starter files creates overwrite conflicts in consuming
   projects that already own `requirements-dev.txt` or `scripts/dev_setup.py`.
   Mitigation: keep `initial-setup.py`'s existing no-overwrite default so those
@@ -115,8 +108,7 @@ Risks and Mitigations
   `templates/requirements-dev.txt` could drift.
   Mitigation: add automated tests that compare them directly.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 Validate the implementation with repository tests and a starter-install smoke
 check. At minimum:
 - add tests that parse `pyproject.toml` and require exact `==` pins for the
@@ -131,12 +123,11 @@ Per Joel Spolsky's shipping guidance, do not treat the proposal as fully
 executed until the automated checks prove the pins are synchronized and the
 starter-install path is visible in the managed documentation.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Keep broad `>=` constraints and accept drift.
    Rejected because it leaves validation behavior and formatting output
    unstable across time and machines.
-2. Pin TheKnowledge itself but leave consuming projects to decide on their own.
+2. Pin TheKnowledge itself but leave consuming projects to choose tools.
    Rejected because TheKnowledge would still export workflow commands without
    exporting the versions those commands assume.
 3. Generate pins only inside a setup script and not in a visible manifest.
@@ -146,15 +137,13 @@ Alternatives Considered
    Rejected because many repositories already have tighter local policies and
    should be able to keep them.
 
-Open Questions
---------------
+## Open Questions
 None at approval time. The operator explicitly requested immediate execution,
 so this proposal records the adopted default: exact pins in TheKnowledge,
 mirrored starter pins for consuming projects, and setup-script-driven
 bootstrap for teams that use the managed default path.
 
-Milestones
-----------
+## Milestones
 1. Approve the proposal and draft the specification.
    Target date: 2026-03-25.
    Owners: operator, AI maintainers.
@@ -175,8 +164,7 @@ Milestones
    Exit criteria: automated validation passes and the `Feedback` branch is
    ready to push.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 Roll out in two layers.
 
 First, TheKnowledge itself adopts exact pins in `pyproject.toml`, so direct
@@ -193,8 +181,7 @@ proposal/spec references as needed, adjust the pinned files together, rerun
 validation, and call out the starter-toolchain change clearly in upgrade
 notes.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-25T14:34:52-07:00 - Proposal drafted by Codex in response to an
   operator request to pin static-analysis and related Python developer tools.
 - 2026-03-25T14:34:52-07:00 - Approved by the operator for immediate

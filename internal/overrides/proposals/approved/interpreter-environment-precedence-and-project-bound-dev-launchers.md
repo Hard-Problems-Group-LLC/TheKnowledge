@@ -1,5 +1,4 @@
-Engineering Change Request: Interpreter Environment Precedence and Project-Bound Developer Launchers
-====================================================================================================
+# Engineering Change Request: Interpreter Environment Precedence and Project-Bound Developer Launchers
 
 Title: Engineering Change Request: Interpreter Environment Precedence and
 Project-Bound Developer Launchers
@@ -7,11 +6,11 @@ Author: Codex
 Date: 2026-03-31T20:40:57-07:00
 Status: Approved
 Reviewers: operator, AI maintainers
-Related Work: `standards-and-practices/docs/Interpreters-and-Package-Management-Environments.md`;
+Related Work: `standards-and-practices/docs/`
+`Interpreters-and-Package-Management-Environments.md`;
 converged managed bootstrap starter on 2026-03-31
 
-Problem Statement
------------------
+## Problem Statement
 The new interpreter/package environment standard defines a four-layer
 precedence model:
 
@@ -28,8 +27,7 @@ the repository directory. It also does not yet push repositories toward
 reusing a sensible shared user-scoped interpreter family for normal
 per-user installs.
 
-Goals
------
+## Goals
 - Make the environment-precedence standard concrete enough that consuming
   projects can implement it incrementally.
 - Establish project-bound developer launchers as the Python-side mechanism for
@@ -39,15 +37,13 @@ Goals
 - Keep the managed starter generic by using optional project install hooks
   rather than forcing one launcher policy on every repository.
 
-Non-Goals
----------
+## Non-Goals
 - Full multi-language bootstrap implementation in the same change.
 - Making TheKnowledge itself ship a one-size-fits-all project launcher
   template for every consuming repository.
 - Replacing repo-local `.venv` with named `pyenv-virtualenv` environments.
 
-Proposed Approach
------------------
+## Proposed Approach
 Document the broader environment-precedence policy in a new repository-level
 doc and explicitly connect the existing Python bootstrap spec to it.
 
@@ -62,8 +58,7 @@ Recommend that normal per-user installers prefer an already-installed
 user-scoped managed runtime, such as the relevant `pyenv` selection, before
 falling back to whatever system interpreter happens to be current.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 Implement the first repository-side example in `codex-wrangler` itself by:
 
 - adding a repo-specific install hook that publishes or removes a
@@ -74,8 +69,7 @@ Implement the first repository-side example in `codex-wrangler` itself by:
 Use that repo as the proving ground before deciding whether TheKnowledge
 should later ship more reusable helper code for project-bound launchers.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-31T20:40:57-07:00 - Approved after the operator requested that the
   new environment standard be turned into an implementation proposal and that
   work begin immediately.

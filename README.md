@@ -240,6 +240,11 @@ supports this flow; use `--assume-reviewed` only after an explicit review
 decision, and `--resume-review-prompts` to re-enable prompts for the current
 shell session.
 
+When an operator says `ACP`, read it as "add, commit, push" through the
+repository's VCS workflow. Stage, commit, and push coherent blocks with
+appropriate commit messages; do not turn unrelated changes into one
+monolithic commit merely because the shorthand was used.
+
 ## Timestamped Intermediary Updates
 
 TheKnowledge recommends inline timestamp prefixes for substantive
@@ -284,6 +289,7 @@ TestProject/
     deferred.txt
     ai-human-requests.txt
     proposals/
+      README.md
       approved/
       rejected/
       deferred/

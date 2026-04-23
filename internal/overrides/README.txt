@@ -27,11 +27,11 @@ Record Map
 - `completed-tasks.txt`
 - `deferred.txt`
 - `ai-human-requests.txt`
-- `proposals/README.txt`
-- `proposals/approved/README.txt`
-- `proposals/rejected/README.txt`
-- `proposals/deferred/README.txt`
-- `proposals/under-review/README.txt`
+- `proposals/README.md`
+- `proposals/approved/README.md`
+- `proposals/rejected/README.md`
+- `proposals/deferred/README.md`
+- `proposals/under-review/README.md`
 - `state/README.txt`
 - `state/pending-commit-changes.txt`
 - `bugs/README.txt`

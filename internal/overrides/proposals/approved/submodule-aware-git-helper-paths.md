@@ -1,5 +1,4 @@
-Engineering Change Request: Submodule-aware Git Helper Paths
-============================================================
+# Engineering Change Request: Submodule-aware Git Helper Paths
 
 Title: Engineering Change Request: Submodule-aware Git Helper Paths
 Author: Codex
@@ -11,8 +10,7 @@ internal/overrides/bugs/closed/quality-gate-cache-helper-fails-in-
 submodules.txt; scripts/run_quality_gate_cached.py;
 scripts/git_standard_commit_push.py
 
-Problem Statement
------------------
+## Problem Statement
 TheKnowledge's standardized commit workflow currently breaks in active
 submodule checkouts because helper code assumes `.git` is a directory in the
 worktree. In a normal submodule checkout, `.git` is a file that points at the
@@ -26,23 +24,20 @@ TheKnowledge feedback from the active `TheKnowledge/` submodule. That means
 the standardized commit helper currently fails in one of the exact workflows
 TheKnowledge itself encourages.
 
-Goals
------
+## Goals
 - Make standardized git helpers work in ordinary submodule checkouts.
 - Eliminate assumptions that `.git` is a directory in the worktree.
 - Keep cache and helper behavior consistent between standalone checkouts and
   submodules.
 - Improve diagnostics when git-metadata path resolution fails.
 
-Non-Goals
----------
+## Non-Goals
 - Redesign the full standardized commit workflow.
 - Remove quality-gate caching.
 - Change how git itself represents submodule metadata.
 - Solve unrelated sandbox or formatter-hang problems.
 
-Use Cases
----------
+## Use Cases
 1. A contributor on a consuming project's active `TheKnowledge/` submodule
    runs `python scripts/git_standard_commit_push.py -m "..."` after review.
 2. A helper wants to store a cache file under the repository's real git
@@ -52,8 +47,7 @@ Use Cases
 4. A maintainer diagnosing a failure gets a clear error message that mentions
    submodule `.git` files rather than a generic `FileExistsError`.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - Git submodules normally represent `.git` as a text file, not as a
   directory.
 - Helper scripts should avoid duplicating brittle git-dir discovery logic.
@@ -62,8 +56,7 @@ Constraints and Assumptions
 - Tests must remain runnable in ordinary repository CI without depending on
   external network or nested real submodule clones unless necessary.
 
-Proposed Approach
------------------
+## Proposed Approach
 Introduce a small shared helper that resolves repository metadata paths
 through the real git directory reported by `git rev-parse --git-dir`.
 
@@ -82,8 +75,7 @@ Where a helper cannot resolve the git directory cleanly, emit a purpose-built
 error that explains the likely submodule `.git` file mismatch and points to
 the failing helper path.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: helper logic grows more complex.
   Mitigation: centralize git-dir resolution in one reusable utility instead of
   scattering ad hoc path fixes.
@@ -97,8 +89,7 @@ Risks and Mitigations
   Mitigation: catch and reframe git-dir lookup failures with explicit helper
   context.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 - Add tests for a helper function that resolves `.git`-relative paths against
   the real git directory.
 - Add a regression test that simulates a submodule-style `.git` file and
@@ -108,8 +99,7 @@ Testing and Validation
 - Keep the existing standalone-checkout behavior covered so the fix does not
   regress normal repository maintenance.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Leave the helper broken in submodules and rely on manual git commands.
    Rejected because it breaks the workflow TheKnowledge currently documents.
 2. Hard-code the superproject `.git/modules/...` path shape.
@@ -121,16 +111,14 @@ Alternatives Considered
    Rejected because the failure is deterministic and has a straightforward
    technical remedy.
 
-Open Questions
---------------
+## Open Questions
 1. Should TheKnowledge expose the git-dir resolution helper as a shared module
    for all git-aware scripts, or keep it private to the standardized helper
    stack initially?
 2. Are there any other current helper defaults besides
    `.git/project-quality-cache.json` that should be migrated at the same time?
 
-Milestones
-----------
+## Milestones
 1. Review and approve or revise this ECR.
    Target date: 2026-03-26.
    Owners: operator, AI maintainers.
@@ -151,8 +139,7 @@ Milestones
    Exit criteria: submodule commit helper flow succeeds in regression tests or
    a controlled manual repro.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 If approved, land the helper change on TheKnowledge `trunk`, update any
 relevant workflow notes if user-facing behavior changes, and then remove or
 update the originating bug record once the fix is validated.
@@ -161,8 +148,7 @@ Because the problem affects consuming-project feedback filing, call out the
 fix in submodule-upgrade notes so downstream maintainers know the standardized
 commit helper is safe to retry.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-25T14:24:26-07:00 - Drafted by Codex in response to an operator
   request after confirming that the cached quality-gate helper crashes in
   submodule checkouts because it treats `.git` as a directory.

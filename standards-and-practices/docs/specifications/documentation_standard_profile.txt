@@ -17,6 +17,15 @@ Selected Standards
 
 Repository Mapping
 ------------------
+- Prose-document format:
+  - Maintained prose documents, internal project records, starter
+    documentation, proposal records, bug records, and generated
+    consumer-project guidance should use Markdown (`.md`) by default.
+  - Exceptions are allowed for machine-consumed files, intentionally
+    extensionless files, compatibility-sensitive starter files, or legacy
+    records whose migration has been explicitly deferred.
+  - Markdown headings, bulleted or numbered lists, and tables should be used
+    where they improve scanability over plain paragraphs.
 - Source-file documentation:
   - Every maintained source file must begin with top-of-file documentation
     that explains the file's purpose, role in the project, scope, important
@@ -53,10 +62,13 @@ Review Checklist
 - Non-trivial branches, loops, and state transitions carry rationale where
   structure alone would be ambiguous.
 - Proposal and backlog history remains append-only and timestamped.
-- Text files outside fixture directories are wrapped to 78 columns.
+- Markdown/text files outside fixture directories are wrapped to 78 columns.
+  Markdown tables and other structures that cannot tolerate that width should
+  stay at 118 columns when practical, or use the narrowest readable open-ended
+  width when the structure requires it.
 
 Non-Goals
 ---------
 - Mandating proprietary tooling for standards enforcement.
 - Requiring rote line-by-line comments that only restate syntax.
-- Rewriting historical documents solely for stylistic normalization.
+- Rewriting all historical legacy documents in one unreviewable sweep.

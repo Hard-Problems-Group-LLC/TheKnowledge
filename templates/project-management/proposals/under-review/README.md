@@ -1,5 +1,4 @@
-Under Review Proposals
-======================
+# Under Review Proposals
 
 Use this directory for proposals still under active debate.
 

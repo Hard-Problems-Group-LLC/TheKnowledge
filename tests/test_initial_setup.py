@@ -39,22 +39,18 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
 
     assert result.returncode == 0
     agents = project_root / "AGENTS.md"
-    proposals_readme = project_root / "project-management" / "proposals" / "README.txt"
+    proposals_readme = project_root / "project-management" / "proposals" / "README.md"
     approved_proposals = (
-        project_root / "project-management" / "proposals" / "approved" / "README.txt"
+        project_root / "project-management" / "proposals" / "approved" / "README.md"
     )
     rejected_proposals = (
-        project_root / "project-management" / "proposals" / "rejected" / "README.txt"
+        project_root / "project-management" / "proposals" / "rejected" / "README.md"
     )
     deferred_proposals = (
-        project_root / "project-management" / "proposals" / "deferred" / "README.txt"
+        project_root / "project-management" / "proposals" / "deferred" / "README.md"
     )
     under_review_proposals = (
-        project_root
-        / "project-management"
-        / "proposals"
-        / "under-review"
-        / "README.txt"
+        project_root / "project-management" / "proposals" / "under-review" / "README.md"
     )
     git_flow = project_root / "project-management" / "git-flow.txt"
     pending_queue = (
@@ -151,12 +147,13 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
         in agents.read_text(encoding="utf-8")
     )
     assert "git diff --cached" in agents.read_text(encoding="utf-8")
+    assert '`ACP` means "add, commit, push"' in agents.read_text(encoding="utf-8")
     assert "inline bracketed ISO 8601 timestamp" in agents.read_text(encoding="utf-8")
     assert "workflow profiling" in agents.read_text(encoding="utf-8")
     assert "review in Meld" in agents.read_text(encoding="utf-8")
     assert "default visual review path" in agents.read_text(encoding="utf-8")
     assert "--resume-review-prompts" in agents.read_text(encoding="utf-8")
-    assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.txt" in (
+    assert "TheKnowledge/standards-and-practices/docs/format-for-proposals.md" in (
         proposals_readme.read_text(encoding="utf-8")
     )
     assert "approved/" in proposals_readme.read_text(encoding="utf-8")
@@ -166,6 +163,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "./install.sh" in git_flow.read_text(encoding="utf-8")
     assert "ECRs/TheKnowledge/" in git_flow.read_text(encoding="utf-8")
     assert "update_theknowledge_submodule.py" in git_flow.read_text(encoding="utf-8")
+    assert "`ACP` is accepted operator shorthand" in git_flow.read_text(
+        encoding="utf-8"
+    )
     assert pending_queue.read_text(encoding="utf-8").strip() == ""
     assert "install-stage-2.py" in install_sh.read_text(encoding="utf-8")
     assert "install.sh" in bootstrap.read_text(encoding="utf-8")

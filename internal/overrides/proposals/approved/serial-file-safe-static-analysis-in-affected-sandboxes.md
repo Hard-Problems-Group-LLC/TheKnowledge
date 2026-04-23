@@ -1,6 +1,4 @@
-Engineering Change Request: Serial File-safe Static Analysis in Affected
-Sandboxes
-========================================================================
+# Serial File-safe Static Analysis in Affected Sandboxes
 
 Title: Engineering Change Request: Serial File-safe Static Analysis in
 Affected Sandboxes
@@ -11,10 +9,10 @@ Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-25;
 internal/overrides/bugs/open/codex-sandbox-asyncio-wakeup-fails-for-multi-
 file-static-analysis.txt; AGENTS.md guidance in consuming projects;
-standards-and-practices/docs/specifications/codex_sandbox_file_safe_static_analysis.txt
+standards-and-practices/docs/specifications/
+codex_sandbox_file_safe_static_analysis.txt
 
-Problem Statement
------------------
+## Problem Statement
 Codex's current Linux sandbox on this host can hang Black's multi-file path
 because the sandboxed asyncio loop does not wake reliably when work completes
 on another thread. A minimal Python reproducer shows the same stuck wakeup
@@ -27,8 +25,7 @@ require a repository-wide view. In affected sandboxes, that makes AI-assisted
 maintenance brittle: the formatter or linter may wedge after discovering
 files, even though each file would succeed if invoked separately.
 
-Goals
------
+## Goals
 - Reduce sandbox-induced hangs for file-safe static-analysis tools.
 - Preserve useful automated validation inside affected Codex sandboxes.
 - Make the workaround explicit so maintainers do not waste time trying
@@ -36,16 +33,14 @@ Goals
 - Keep whole-repository validation available for humans, CI, and unaffected
   execution environments.
 
-Non-Goals
----------
+## Non-Goals
 - Fix the upstream Codex sandbox wakeup bug from within TheKnowledge.
 - Force one-file-at-a-time execution for tools whose semantics depend on a
   global repository view.
 - Replace CI or normal human-maintainer validation with sandbox-only policy.
 - Guarantee that every third-party static-analysis tool is file-safe.
 
-Use Cases
----------
+## Use Cases
 1. An AI maintainer formats a small changed-file set inside Codex's sandbox
    and needs the work to complete reliably.
 2. A consuming project wants documented guidance that avoids known sandbox
@@ -55,8 +50,7 @@ Use Cases
 4. A human maintainer outside the affected sandbox still wants the ordinary
    whole-repo commands for final validation.
 
-Constraints and Assumptions
----------------------------
+## Constraints and Assumptions
 - Some tools are file-safe only in certain modes. TheKnowledge should make
   those boundaries explicit instead of assuming every command can be safely
   serialized.
@@ -66,8 +60,7 @@ Constraints and Assumptions
   its normal repository test suite, so some validation will remain manual.
 - Whole-repo validation is still important for final integration and CI.
 
-Proposed Approach
------------------
+## Proposed Approach
 Adopt a shared guidance pattern: when a static-analysis or formatting tool is
 file-safe for the requested mode, and the work is running inside a known-
 affected sandbox, prefer one-file-at-a-time invocation over multi-file
@@ -88,8 +81,7 @@ The guidance should also state explicitly that `black -W 1` is not enough,
 because Black still uses its async multi-file path whenever more than one file
 is supplied.
 
-Risks and Mitigations
----------------------
+## Risks and Mitigations
 - Risk: one-file-at-a-time execution is slower.
   Mitigation: limit the behavior to explicit file lists or known-affected
   sandbox contexts instead of penalizing all workflows.
@@ -104,8 +96,7 @@ Risks and Mitigations
   Mitigation: start with narrow helpers for explicit file lists and add tests
   around dispatch behavior.
 
-Testing and Validation
-----------------------
+## Testing and Validation
 - Add tests around any wrapper logic that splits explicit file lists into
   serial invocations.
 - Confirm that the helper preserves combined exit behavior and reports per-
@@ -116,8 +107,7 @@ Testing and Validation
 - Re-run the normal whole-repo commands outside the affected sandbox or in CI
   before treating the work as fully validated.
 
-Alternatives Considered
------------------------
+## Alternatives Considered
 1. Wait only for an upstream Codex fix.
    Rejected because it leaves current AI maintenance flows brittle in the
    meantime.
@@ -131,8 +121,7 @@ Alternatives Considered
    Rejected because some tools are not safely composable per file and because
    the performance cost would be unnecessary outside affected sandboxes.
 
-Open Questions
---------------
+## Open Questions
 1. What is the best reliable signal that a process is running in a known-
    affected Codex sandbox?
 2. Which Ruff modes, if any, should stay on whole-repo dispatch even when an
@@ -140,8 +129,7 @@ Open Questions
 3. Should TheKnowledge wrappers expose an override flag or environment
    variable so operators can force serial dispatch during investigation?
 
-Milestones
-----------
+## Milestones
 1. Review and approve or revise this ECR.
    Target date: 2026-03-26.
    Owners: operator, AI maintainers.
@@ -161,8 +149,7 @@ Milestones
    Entry criteria: wrapper targets are identified.
    Exit criteria: helper/docs updates land with passing validation.
 
-Adoption and Rollout
---------------------
+## Adoption and Rollout
 If approved, roll this out in stages.
 
 First, update AGENTS guidance and relevant workflow docs so operators and AI
@@ -174,8 +161,7 @@ natural and semantically safe.
 Third, keep whole-repo validation in CI and normal non-affected shells so the
 temporary sandbox workaround does not quietly lower the final quality bar.
 
-Decision Log
-------------
+## Decision Log
 - 2026-03-25T14:12:36-07:00 - Drafted by Codex in response to an operator
   request after reproducing a Codex-sandbox wakeup bug that hangs Black's
   multi-file path.
