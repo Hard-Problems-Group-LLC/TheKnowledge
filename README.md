@@ -22,12 +22,20 @@ submodule that other projects can import. The goal is consistent execution:
 ## Scope
 
 This repository includes:
+
 - `knacks/`: reusable knack documents: focused `.knack.md` knowledge units
-  that may build on one another.
+  that may build on one another.  While the term "skill" is typically used
+  to indicate providing inline-XML or external JSON-RPC capabilities to an
+  AI agent, knacks are technical overviews and preferred strategies for
+  various developmeng and administration tasks.
+  
 - `standards-and-practices/`: reusable workflows, standards, security
   practices, runbooks, and dev utilities.
+  
 - `templates/`: starter material meant to be copied into consuming projects.
+- 
 - `scripts/`: reusable tooling plus setup helpers for submodule consumers.
+- 
 - `internal/`: repository-local state for maintaining TheKnowledge itself.
   TheKnowledge's live project-management state lives under
   `internal/overrides/`; the starter material under
@@ -217,19 +225,33 @@ reviewable request, and use TheKnowledge's `Feedback` branch or direct
 maintenance workflow when it is time to record or implement the upstream
 change itself.
 
-## Review-first staging
+## Review-first staging: AI Agent Guidance
 
 Projects that use TheKnowledge should treat review as part of staging, not
-just of committing. Before any `git add`, list the files about to be staged
-and ask whether to review them. Offer `1` review at least one file,
-`2` proceed without review for this changeset, and `3` proceed and suppress
-review prompts for the rest of the current session until resumed.
+just of committing.   
 
-If review is requested, prefer reviewing the changeset in Meld when
-available. That is the default recommended visual review path for
-TheKnowledge because the folder comparison stays open in one tab while
-file comparisons open in additional tabs. Install Meld from the
-official project page: https://gnome.pages.gitlab.gnome.org/meld/
+Unless explicitly suppressed by a human developer-- typically for very 
+rapid proof-of-concept development-- AI coding environments are expected
+to follow the following procedure.
+
+Before any `git add`, the AI will list the files about to be staged, and
+ask whether the users wishes to review them.  It shall offer these options:
+
+`1` review at least one file,
+
+`2` proceed without review for this changeset,
+
+`3` proceed without review, and suppress review prompts for the rest of
+    the current session until resumed.
+
+If review is requested, conduct the review using tools appropriate to
+the environment.  Unless the development environment in use provides
+an appropriate tool, AI agents shall prefer reviewing the changeset in
+Meld, when available (check repos or https://meldmerge.org). That is
+the default recommended visual review path for TheKnowledge, because
+the folder comparison stays open in one tab while file comparisons
+open in additional tabs. Install Meld from the official project page:
+https://gnome.pages.gitlab.gnome.org/meld/
 
 If Meld is unavailable, either review files one by one in the
 surrounding conversation or abort the staging step. Run `git diff`
@@ -240,10 +262,12 @@ supports this flow; use `--assume-reviewed` only after an explicit review
 decision, and `--resume-review-prompts` to re-enable prompts for the current
 shell session.
 
-When an operator says `ACP`, read it as "add, commit, push" through the
-repository's VCS workflow. Stage, commit, and push coherent blocks with
-appropriate commit messages; do not turn unrelated changes into one
-monolithic commit merely because the shorthand was used.
+For rapid development use only:
+When an operator says `ACP`, AI agents shall read that as "add, commit,
+push", and take those actions through the repository's VCS workflow.
+Stage, commit, and push coherent blocks with appropriate commit
+messages; do not turn unrelated changes into one monolithic commit
+merely because the shorthand was used.
 
 ## Timestamped Intermediary Updates
 
@@ -307,7 +331,16 @@ proprietary or third-party knacks beside the stock knacks that ship inside the
 TheKnowledge subtree. When a project-local knack path collides with a stock
 TheKnowledge knack path, tooling should warn and evaluate both.
 
-## Feedback Branch
+## Engineering Change Requests (ECRs) and the Feedback Branch
+
+TheKnowledge is generally checked out read-only; write access is not
+granted to consuming users to keep the bondaries between the projects clear.
+Normally, consumers of TheKnowledge do not modify the system when it is
+checked out as a submodule.  Instead, they write up Engineering Change
+Requests (ECRs) as needed, along with local policy override notes making
+those changes effective for the current project, regardless of stock
+standards and behavior for TheKnowledge.  These ECRs are batched and
+submitted to TheKnowledge for implementation at various points.
 
 When TheKnowledge is being maintained directly as its own checkout, keep
 using the normal `trunk` workflow and the usual internal trees such as
@@ -315,13 +348,15 @@ using the normal `trunk` workflow and the usual internal trees such as
 ordinary TheKnowledge maintenance through `Feedback`.
 
 The `Feedback` branch exists for a different situation: a team is working
-primarily inside some other project that uses TheKnowledge and wants to
-check bugs, proposals, general notes, or complaints about TheKnowledge
-back into the TheKnowledge checkout without interrupting the consuming
-project's main work.
+primarily inside some other project that uses TheKnowledge, has been granted
+write access to the system, and wants to check bugs, proposals, general
+notes, or complaints about TheKnowledge back into the TheKnowledge checkout
+without interrupting the consuming project's main work.
 
 When that happens, use the active `TheKnowledge/` submodule checkout inside
-the consuming project. Prefer the helper workflow:
+the consuming project. Prefer the helper workflow, which will push your
+changes into the dedicated Feedback branch for TheKnowledge without
+disrupting the version you are using:
 
 ```bash
 python TheKnowledge/scripts/send_theknowledge_feedback.py prepare \
