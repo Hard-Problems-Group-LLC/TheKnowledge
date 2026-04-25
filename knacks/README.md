@@ -31,5 +31,6 @@ land.
 Current stock areas include `UI/` for interface work, `sandboxing/` for
 process-isolation and execution-boundary guidance, `debugging/` for
 high-level AI-assisted debugging habits that stay language-neutral,
-`licenses/` for software license triage, and `auditing/` for evidence-
-oriented review topics such as software bills of materials.
+`licenses/` for software license triage, `auditing/` for evidence-oriented
+review topics such as software bills of materials, and `performance/` for
+measurement and profiling guidance such as route load and render profiling.

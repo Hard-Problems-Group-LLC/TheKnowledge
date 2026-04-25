@@ -83,6 +83,8 @@ Requirements
   still under discussion.
 - The initial public knack scaffold in TheKnowledge must provide
   `knacks/UI/terminal/` as a home for foundational terminal-related knacks.
+- The initial public knack scaffold in TheKnowledge must provide
+  `knacks/performance/profiling/` as a home for performance-profiling knacks.
 
 Non-Goals
 ---------

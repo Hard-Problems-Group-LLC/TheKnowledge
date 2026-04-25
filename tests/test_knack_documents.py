@@ -11,6 +11,13 @@ EXPECTED_FILES = [
     ROOT / "knacks" / "authoring-guide.md",
     ROOT / "knacks" / "auditing" / "README.md",
     ROOT / "knacks" / "auditing" / "Software-Bill-of-Materials.knack.md",
+    ROOT / "knacks" / "performance" / "README.md",
+    ROOT / "knacks" / "performance" / "profiling" / "README.md",
+    ROOT
+    / "knacks"
+    / "performance"
+    / "profiling"
+    / "WebPageLoadAndRenderProfiling.knack.md",
     ROOT / "knacks" / "debugging" / "README.md",
     ROOT / "knacks" / "debugging" / "HighLevelDebugging.knack.md",
     ROOT / "knacks" / "licenses" / "README.md",
@@ -41,6 +48,19 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     auditing_readme = (ROOT / "knacks" / "auditing" / "README.md").read_text(
         encoding="utf-8"
     )
+    performance_readme = (ROOT / "knacks" / "performance" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    profiling_readme = (
+        ROOT / "knacks" / "performance" / "profiling" / "README.md"
+    ).read_text(encoding="utf-8")
+    profiling_knack = (
+        ROOT
+        / "knacks"
+        / "performance"
+        / "profiling"
+        / "WebPageLoadAndRenderProfiling.knack.md"
+    ).read_text(encoding="utf-8")
     debugging_readme = (ROOT / "knacks" / "debugging" / "README.md").read_text(
         encoding="utf-8"
     )
@@ -75,6 +95,7 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "debugging/" in knack_readme
     assert "licenses/" in knack_readme
     assert "auditing/" in knack_readme
+    assert "performance/" in knack_readme
     assert "HighLevelDebugging.knack.md" in debugging_readme
     assert "AI-assisted debugging" in debugging_readme
     assert "high-level debugging" in debugging_knack.lower()
@@ -96,6 +117,11 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert ".api.rendering.CPP.knack.md" in guide_text
     assert "software bill" in auditing_readme.lower()
     assert "materials generation and auditing" in auditing_readme.lower()
+    assert "measurement and profiling" in performance_readme.lower()
+    assert "webpageloadandrenderprofiling.knack.md" in profiling_readme.lower()
+    assert "playwright" in profiling_knack.lower()
+    assert "quiet window" in profiling_knack.lower()
+    assert "data-load-state" in profiling_knack.lower()
     assert "top twenty" in licenses_readme.lower()
     assert "software-bill-of-materials.knack.md" in licenses_readme.lower()
     assert "top twenty set of software licenses" in licenses_readme.lower()
@@ -126,3 +152,4 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "malformed Markdown documents as" in spec_text
     assert "word-count recommendation overruns as" in spec_text
     assert "knacks/UI/terminal/" in spec_text
+    assert "knacks/performance/profiling/" in spec_text
