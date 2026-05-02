@@ -5,6 +5,26 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-04-29T10:02:39-07:00 - Rebuilt the direct-checkout Python 3.12 tool
+  runtime under `.local/theknowledge-tool-runtime/`, added `.local/` to
+  `.gitignore`, created `.local/bin/theknowledge-python-tools` as a local
+  wrapper path, removed the earlier `.git/`-local runtime, and drafted a new
+  under-review ECR requesting that TheKnowledge's initial setup guidance
+  standardize project-root `.local/` for untracked operator state and local
+  tooling.
+
+*
+  2026-04-23T09:05:24-07:00 - Added a new stock performance/profiling knack,
+  now placed under `knacks/performance/profiling/` as
+  `WebPageLoadAndRenderProfiling.knack.md`, covering how consuming projects
+  should build Playwright-backed utilities that combine browser timings,
+  project-owned readiness markers, and post-render quiet windows to measure
+  when slow web routes are structurally complete, semantically ready, and
+  visually settled. Added the performance/profiling README scaffold,
+  extended the knack scaffold test coverage, and revalidated the changed
+  knack documents.
+
+*
   2026-04-22T12:20:20-07:00 - Normalized proposal records and generated
   proposal starter files to Markdown, renamed the proposal-format standard to
   `standards-and-practices/docs/format-for-proposals.md`, updated the
@@ -66,7 +86,7 @@ the template wording or examples are being revised.
 
 *
 
-  2026-03-30T14:45:54-07:00 - Implemented the imported AutoTomato
+  2026-03-30T14:45:54-07:00 - Implemented the imported external-project
   TheKnowledge ECR set by strengthening the repository documentation
   standard, adding direct-checkout and starter `bootstrap.sh`,
   `bootstrap-stage2.py`, `python-environments.json`, `.python-version`, and
@@ -77,9 +97,9 @@ the template wording or examples are being revised.
 
 *
 
-  2026-03-30T12:13:45-07:00 - Imported AutoTomato's external
+  2026-03-30T12:13:45-07:00 - Imported an external project's
   `ECRs/TheKnowledge/` bundle unchanged under
-  `internal/overrides/proposals/under-review/imported-autotomato-ecrs/` so
+  `internal/overrides/proposals/under-review/imported-ecrs/` so
   the upstream requests now live inside TheKnowledge's reviewable proposal
   state without modifying the source files in the consuming project.
 

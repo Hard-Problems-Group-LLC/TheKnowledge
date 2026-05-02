@@ -18,6 +18,33 @@ Completed Requests
 ------------------
 
 *
+  2026-04-29T10:02:39-07:00
+  Requestor: operator
+  Action: Set up a project-local testing environment that will not pollute
+  tracked files or consuming-project submodule use, move it under a root
+  `.local/` layout, ignore `.local/`, and document the need for starter
+  guidance in a new ECR.
+  Status: completed by Codex on 2026-04-29T10:02:39-07:00. TheKnowledge now
+  uses `.local/theknowledge-tool-runtime/` plus `.local/bin/` for the local
+  direct-checkout tools environment, ignores `.local/`, and carries a new
+  under-review ECR requesting that initial setup guidance standardize the
+  same local-state layout.
+
+*
+  2026-04-23T09:05:24-07:00
+  Requestor: operator
+  Action: Draft a stock knack with common guidance for building
+  project-specific web-page load and render audit utilities that measure
+  semantic readiness and full visual settling rather than just browser load
+  events.
+  Status: completed by Codex on 2026-04-23T09:05:24-07:00. TheKnowledge now
+  includes
+  `knacks/performance/profiling/WebPageLoadAndRenderProfiling.knack.md`,
+  refreshed the performance/profiling knack index, and added scaffold
+  coverage for the new document before running the required knack-oriented
+  validation.
+
+*
   2026-04-01T01:42:16-07:00
   Requestor: operator
   Action: Correct the install-policy docs and implementation so the default
@@ -82,7 +109,7 @@ Completed Requests
 *
   2026-03-30T14:45:54-07:00
   Requestor: operator
-  Action: Implement the imported AutoTomato TheKnowledge ECR set.
+  Action: Implement the imported external-project TheKnowledge ECR set.
   Status: completed by Codex on 2026-03-30T14:45:54-07:00. The repository
   now carries the stronger documentation standard, the managed
   bootstrap/context and `ECRs/TheKnowledge/` starter files, the non-Black
@@ -92,12 +119,12 @@ Completed Requests
 *
   2026-03-30T12:13:45-07:00
   Requestor: operator
-  Action: Import the AutoTomato `ECRs/TheKnowledge/` files into this writable
-  TheKnowledge checkout without modifying or deleting the originals.
+  Action: Import an external project's `ECRs/TheKnowledge/` files into this
+  writable TheKnowledge checkout without modifying or deleting the originals.
   Status: completed by Codex on 2026-03-30T12:13:45-07:00. The source tree is
-  now preserved under `internal/overrides/proposals/under-review/imported-
-  autotomato-ecrs/` with the original README scaffolding and all three ECR
-  documents copied unchanged.
+  now preserved under
+  `internal/overrides/proposals/under-review/imported-ecrs/` with the
+  original README scaffolding and all three ECR documents copied unchanged.
 
 *
   2026-03-27T09:26:42-07:00
