@@ -32,6 +32,16 @@ Once approved, draft the specification in
 Reference the specification from the proposal so the
 chain of custody stays obvious.
 
+Imported ECRs from external projects must be stored in a project-neutral
+`imported-ecrs/` holding directory. Do not include source-project names in the
+holding path or tracked prose; use `an external project` when prose needs to
+refer to the source. Preserve imported ECR basenames as source-facing
+identifiers. Record accepted or implemented imported ECR filenames in
+`project-management/proposals/accepted-ecrs-list.md` or the repository's
+override equivalent so source projects can compare by filename. If an
+incoming ECR filename collides with an existing imported ECR filename, stop
+and ask the operator how to disambiguate before overwriting or renaming.
+
 Backlogging
 -----------
 

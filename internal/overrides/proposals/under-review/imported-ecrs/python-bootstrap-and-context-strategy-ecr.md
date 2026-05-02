@@ -6,7 +6,7 @@ This document is an engineering change request for another Codex instance
 working inside a writable checkout of `TheKnowledge`.
 
 The goal is to turn the Python bootstrap and context-selection approach used
-in AutoTomato into the new normal guidance and starter behavior for
+in an external project into the new normal guidance and starter behavior for
 TheKnowledge.
 
 ## Problem Statement
@@ -36,9 +36,9 @@ Adopt this split as the new normal:
   when pyenv shell integration is active
 - explicit context scripts should exist for both bootstrap and runtime
 
-## AutoTomato Reference Implementation
+## External-Project Reference Implementation
 
-The consuming-project reference implementation now lives in AutoTomato and
+The consuming-project reference implementation now lives in an external project and
 can be used as a concrete model:
 
 - `python-environments.json`
@@ -227,7 +227,7 @@ Use the following as the starting task text in the writable TheKnowledge
 checkout:
 
 ```text
-Adopt the AutoTomato-style Python bootstrap split as the new normal for
+Adopt the external project-style Python bootstrap split as the new normal for
 TheKnowledge.
 
 Implement a JSON-driven Python version/env config, a top-level bootstrap.sh
@@ -241,6 +241,6 @@ Update TheKnowledge's starter docs and guidance so Python 3.9 is the
 bootstrap/setup floor, Python 3.12 is the runtime/tooling target, and pyenv +
 pyenv-virtualenv is the standard bridge between them.
 
-Use AutoTomato's implementation as a reference model, but adapt it cleanly to
+Use the external project's implementation as a reference model, but adapt it cleanly to
 TheKnowledge's structure rather than copying blindly.
 ```

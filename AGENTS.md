@@ -45,6 +45,31 @@ defines for this repository's live state.
   non-destructive safety boundaries in active context rather than
   summarizing them away.
 
+## Restricted External-Project Names
+- TheKnowledge must not name external client projects that include
+  TheKnowledge. In maintained TheKnowledge content, write `an external
+  project` instead of a client-project name unless an operator explicitly
+  approves a narrow exception.
+- Keep the restricted-name source list local and untracked. Use
+  `.theknowledge-restricted-names.local` in this checkout, or an equivalent
+  out-of-tree local list, and never add that list to Git.
+- Do not flag the restricted-name list itself. Validation or review scans
+  must skip the configured local list path and any other explicitly local
+  policy-input path.
+- Treat path-component hits as hard stops. If a restricted name appears as a
+  directory or filename component, stop, report the offending path class, and
+  ask the operator how to resolve it before renaming, deleting, redacting, or
+  moving anything.
+- For non-path prose or code references, replace the restricted name with
+  `an external project` or another operator-approved generic phrase.
+- Imported ECR holding directories must use project-neutral names such as
+  `imported-ecrs/`, not source-project names. Keep imported ECR basenames
+  unchanged as source-facing identifiers, and track accepted or implemented
+  files in `internal/overrides/proposals/accepted-ecrs-list.md`.
+- If an imported ECR filename collides with an existing imported ECR
+  filename, stop and ask the operator how to disambiguate before overwriting,
+  renaming, merging, or dropping either file.
+
 ## Workflow Profiling
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the

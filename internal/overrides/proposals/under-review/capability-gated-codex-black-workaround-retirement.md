@@ -67,8 +67,10 @@ concurrency path."
 - The current Codex session sets `CODEX_CI=1`,
   `CODEX_MANAGED_BY_NPM=1`, and `CODEX_SANDBOX_NETWORK_DISABLED=1`.
 - Local Codex CLI version is `0.123.0-alpha.8`.
-- The managed Python tool runtime used for experiments was
-  `/home/mheck/.pyenv/versions/autotomato-runtime-3.12/bin/python`.
+- The experiments should use TheKnowledge's configured steady-state Python
+  tools runtime, resolved through `tool_validation_profiles.json` and
+  explicit documented overrides such as `THEKNOWLEDGE_PYTHON_TOOLS` when
+  the ambient shell does not expose a compliant runtime.
 - Black version was `26.3.1`; Ruff version was `0.15.7`.
 - The default `python` in this shell is 3.9 and does not provide Black or
   Ruff, so the probe must use the managed steady-state tool runtime.
@@ -174,5 +176,5 @@ shows the direct multi-file Black path is safe.
 
 ## Decision Log
 - 2026-04-22T11:54:55-07:00 - Drafted from non-destructive local
-  experiments after a Codex CLI update and `codex-wrangler`
-  `--set-reasonable-permissions` changed the sandbox baseline.
+  experiments after a Codex CLI update and an operator-run
+  permissions-preparation helper changed the sandbox baseline.

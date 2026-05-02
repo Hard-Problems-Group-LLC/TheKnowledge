@@ -28,6 +28,7 @@ Record Map
 - `deferred.txt`
 - `ai-human-requests.txt`
 - `proposals/README.md`
+- `proposals/accepted-ecrs-list.md`
 - `proposals/approved/README.md`
 - `proposals/rejected/README.md`
 - `proposals/deferred/README.md`

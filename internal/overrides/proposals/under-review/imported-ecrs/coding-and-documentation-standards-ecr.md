@@ -74,9 +74,9 @@ When a language has native docstrings or API comment conventions, the
 documentation should live there. When it does not, the same standard should
 be met with block comments or other idiomatic equivalents.
 
-## AutoTomato Reference
+## External-Project Reference
 
-AutoTomato now carries a local override in its top-level `AGENTS.md` that
+An external project now carries a local override in its top-level `AGENTS.md` that
 captures this stronger standard for the consuming project. That override can
 be used as a starting reference for the wording and intent, but TheKnowledge
 should adapt the policy to its own repository structure and template model.
@@ -103,7 +103,7 @@ states:
 - Python `3.12` best practices apply to normal runtime and tooling paths
 
 This should align with the Python bootstrap split already proposed in the
-separate AutoTomato handoff for startup scripts.
+separate an external project handoff for startup scripts.
 
 ### 3. Update starter and template guidance
 
@@ -160,7 +160,7 @@ Use the following as the starting task text in the writable TheKnowledge
 checkout:
 
 ```text
-Adopt AutoTomato's stronger coding and documentation standard as the new
+Adopt the external project's stronger coding and documentation standard as the new
 normal for TheKnowledge.
 
 Update TheKnowledge so bootstrap/setup code follows Python 3.9 best
