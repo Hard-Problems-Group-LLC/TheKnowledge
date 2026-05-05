@@ -8,6 +8,12 @@ TheKnowledge has accepted or implemented. External projects can compare that
 filename list against their own submitted ECRs without TheKnowledge naming
 the source project.
 
+Treat `under-review/imported-ecrs/` as the raw intake inbox for imported
+upstream requests. Deconflict those intake records into top-level actionable
+TheKnowledge proposals under `under-review/` and track the mapping in the
+imported-ECR deconfliction index. Keep the raw imported records for
+provenance unless a later approved archival policy says otherwise.
+
 Use the status directories to reflect each proposal's current state:
 - `approved/`
 - `rejected/`

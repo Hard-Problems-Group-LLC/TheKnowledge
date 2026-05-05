@@ -9,8 +9,14 @@ Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-31; AGENTS.md section
 "Feedback Branch"; README.md section "Feedback Branch";
 scripts/send_theknowledge_feedback.py;
+internal/overrides/proposals/under-review/
+structured-ecr-intake-lifecycle-and-deconfliction.md;
 standards-and-practices/docs/specifications/
 theknowledge_submodule_workflows.txt
+
+Scope note: this proposal is now the narrower branch-policy companion to
+`structured-ecr-intake-lifecycle-and-deconfliction.md`, which covers the
+broader local ECR directory lifecycle and raw-import deconfliction process.
 
 ## Problem Statement
 TheKnowledge currently routes cross-project feedback through a special branch

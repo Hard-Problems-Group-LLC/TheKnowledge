@@ -12,7 +12,9 @@ cross-distro bootstrap investigation in `codex-wrangler`; README.md section
 standards-and-practices/docs/development-workflow.txt;
 standards-and-practices/docs/AI-sandbox-configuration.txt;
 standards-and-practices/docs/specifications/
-pinned_python_dev_tool_versions.txt
+pinned_python_dev_tool_versions.txt;
+internal/overrides/proposals/under-review/imported-ecrs/
+python-bootstrap-and-context-strategy-ecr.md
 
 ## Problem Statement
 TheKnowledge currently treats `scripts/install_prerequisites.sh` plus
