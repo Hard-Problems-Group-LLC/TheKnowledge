@@ -315,6 +315,33 @@ def test_resolve_cache_path_maps_dot_git_prefix_through_real_git_dir(
     assert resolved == git_dir / "project-quality-cache.json"
 
 
+def test_resolve_cache_path_falls_back_to_dot_cache_without_git_dir() -> None:
+    module = _load_script_module()
+    repo = Path("/tmp/not-a-git-repo")
+
+    resolved = module.resolve_cache_path(repo, ".git/project-quality-cache.json")
+
+    assert resolved == repo / ".cache" / "project-quality-cache.json"
+
+
+def test_resolve_cache_path_falls_back_when_git_cache_target_is_not_writable(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    module = _load_script_module()
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git_dir = tmp_path / "actual-git-dir"
+    git_dir.mkdir()
+
+    monkeypatch.setattr(module, "resolve_git_dir", lambda _: git_dir)
+    monkeypatch.setattr(module, "cache_target_is_writable", lambda _: False)
+
+    resolved = module.resolve_cache_path(repo, ".git/project-quality-cache.json")
+
+    assert resolved == repo / ".cache" / "project-quality-cache.json"
+
+
 def test_quality_gate_serializes_black_in_affected_codex_sandbox(
     tmp_path: Path,
 ) -> None:

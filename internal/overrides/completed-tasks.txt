@@ -5,6 +5,41 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-05-02T16:20:35-07:00 - Implemented the approved project-root
+  `.local/`, TheKnowledge runtime-isolation, and consuming-project
+  validation/wrapper proposals by adding
+  `scripts/ensure_theknowledge_tool_runtime.py`, wiring direct-checkout
+  timeout and quality-gate runs through a checkout-local Python 3.12 tools
+  runtime under `.local/theknowledge-tool-runtime/`, fixing the base-
+  interpreter resolver so bare Python 3.12+ can bootstrap the managed tools
+  runtime, teaching consuming-project helpers to resolve vendored wrapper
+  paths safely, and falling back from Git-private cache paths to `.cache/`
+  when no usable Git directory exists. Updated the managed starter and docs
+  to refresh a `.gitignore` block for `.local/`, local restricted-name
+  inputs, and proactive Codex artifact ignores, documented
+  `.local/ai-local-notes.*` as local-only policy inputs, promoted the three
+  implemented proposals to `approved/`, and recorded the resolved imported
+  ECR filenames in `internal/overrides/proposals/accepted-ecrs-list.md`.
+
+*
+  2026-05-02T15:50:17-07:00 - Added approved proposal
+  `codex-wrangler-awareness-and-proactive-ignore-baseline.md` so
+  TheKnowledge now records codex-wrangler awareness and proactive ignore
+  coverage for known local Codex artifacts as baseline policy for direct
+  checkouts and consuming-project starter material.
+
+*
+  2026-05-02T01:05:09-07:00 - Deconflicted the raw imported ECR intake by
+  adding a deconfliction map, promoting the overlapping imported topics into
+  top-level under-review proposals, and explicitly linking the remaining
+  bootstrap and feedback-branch proposals to their imported intake sources.
+  Expanded the managed ECR guidance from a flat `ECRs/TheKnowledge/`
+  holding area to a status-based `open/`, `in-progress/`, and `closed/`
+  lifecycle, aligned the canonical docs plus starter ECR scaffolding with
+  that lifecycle, and updated the starter/doc-wiring tests to cover the new
+  structure.
+
+*
   2026-04-29T10:02:39-07:00 - Rebuilt the direct-checkout Python 3.12 tool
   runtime under `.local/theknowledge-tool-runtime/`, added `.local/` to
   `.gitignore`, created `.local/bin/theknowledge-python-tools` as a local

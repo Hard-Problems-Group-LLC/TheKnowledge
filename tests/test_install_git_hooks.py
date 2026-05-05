@@ -86,3 +86,38 @@ def test_install_git_hooks_wraps_non_shell_existing_hook(tmp_path: Path) -> None
     wrapper = hook.read_text(encoding="utf-8")
     assert "project quality gate pre-push" in wrapper
     assert ".git/hooks/pre-push.local" in wrapper
+
+
+def test_install_git_hooks_can_target_vendored_theknowledge_scripts(
+    tmp_path: Path,
+) -> None:
+    hooks_dir = tmp_path / ".git" / "hooks"
+    hooks_dir.mkdir(parents=True)
+    knowledge_scripts = tmp_path / "TheKnowledge" / "scripts"
+    knowledge_scripts.mkdir(parents=True)
+    (knowledge_scripts / "run_tool_with_timeout.py").write_text("", encoding="utf-8")
+    (knowledge_scripts / "run_quality_gate_cached.py").write_text(
+        "",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(INSTALLER),
+            "--repo-root",
+            str(tmp_path),
+            "--knowledge-root",
+            "TheKnowledge",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+
+    assert result.returncode == 0
+    pre_commit = (hooks_dir / "pre-commit").read_text(encoding="utf-8")
+    pre_push = (hooks_dir / "pre-push").read_text(encoding="utf-8")
+    assert "TheKnowledge/scripts/run_tool_with_timeout.py entropy_check" in pre_commit
+    assert "TheKnowledge/scripts/run_quality_gate_cached.py --repo-root ." in pre_push

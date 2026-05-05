@@ -41,6 +41,10 @@ Requirements
   versions.
 - `scripts/tool_validation_profiles.py` must exist and must expose the managed
   runtime-selection logic that consuming projects inherit with the starter.
+- `scripts/ensure_theknowledge_tool_runtime.py` must exist for TheKnowledge's
+  own direct-checkout maintenance path and must provision the pinned tooling
+  under `.local/theknowledge-tool-runtime/` rather than borrowing another
+  project's runtime.
 - `install.sh`, `bootstrap.sh`, `scripts/install-stage-2.py`,
   `bootstrap-stage2.py`, `.python-version`, `set-context-bootstrap.sh`, and
   `set-context.sh` must exist at the repository root.
@@ -60,6 +64,9 @@ Requirements
   `standards-and-practices/docs/installation.txt` must explain how direct
   TheKnowledge maintenance and consuming-project starter bootstraps keep the
   toolchain pinned and reproducible.
+- The starter-managed `.gitignore` block must ignore `.local/`,
+  `.theknowledge-restricted-names.local`, and known local Codex artifacts so
+  pinned-tool maintenance state and local policy inputs stay untracked.
 - Tests must verify that:
   - the `pyproject.toml` dev dependencies remain exact pins;
   - `templates/requirements-dev.txt` stays in sync with those pins; and

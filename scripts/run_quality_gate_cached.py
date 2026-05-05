@@ -28,6 +28,11 @@ except ImportError:  # pragma: no cover - import path varies by entry point.
 
 SCHEMA_VERSION = "1.0.0"
 DEFAULT_EXECUTION_CONSTRAINTS_FILE = "tool_execution_constraints.json"
+ENSURE_TOOL_RUNTIME_SCRIPT = (
+    Path(__file__).resolve().with_name("ensure_theknowledge_tool_runtime.py")
+)
+TIMEOUT_WRAPPER_SCRIPT = Path(__file__).resolve().with_name("run_tool_with_timeout.py")
+NON_GIT_CACHE_DIR = ".cache"
 
 DEFAULT_EXCLUDES = {
     ".git",
@@ -291,6 +296,8 @@ def load_cache(path: Path) -> Dict[str, object]:
 
 
 def resolve_git_dir(repo_root: Path) -> Path | None:
+    if not repo_root.exists():
+        return None
     result = subprocess.run(
         ["git", "rev-parse", "--git-dir"],
         cwd=repo_root,
@@ -307,6 +314,13 @@ def resolve_git_dir(repo_root: Path) -> Path | None:
     return git_dir
 
 
+def cache_target_is_writable(path: Path) -> bool:
+    candidate = path.parent
+    while not candidate.exists() and candidate != candidate.parent:
+        candidate = candidate.parent
+    return os.access(candidate, os.W_OK)
+
+
 def resolve_cache_path(repo_root: Path, cache_file: str) -> Path:
     configured_path = Path(cache_file)
     if configured_path.is_absolute():
@@ -316,10 +330,51 @@ def resolve_cache_path(repo_root: Path, cache_file: str) -> Path:
         git_dir = resolve_git_dir(repo_root)
         if git_dir is not None:
             if len(configured_path.parts) == 1:
-                return git_dir
-            return git_dir.joinpath(*configured_path.parts[1:])
+                git_path = git_dir
+            else:
+                git_path = git_dir.joinpath(*configured_path.parts[1:])
+            if cache_target_is_writable(git_path):
+                return git_path
+        fallback_parts = list(configured_path.parts[1:]) or [
+            "project-quality-cache.json"
+        ]
+        return (repo_root / NON_GIT_CACHE_DIR / Path(*fallback_parts)).resolve()
 
     return (repo_root / configured_path).resolve()
+
+
+def is_theknowledge_direct_checkout(repo_root: Path) -> bool:
+    return (repo_root / "internal" / "overrides" / "README.txt").is_file()
+
+
+def configure_direct_checkout_runtime(repo_root: Path) -> None:
+    if not is_theknowledge_direct_checkout(repo_root):
+        return
+    if os.environ.get("THEKNOWLEDGE_PYTHON_TOOLS"):
+        return
+    result = subprocess.run(
+        [sys.executable, str(ENSURE_TOOL_RUNTIME_SCRIPT), "--print-python"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "").strip()
+        raise RuntimeError(
+            "failed to ensure the direct-checkout tool runtime: {}".format(message)
+        )
+    runtime_python = (result.stdout or "").strip()
+    if not runtime_python:
+        raise RuntimeError("tool-runtime helper did not print an interpreter path")
+    os.environ["THEKNOWLEDGE_PYTHON_TOOLS"] = runtime_python
+    runtime_bin = str(Path(runtime_python).resolve().parent)
+    current_path = os.environ.get("PATH", "")
+    path_parts = current_path.split(os.pathsep) if current_path else []
+    if runtime_bin not in path_parts:
+        os.environ["PATH"] = (
+            runtime_bin + os.pathsep + current_path if current_path else runtime_bin
+        )
 
 
 def save_cache(path: Path, data: Dict[str, object]) -> None:
@@ -339,7 +394,11 @@ def run_check(
     check_name: str,
     paths: Sequence[str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    command = [sys.executable, "scripts/run_tool_with_timeout.py", check_name]
+    repo_local_wrapper = repo_root / "scripts" / "run_tool_with_timeout.py"
+    wrapper_script = (
+        repo_local_wrapper if repo_local_wrapper.is_file() else TIMEOUT_WRAPPER_SCRIPT
+    )
+    command = [sys.executable, str(wrapper_script), check_name]
     if paths:
         command.extend(["--", *paths])
     return subprocess.run(
@@ -416,6 +475,11 @@ def now_iso() -> str:
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     repo_root = Path(args.repo_root).resolve()
+    try:
+        configure_direct_checkout_runtime(repo_root)
+    except RuntimeError as error:
+        print(f"[quality-gate] FAIL: {error}", file=sys.stderr)
+        return 2
     cache_path = resolve_cache_path(repo_root, args.cache_file)
     constraints_path = repo_root / DEFAULT_EXECUTION_CONSTRAINTS_FILE
 

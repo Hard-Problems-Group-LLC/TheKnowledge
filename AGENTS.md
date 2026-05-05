@@ -9,7 +9,8 @@ sequencing and status tracking. Then read
 `templates/project-management/git-flow.txt` for branch and merge operations.
 When working inside TheKnowledge itself, interpret `{{THEKNOWLEDGE_ROOT}}` in
 that template as the repository root. Finally, check
-`.git/codex-local-notes.txt` for local-only operator notes when present. When
+`.git/codex-local-notes.txt`, `.local/ai-local-notes.md`, and
+`.local/ai-local-notes.txt` for local-only operator notes when present. When
 `internal/README.md` exists, read it next. When
 `internal/overrides/README.txt` exists, use the override record locations it
 defines for this repository's live state.
@@ -44,6 +45,23 @@ defines for this repository's live state.
 - Keep the live-state override record map and any repository-specific
   non-destructive safety boundaries in active context rather than
   summarizing them away.
+
+## Local-Only Policy Inputs
+- Project-root `.local/` is the standard home for checkout-local operator
+  state and untracked policy inputs.
+- Load `.local/ai-local-notes.md` or `.local/ai-local-notes.txt` before broad
+  automation, validation, staging, or cleanup when either file exists.
+- Treat `.git/codex-local-notes.txt`, `.local/ai-local-notes.md`,
+  `.local/ai-local-notes.txt`, and `.theknowledge-restricted-names.local` as
+  local-only policy inputs: obey them when present, never add them to Git,
+  and do not copy their contents into tracked docs unless the operator
+  explicitly directs that.
+- Keep local wrappers and mutable maintenance tooling under `.local/`, for
+  example `.local/bin/` and `.local/theknowledge-tool-runtime/`, rather than
+  under `.git/`.
+- Keep the managed `.gitignore` baseline in place so `.local/`,
+  `.theknowledge-restricted-names.local`, and known local Codex artifacts are
+  ignored even before those paths exist.
 
 ## Restricted External-Project Names
 - TheKnowledge must not name external client projects that include
@@ -146,9 +164,13 @@ defines for this repository's live state.
   Use `--push` only when the configured remote push URL is writable for the
   current operator.
 - When that consuming-project checkout is effectively read-only for upstream
-  maintenance, draft the request first under `ECRs/TheKnowledge/` in the
-  consuming project so the handoff stays reviewable before it reaches a
-  writable TheKnowledge checkout.
+  maintenance, draft the request first under `ECRs/TheKnowledge/open/` in
+  the consuming project so the handoff stays reviewable before it reaches a
+  writable TheKnowledge checkout. Move the record to
+  `ECRs/TheKnowledge/in-progress/` when active upstream handling begins, and
+  move it to `ECRs/TheKnowledge/closed/` when a TheKnowledge proposal,
+  implementation, rejection, or deferral record resolves it. Closed records
+  should note which TheKnowledge record or commit settled the request.
 - When maintaining TheKnowledge directly as its own checkout, keep using
   the normal `trunk` workflow plus `internal/overrides/`, proposal
   records, and bug tracking. Do not route routine direct-checkout
@@ -170,8 +192,10 @@ defines for this repository's live state.
 - The validator checks changed knack files for basic Markdown
   well-formedness and high-entropy findings as errors, and reports word-count
   recommendation overruns as warnings.
-- The validator uses `.git/knack-validation-cache.json` so unchanged knack
-  files can be skipped.
+- The validator uses `.git/knack-validation-cache.json` when a writable
+  Git-backed cache path is available and falls back to
+  `.cache/knack-validation-cache.json` otherwise so unchanged knack files can
+  be skipped safely in non-Git contexts.
 - Projects that use TheKnowledge may keep additional proprietary or
   third-party knacks in the consuming project's top-level `knacks/`
   directory.
@@ -224,6 +248,19 @@ Use standardized operations where available:
   Use `--resume-review-prompts` to re-enable prompts for the current shell
   session.
 - Pull: `python scripts/git_veteran_pull.py`
+
+## Local Tool Runtime
+- When maintaining TheKnowledge directly and no compliant steady-state Python
+  tools runtime is available yet, run
+  `python scripts/ensure_theknowledge_tool_runtime.py` to create or refresh
+  `.local/theknowledge-tool-runtime/`.
+- `scripts/run_tool_with_timeout.py` and
+  `scripts/run_quality_gate_cached.py` will ensure that checkout-local runtime
+  automatically in a direct TheKnowledge checkout when no deliberate
+  `THEKNOWLEDGE_PYTHON_TOOLS` override is already set.
+- Do not borrow another project's Python environment merely because it
+  happens to satisfy the required imports. Fix the local TheKnowledge runtime
+  instead.
 
 Shortcut:
 - `ACP` means "add, commit, push" through the repository's VCS workflow. It

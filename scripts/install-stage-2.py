@@ -365,7 +365,14 @@ def install_git_hooks(venv_python: Path) -> None:
     )
     for installer in candidates:
         if installer.is_file():
-            run([str(venv_python), str(installer)], cwd=REPO_ROOT)
+            command = [str(venv_python), str(installer), "--repo-root", str(REPO_ROOT)]
+            try:
+                knowledge_root = installer.parent.parent.relative_to(REPO_ROOT)
+            except ValueError:
+                knowledge_root = None
+            if knowledge_root is not None and knowledge_root != Path("."):
+                command.extend(["--knowledge-root", knowledge_root.as_posix()])
+            run(command, cwd=REPO_ROOT)
             return
 
 

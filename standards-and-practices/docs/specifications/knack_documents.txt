@@ -72,8 +72,9 @@ Requirements
 - Lightweight knack validation should run only for knack files whose content
   changed, using a hash cache when practical.
 - The default knack-validation hash cache path should be
-  `.git/knack-validation-cache.json`, and that cache path should be ignored by
-  Git.
+  `.git/knack-validation-cache.json` when a writable Git-backed cache path is
+  available, or `.cache/knack-validation-cache.json` otherwise, and those
+  cache paths should be ignored by Git.
 - Failing unit tests for knack naming or size violations must be recorded in
   bug tracking so the issue is not lost.
 - Knack naming and size-test bugs should not default to serious or

@@ -36,6 +36,9 @@ except ImportError:  # pragma: no cover - import path varies by entry point.
 
 
 CONFIG_FILE = Path(__file__).resolve().with_name("tool_timeouts.json")
+ENSURE_TOOL_RUNTIME_SCRIPT = (
+    Path(__file__).resolve().with_name("ensure_theknowledge_tool_runtime.py")
+)
 EXECUTION_CONSTRAINTS_FILE = "tool_execution_constraints.json"
 BLACK_INCLUDE_IGNORED_FLAG = "--include-ignored"
 BLACK_LONG_OPTIONS_WITH_VALUE = {
@@ -67,6 +70,40 @@ def _load_config() -> Dict[str, object]:
     if not isinstance(data, dict):
         raise ValueError("timeout configuration must be a JSON object")
     return data
+
+
+def _is_theknowledge_direct_checkout(repo_root: Path) -> bool:
+    return (repo_root / "internal" / "overrides" / "README.txt").is_file()
+
+
+def _configure_direct_checkout_runtime(repo_root: Path) -> None:
+    if not _is_theknowledge_direct_checkout(repo_root):
+        return
+    if os.environ.get("THEKNOWLEDGE_PYTHON_TOOLS"):
+        return
+    result = subprocess.run(
+        [sys.executable, str(ENSURE_TOOL_RUNTIME_SCRIPT), "--print-python"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        message = (result.stderr or result.stdout or "").strip()
+        raise RuntimeError(
+            "failed to ensure the direct-checkout tool runtime: {}".format(message)
+        )
+    runtime_python = (result.stdout or "").strip()
+    if not runtime_python:
+        raise RuntimeError("tool-runtime helper did not print an interpreter path")
+    os.environ["THEKNOWLEDGE_PYTHON_TOOLS"] = runtime_python
+    runtime_bin = str(Path(runtime_python).resolve().parent)
+    current_path = os.environ.get("PATH", "")
+    path_parts = current_path.split(os.pathsep) if current_path else []
+    if runtime_bin not in path_parts:
+        os.environ["PATH"] = (
+            runtime_bin + os.pathsep + current_path if current_path else runtime_bin
+        )
 
 
 def _parse_args(argv: Sequence[str]) -> argparse.Namespace:
@@ -111,6 +148,10 @@ def _resolve_tool_run(
     use_wrapper_python = entry.get("use_wrapper_python", False)
     if not isinstance(use_wrapper_python, bool):
         raise ValueError("use_wrapper_python must be a boolean")
+
+    runtime_policy = entry.get("runtime_policy")
+    if runtime_policy is not None and not isinstance(runtime_policy, str):
+        raise ValueError("runtime_policy must be a string when present")
 
     replace_default_scope_with_args = entry.get(
         "replace_default_scope_with_args", False
@@ -165,7 +206,11 @@ def _resolve_tool_run(
         args = []
 
     resolved_command += args
-    if use_wrapper_python and resolved_command[:1] == ["python"]:
+    if runtime_policy and resolved_command[:1] == ["python"]:
+        resolved_command[0] = resolve_runtime_policy_executable(
+            Path.cwd(), runtime_policy
+        )
+    elif use_wrapper_python and resolved_command[:1] == ["python"]:
         resolved_command[0] = sys.executable
 
     return resolved_command, timeout, retries, cleanup_patterns
@@ -512,6 +557,11 @@ def _maybe_run_black(
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv or sys.argv[1:])
+    try:
+        _configure_direct_checkout_runtime(Path.cwd())
+    except RuntimeError as error:
+        print(f"[timeout-wrapper] {error}", file=sys.stderr)
+        return 2
     if args.tool == "black":
         return _maybe_run_black(args.timeout_seconds, args.tool_args)
 

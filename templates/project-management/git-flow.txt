@@ -127,6 +127,10 @@ Operational Notes
   documented in local operator notes.
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
   through `{{THEKNOWLEDGE_ROOT}}/scripts/install_git_hooks.py`.
+- Keep local-only operator state and AI note files under `.local/`, and do
+  not stage or push them. The managed `.gitignore` block should already
+  ignore `.local/`, `.theknowledge-restricted-names.local`, and known local
+  Codex artifacts before those paths exist.
 - If the project is using the managed starter Python toolchain, rerun
   `./install.sh` whenever `install.sh`, `bootstrap.sh`,
   `scripts/install-stage-2.py`, `bootstrap-stage2.py`,
@@ -137,15 +141,20 @@ Operational Notes
   `scripts/tool_validation_profiles.py` changes, or when the local Black,
   Ruff, or pytest install drifts from the pinned defaults.
 - When TheKnowledge is read-only in the consuming project and an upstream
-  request needs local staging first, record it under `ECRs/TheKnowledge/`
-  before carrying it into a writable TheKnowledge checkout or the
-  `Feedback` branch workflow.
+  request needs local staging first, record it under
+  `ECRs/TheKnowledge/open/` before carrying it into a writable TheKnowledge
+  checkout or the `Feedback` branch workflow. Move it to
+  `ECRs/TheKnowledge/in-progress/` during active upstream handling and to
+  `ECRs/TheKnowledge/closed/` once the upstream disposition is recorded.
 - When updating a TheKnowledge submodule inside a consuming project, prefer
   `python {{THEKNOWLEDGE_ROOT}}/scripts/update_theknowledge_submodule.py`
   `--project-root . --knowledge-root {{THEKNOWLEDGE_ROOT}}`. That helper
   fetches and briefly reviews the incoming upstream `trunk` delta, adopts the
   reviewed version, reconciles managed-file drift, and leaves a reviewable
   parent-repo diff before commit.
+- When refreshing managed starter files manually after a submodule update,
+  include `--template .gitignore` so the managed ignore baseline stays in
+  sync with starter guidance.
 - Keep local working trees clean before broad integration work when practical.
 - Record significant merge operations and outcomes in project-management logs
   when they affect backlog status, bug status, or delivery traceability.

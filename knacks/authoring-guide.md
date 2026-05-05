@@ -78,7 +78,9 @@ separate project-specific requirement explicitly demands more.
 Use `scripts/validate_knacks.py` to validate changed knack files. The validator
 checks basic Markdown well-formedness and high-entropy findings as errors, and
 reports word-count recommendation overruns as warnings. It uses a hash cache at
-`.git/knack-validation-cache.json` so unchanged knack files can be skipped.
+`.git/knack-validation-cache.json` when a writable Git-backed cache path is
+available, or `.cache/knack-validation-cache.json` otherwise, so unchanged
+knack files can be skipped.
 
 Rationale: drafting a knack should trigger only the checks that protect the
 library's usability and safety. Broader code-oriented test suites are usually

@@ -79,6 +79,7 @@ def test_report_managed_agents_drift_passes_when_sections_match(
     assert result.returncode == 0
     assert "managed header is up to date" in result.stdout
     assert "managed footer is up to date" in result.stdout
+    assert "managed file .gitignore is up to date" in result.stdout
     assert "managed file .python-version is up to date" in result.stdout
     assert "managed file install.sh is up to date" in result.stdout
     assert "managed file bootstrap.sh is up to date" in result.stdout
@@ -115,7 +116,7 @@ def test_report_managed_agents_drift_reports_header_or_footer_changes(
     assert "DIFF footer" in result.stdout
     assert (
         "initial-setup.py --project-root . --knowledge-root TheKnowledge "
-        "--force --template .python-version --template ECRs --template "
+        "--force --template .gitignore --template .python-version --template ECRs --template "
         "install.sh --template bootstrap.sh --template bootstrap-stage2.py "
         "--template python-environments.json --template requirements-dev.txt "
         "--template scripts --template scripts/install-stage-2.py --template "
@@ -152,3 +153,31 @@ def test_report_managed_agents_drift_reports_managed_file_changes(
     assert result.returncode == 1
     assert "managed file tool_execution_constraints.json differs" in result.stdout
     assert "DIFF file-tool_execution_constraints.json" in result.stdout
+
+
+def test_report_managed_agents_drift_reports_gitignore_block_changes(
+    tmp_path: Path,
+) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    knowledge_root = "TheKnowledge"
+    slug = project_slug(project)
+    header = render_file(TEMPLATES / "AGENTS-header.md", knowledge_root, slug).decode(
+        "utf-8"
+    )
+    footer = render_file(TEMPLATES / "AGENTS-footer.md", knowledge_root, slug).decode(
+        "utf-8"
+    )
+    _write_agents(project, header, footer)
+    _write_managed_starter_files(project, knowledge_root)
+    (project / ".gitignore").write_text(
+        "# >>> THEKNOWLEDGE_MANAGED_IGNORES_START >>>\n.local/\n"
+        "# <<< THEKNOWLEDGE_MANAGED_IGNORES_END <<<\n",
+        encoding="utf-8",
+    )
+
+    result = _run(project, "--knowledge-root", knowledge_root)
+
+    assert result.returncode == 1
+    assert "managed file .gitignore differs" in result.stdout
+    assert "DIFF file-.gitignore" in result.stdout

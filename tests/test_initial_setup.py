@@ -59,12 +59,18 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     install_sh = project_root / "install.sh"
     bootstrap = project_root / "bootstrap.sh"
     bootstrap_stage2 = project_root / "bootstrap-stage2.py"
+    gitignore = project_root / ".gitignore"
     python_version = project_root / ".python-version"
     python_environments = project_root / "python-environments.json"
     set_context = project_root / "set-context.sh"
     set_context_bootstrap = project_root / "set-context-bootstrap.sh"
     ecr_root_readme = project_root / "ECRs" / "README.md"
     ecr_tk_readme = project_root / "ECRs" / "TheKnowledge" / "README.md"
+    ecr_tk_open = project_root / "ECRs" / "TheKnowledge" / "open" / "README.md"
+    ecr_tk_in_progress = (
+        project_root / "ECRs" / "TheKnowledge" / "in-progress" / "README.md"
+    )
+    ecr_tk_closed = project_root / "ECRs" / "TheKnowledge" / "closed" / "README.md"
     requirements_dev = project_root / "requirements-dev.txt"
     dev_setup = project_root / "scripts" / "dev_setup.py"
     install_stage_2 = project_root / "scripts" / "install-stage-2.py"
@@ -94,12 +100,16 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert install_sh.is_file()
     assert bootstrap.is_file()
     assert bootstrap_stage2.is_file()
+    assert gitignore.is_file()
     assert python_version.is_file()
     assert python_environments.is_file()
     assert set_context.is_file()
     assert set_context_bootstrap.is_file()
     assert ecr_root_readme.is_file()
     assert ecr_tk_readme.is_file()
+    assert ecr_tk_open.is_file()
+    assert ecr_tk_in_progress.is_file()
+    assert ecr_tk_closed.is_file()
     assert requirements_dev.is_file()
     assert dev_setup.is_file()
     assert install_stage_2.is_file()
@@ -130,6 +140,9 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "tool_execution_constraints.json" in agents.read_text(encoding="utf-8")
     assert "tool_validation_profiles.json" in agents.read_text(encoding="utf-8")
     assert "ECRs/TheKnowledge/" in agents.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/open/" in agents.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/in-progress/" in agents.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/closed/" in agents.read_text(encoding="utf-8")
     assert "must load `TheKnowledge/AGENTS.md` before running automated" in (
         agents.read_text(encoding="utf-8")
     )
@@ -160,8 +173,19 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "python TheKnowledge/scripts/run_tool_with_timeout.py black" in (
         git_flow.read_text(encoding="utf-8")
     )
+    gitignore_text = gitignore.read_text(encoding="utf-8")
+    assert "THEKNOWLEDGE_MANAGED_IGNORES_START" in gitignore_text
+    assert ".cache/" in gitignore_text
+    assert ".local/" in gitignore_text
+    assert ".theknowledge-restricted-names.local" in gitignore_text
+    assert ".codex-local/" in gitignore_text
+    assert ".codex-home/" in gitignore_text
+    assert ".codex" in gitignore_text
+    assert "bin/codex-local" in gitignore_text
+    assert "README-LOCAL-Start-Codex.md" in gitignore_text
     assert "./install.sh" in git_flow.read_text(encoding="utf-8")
     assert "ECRs/TheKnowledge/" in git_flow.read_text(encoding="utf-8")
+    assert "ECRs/TheKnowledge/open/" in git_flow.read_text(encoding="utf-8")
     assert "update_theknowledge_submodule.py" in git_flow.read_text(encoding="utf-8")
     assert "`ACP` is accepted operator shorthand" in git_flow.read_text(
         encoding="utf-8"
@@ -177,6 +201,12 @@ def test_initial_setup_installs_project_management_templates(tmp_path: Path) -> 
     assert "PYENV_VERSION" in set_context_bootstrap.read_text(encoding="utf-8")
     assert "ECRs/TheKnowledge/" in ecr_root_readme.read_text(encoding="utf-8")
     assert "read-only" in ecr_tk_readme.read_text(encoding="utf-8")
+    assert "accepted-ecrs-list.md" in ecr_tk_readme.read_text(encoding="utf-8")
+    assert "not yet under active upstream handling" in ecr_tk_open.read_text(
+        encoding="utf-8"
+    )
+    assert "actively being carried" in ecr_tk_in_progress.read_text(encoding="utf-8")
+    assert "upstream disposition" in ecr_tk_closed.read_text(encoding="utf-8")
     assert "black==26.3.1" in requirements_dev.read_text(encoding="utf-8")
     assert "pytest-timeout==2.4.0" in requirements_dev.read_text(encoding="utf-8")
     assert "requirements-dev.txt" in dev_setup.read_text(encoding="utf-8")
@@ -259,6 +289,26 @@ def test_initial_setup_wraps_existing_agents_file(tmp_path: Path) -> None:
     assert content.index("## Local Rules") < content.index(
         "THEKNOWLEDGE_MANAGED_FOOTER_START"
     )
+
+
+def test_initial_setup_merges_existing_gitignore_without_force(tmp_path: Path) -> None:
+    project_root = tmp_path / "TestProject"
+    project_root.mkdir()
+    gitignore = project_root / ".gitignore"
+    gitignore.write_text("node_modules/\n", encoding="utf-8")
+
+    result = _run(
+        "--project-root",
+        str(project_root),
+        "--knowledge-root",
+        "TheKnowledge",
+    )
+
+    assert result.returncode == 0
+    content = gitignore.read_text(encoding="utf-8")
+    assert "node_modules/" in content
+    assert "THEKNOWLEDGE_MANAGED_IGNORES_START" in content
+    assert ".local/" in content
 
 
 def test_initial_setup_does_not_duplicate_managed_agents_sections(

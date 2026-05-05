@@ -1,0 +1,65 @@
+Local Operator State and Untracked Policy Inputs
+================================================
+
+Scope
+-----
+Define where checkout-local mutable operator state lives, which untracked
+policy-input files AI agents must consider, and how TheKnowledge-managed
+projects keep those paths out of version control.
+
+Problem Statement
+-----------------
+TheKnowledge needs a clear boundary between tracked project payload and local
+operator state. Without one, maintainers improvise paths for tool runtimes,
+AI note files, restricted-name lists, and local Codex artifacts. That causes
+accidental staging risk, unclear instructions for AI agents, and confusion
+when a consuming project includes TheKnowledge as a submodule.
+
+Requirements
+------------
+- Project-root `.local/` must be the standard home for checkout-local
+  operator state and local-only policy inputs.
+- TheKnowledge's own `AGENTS.md` and the managed downstream
+  `templates/AGENTS-footer.md` must tell AI agents to load
+  `.local/ai-local-notes.md` or `.local/ai-local-notes.txt` when present
+  before broad automation, validation, staging, or cleanup.
+- TheKnowledge's own `AGENTS.md` may also instruct maintainers to load other
+  direct-checkout local notes, such as `.git/codex-local-notes.txt`, when
+  those notes are explicitly local and untracked.
+- AI agents must treat `.local/ai-local-notes.md`,
+  `.local/ai-local-notes.txt`, `.theknowledge-restricted-names.local`, and
+  other explicitly local operator-note files as policy inputs to follow, but
+  must not add them to Git or copy their contents into tracked prose unless
+  the operator explicitly directs that.
+- Managed starter setup must install or refresh a `.gitignore` block that
+  ignores, at minimum:
+  - `.cache/`
+  - `.local/`
+  - `.theknowledge-restricted-names.local`
+  - `.codex-local/`
+  - `.codex-home/`
+  - `.codex`
+  - `bin/codex-local`
+  - `README-LOCAL-Start-Codex.md`
+- TheKnowledge itself must keep the same ignore baseline in its own
+  `.gitignore`.
+- Documentation must explain that `.local/` is for checkout-local mutable
+  state such as wrappers, runtime environments, and AI note files, not for
+  tracked source-of-truth configuration.
+- TheKnowledge direct-checkout guidance must point local maintenance tooling
+  such as `.local/bin/` wrappers and `.local/theknowledge-tool-runtime/`
+  into `.local/`, not into ad hoc top-level paths or `.git/`.
+- Consuming-project guidance must explain that local-only policy inputs belong
+  to the consuming project root rather than inside the TheKnowledge
+  submodule.
+- Tests must verify that the repository docs and starter docs keep this
+  guidance wired in, and that the starter `.gitignore` block includes the
+  managed ignore baseline.
+
+Non-Goals
+---------
+- Treating every future hidden path as safely ignorable without review.
+- Replacing a consuming project's own application-specific local-environment
+  policy.
+- Checking local note files, tool runtimes, or repo-local Codex CLI artifacts
+  into version control.

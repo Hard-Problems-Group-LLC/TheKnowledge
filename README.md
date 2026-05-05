@@ -61,14 +61,20 @@ application business logic.
    `tool_execution_constraints.json`, and `tool_validation_profiles.json`
    record the starter's pyenv context names, managed execution constraints,
    and placement-driven Black/runtime policy.
-5. When TheKnowledge is read-only in the consuming project, draft upstream
-   requests locally under `ECRs/TheKnowledge/` until they can be implemented
-   in a writable TheKnowledge checkout.
-6. Keep project state in the consuming project's own directories rather than
+5. Let the starter manage a `.gitignore` block that proactively ignores
+   checkout-local operator state under `.local/`, restricted-name policy
+   inputs such as `.theknowledge-restricted-names.local`, and known local
+   Codex/codex-wrangler artifacts before those paths ever exist.
+6. When TheKnowledge is read-only in the consuming project, draft upstream
+   requests locally under `ECRs/TheKnowledge/open/`, move them to
+   `ECRs/TheKnowledge/in-progress/` during active upstream handling, and
+   move them to `ECRs/TheKnowledge/closed/` once a writable TheKnowledge
+   proposal, implementation, rejection, or deferral record resolves them.
+7. Keep project state in the consuming project's own directories rather than
    inside the submodule.
-7. Add language/technology SOPs under
+8. Add language/technology SOPs under
    `standards-and-practices/docs/sop/` as needed.
-8. Add focused knack documents under `knacks/` when a reusable body of
+9. Add focused knack documents under `knacks/` when a reusable body of
    know-how deserves a dedicated `.knack.md` file.
 
 ## Using as a submodule
@@ -97,14 +103,19 @@ The starter installs `install.sh`, `bootstrap.sh`,
 `set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
 `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
-`tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
+`tool_validation_profiles.json`, a managed `.gitignore` block, and
+`ECRs/TheKnowledge/` lifecycle scaffolding.
 Together they provide TheKnowledge's default pinned toolchain, a default
 user-local standard install, an explicit repo-local development mode with
 pyenv plus `.venv`, development-mode `direnv` integration, managed
 validation/runtime policy, and a standard local holding area for read-only
-upstream TheKnowledge requests. `bootstrap.sh` and `bootstrap-stage2.py`
-remain compatibility wrappers. Projects with tighter local environment policy
-may replace or extend those files instead of using the starter unchanged.
+upstream TheKnowledge requests. The managed `.gitignore` block keeps
+`.local/`, `.theknowledge-restricted-names.local`, `.codex-local/`,
+`.codex-home/`, `.codex`, `bin/codex-local`, and
+`README-LOCAL-Start-Codex.md` untracked by default. `bootstrap.sh` and
+`bootstrap-stage2.py` remain compatibility wrappers. Projects with tighter
+local environment policy may replace or extend those files instead of using
+the starter unchanged.
 Projects that need custom install semantics may also provide
 `scripts/install_project.py`, which `scripts/install-stage-2.py` will prefer
 over the managed default behavior.
@@ -133,6 +144,10 @@ Then optionally install the default pinned Python developer toolchain:
 After that setup, commit both the new `.gitmodules` file and the generated
 project-management files, `AGENTS.md`, and any adopted starter setup files in
 the consuming project.
+
+Keep project-local operator notes that AI agents must consider under
+`.local/ai-local-notes.md` or `.local/ai-local-notes.txt`. Those files are
+local-only guidance inputs, not tracked project payload.
 
 When another developer clones the consuming project later, they should either
 clone with submodules enabled:
@@ -178,6 +193,7 @@ python TheKnowledge/scripts/initial-setup.py \
   --project-root . \
   --knowledge-root TheKnowledge \
   --force \
+  --template .gitignore \
   --template .python-version \
   --template ECRs \
   --template install.sh \
@@ -219,11 +235,18 @@ constraints.
 
 When a consuming project discovers an upstream TheKnowledge change while the
 active `TheKnowledge/` checkout is read-only, keep the request under
-`ECRs/TheKnowledge/` in the consuming project until it can be carried into a
-writable TheKnowledge checkout. Use that local ECR tree to preserve the
-reviewable request, and use TheKnowledge's `Feedback` branch or direct
-maintenance workflow when it is time to record or implement the upstream
-change itself.
+`ECRs/TheKnowledge/open/` until it can be carried into a writable
+TheKnowledge checkout. Move it to `ECRs/TheKnowledge/in-progress/` during
+active upstream handling, and move it to `ECRs/TheKnowledge/closed/` once a
+writable TheKnowledge proposal, implementation, rejection, or deferral record
+resolves it. Use that local ECR tree to preserve the reviewable request, and
+use TheKnowledge's `Feedback` branch or direct maintenance workflow when it
+is time to record or implement the upstream change itself.
+
+When the upstream writable TheKnowledge checkout resolves a carried ECR, the
+source project can compare filenames against
+`internal/overrides/proposals/accepted-ecrs-list.md` in that writable
+TheKnowledge checkout.
 
 ## Review-first staging: AI Agent Guidance
 

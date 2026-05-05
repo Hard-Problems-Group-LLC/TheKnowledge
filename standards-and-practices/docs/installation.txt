@@ -74,6 +74,9 @@ What the installer does
 - Installs or updates managed git hooks only for repo-local development or
   venv-only mode when `scripts/install_git_hooks.py` is available in the
   repository or in a `TheKnowledge/` submodule.
+- Installs or refreshes a managed `.gitignore` block in consuming projects so
+  `.local/`, `.theknowledge-restricted-names.local`, and known local
+  Codex/codex-wrangler artifacts stay ignored by default.
 
 Notes and expectations
 ----------------------
@@ -83,6 +86,9 @@ Notes and expectations
 - Source `./set-context-bootstrap.sh` or `./set-context.sh` when you need to
   force one pyenv context explicitly. The tracked `.python-version` file
   makes the runtime context the default local choice.
+- Keep project-local operator notes and similar AI guidance under
+  `.local/ai-local-notes.md` or `.local/ai-local-notes.txt`. Those files are
+  local-only policy inputs, not tracked starter payload.
 - `sudo ./install.sh` without `--system` must fail with an explanation. Use
   `sudo` only for explicit system installs.
 - `./install.sh --system` without root privileges must fail with an
@@ -116,7 +122,9 @@ Notes and expectations
     request to run the normal VCS workflow in meaningful commit-sized blocks,
     not as permission to make one monolithic commit or skip review and checks.
   - `python scripts/git_veteran_pull.py`
-  - Cache file used by push quality gate: `.git/project-quality-cache.json`
+  - Cache file used by push quality gate:
+    `.git/project-quality-cache.json` when a writable Git-backed cache path is
+    available, or `.cache/project-quality-cache.json` otherwise
   - Runbook:
     `standards-and-practices/docs/security/git-tripwire-operations.txt`
 - Consuming projects that update a TheKnowledge submodule should first fetch
@@ -134,17 +142,18 @@ Notes and expectations
   `set-context-bootstrap.sh`, `requirements-dev.txt`, `scripts/dev_setup.py`,
   `scripts/python_environment_bootstrap.py`,
   `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
-  `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding. That
-  set installs the same pinned Black, Ruff, and pytest toolchain plus a
-  default user-local standard install, explicit repo-local development mode
-  with pinned pyenv selections and `.venv`, development-mode `direnv`
-  integration, managed execution constraints, placement-driven runtime
-  policy, and the standard local directory for read-only upstream
-  TheKnowledge requests.
+  `tool_validation_profiles.json`, and `ECRs/TheKnowledge/` lifecycle
+  scaffolding. That set installs the same pinned Black, Ruff, and pytest
+  toolchain plus a default user-local standard install, explicit repo-local
+  development mode with pinned pyenv selections and `.venv`,
+  development-mode `direnv` integration, managed execution constraints,
+  placement-driven runtime policy, and the standard local subtree for
+  read-only upstream TheKnowledge requests.
 - The managed drift report compares `AGENTS.md` sections plus those starter
   files. When it reports drift, refresh only the managed starter entries:
   `python TheKnowledge/scripts/initial-setup.py --project-root .`
-  `--knowledge-root TheKnowledge --force --template .python-version`
+  `--knowledge-root TheKnowledge --force --template .gitignore`
+  `--template .python-version`
   `--template ECRs --template install.sh --template bootstrap.sh`
   `--template bootstrap-stage2.py --template python-environments.json`
   `--template requirements-dev.txt --template scripts`
@@ -161,5 +170,10 @@ Notes and expectations
   `--push` only when the configured push URL is writable for the current
   operator.
 - When the active TheKnowledge checkout is read-only and the request is not
-  yet ready for upstream filing, draft it first under `ECRs/TheKnowledge/`
-  in the consuming project.
+  yet ready for upstream filing, draft it first under
+  `ECRs/TheKnowledge/open/` in the consuming project. Move it to
+  `ECRs/TheKnowledge/in-progress/` during active upstream handling and to
+  `ECRs/TheKnowledge/closed/` once the upstream disposition is recorded.
+  Compare resolved filenames against the writable TheKnowledge checkout's
+  `internal/overrides/proposals/accepted-ecrs-list.md` when you need to
+  confirm that one or more carried ECRs were accepted or implemented.

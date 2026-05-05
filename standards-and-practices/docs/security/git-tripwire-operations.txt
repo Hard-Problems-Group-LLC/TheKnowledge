@@ -73,7 +73,9 @@ The push path is blocked unless all three tripwire conditions pass:
 
 Quality-gate cache behavior
 ---------------------------
-- Cache file location: `.git/project-quality-cache.json`
+- Cache file location: `.git/project-quality-cache.json` when a writable
+  Git-backed cache path is available, or
+  `.cache/project-quality-cache.json` otherwise.
 - Cache keys are per check (`black`, `ruff`, `compileall`, `entropy_check`,
   `entropy_tripwire_verify`, `knack_check`, `pytest`).
 - Each check fingerprint hashes both relative path names and file contents for

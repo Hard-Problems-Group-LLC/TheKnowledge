@@ -29,9 +29,10 @@ Requirements
 6. A standardized commit/push utility must run the cached quality gate and
    abort before push if any configured check fails.
 7. The cached quality gate must persist per-check pass fingerprints in
-   `.git/project-quality-cache.json`, hashing both relative paths and file
-   contents for each check scope and aligning entropy-related scopes with the
-   scanner's default Git-ignore behavior.
+   `.git/project-quality-cache.json` when a writable Git-backed cache path is
+   available, or in `.cache/project-quality-cache.json` otherwise, hashing
+   both relative paths and file contents for each check scope and aligning
+   entropy-related scopes with the scanner's default Git-ignore behavior.
 8. A standardized pull utility must enforce a guarded pull workflow:
    - clean working tree by default
    - `fetch --all --prune`

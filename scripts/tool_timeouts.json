@@ -15,7 +15,7 @@
     },
     "ruff": {
       "timeout_seconds": 45,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "-m",
@@ -26,7 +26,7 @@
     },
     "compileall": {
       "timeout_seconds": 60,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "-m",
@@ -37,7 +37,7 @@
     },
     "pytest": {
       "timeout_seconds": 120,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "-m",
@@ -46,7 +46,7 @@
     },
     "entropy_check": {
       "timeout_seconds": 90,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "standards-and-practices/dev-utils/security/run_entropy_harness.py"
@@ -54,7 +54,7 @@
     },
     "entropy_tripwire_verify": {
       "timeout_seconds": 120,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "standards-and-practices/dev-utils/security/verify_entropy_tripwire.py"
@@ -62,7 +62,7 @@
     },
     "knack_check": {
       "timeout_seconds": 90,
-      "use_wrapper_python": true,
+      "runtime_policy": "steady_state_python_tools",
       "command": [
         "python",
         "scripts/validate_knacks.py",

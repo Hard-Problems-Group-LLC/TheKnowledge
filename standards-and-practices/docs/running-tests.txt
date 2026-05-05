@@ -5,6 +5,11 @@ Prerequisites
 -------------
 - Python 3.9 or newer available on your PATH.
 - Project dependencies installed in an isolated environment.
+- When maintaining TheKnowledge directly, ensure the checkout-local steady-
+  state tools runtime exists under `.local/theknowledge-tool-runtime/`.
+  `python scripts/ensure_theknowledge_tool_runtime.py` will create or refresh
+  it, and the timeout/quality-gate wrappers will do the same automatically
+  when needed.
 
 Standard check run
 ------------------
@@ -37,3 +42,6 @@ Timeout policy
 - Keep default timeouts short in `scripts/tool_timeouts.json`.
 - Raise a timeout only after confirming a shorter value truncates valid work.
 - Use per-invocation overrides only when justified.
+- Cache files for quality-gate and knack validation helpers default to
+  `.git/...` when a writable Git-backed cache path is available and fall back
+  to `.cache/...` otherwise.

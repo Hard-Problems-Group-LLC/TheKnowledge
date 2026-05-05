@@ -3,7 +3,7 @@
 Title: TheKnowledge Tool Runtime Isolation and Bootstrap Reliability
 Author: Codex
 Date: 2026-04-22T18:28:42-07:00
-Status: Under Review
+Status: Approved
 Reviewers: operator, AI maintainers
 Related Work: `python-environments.json`; `tool_validation_profiles.json`;
 `scripts/dev_setup.py`; `scripts/install-stage-2.py`;
@@ -11,7 +11,11 @@ Related Work: `python-environments.json`; `tool_validation_profiles.json`;
 `standards-and-practices/docs/specifications/`
 `tool_validation_profiles_and_python_runtime_selection.txt`;
 `standards-and-practices/docs/specifications/`
-`python_bootstrap_and_context_strategy.txt`
+`python_bootstrap_and_context_strategy.txt`;
+`internal/overrides/proposals/under-review/imported-ecrs/`
+`python-bootstrap-and-context-strategy-ecr.md`;
+`internal/overrides/proposals/approved/`
+`consuming-project-validation-and-wrapper-contracts.md`
 
 ## Problem Statement
 TheKnowledge must be able to run its own validation and Git workflow tooling
@@ -175,14 +179,15 @@ The fallback order should be explicit and testable:
   Mitigation: print the chosen base interpreter, generated venv location,
   dependency fingerprint, and exact remediation command on failure.
 
-## Open Questions
-1. Should the default generated maintenance venv always live under
-   project-root `.local/`, or should XDG user-cache placement remain an
-   automatic fallback when that local path is unavailable?
-2. Should TheKnowledge add a root `requirements-dev.txt`, or should the helper
-   install `.[dev]` directly from `pyproject.toml`?
-3. Should `git_standard_commit_push.py` re-exec automatically through the
-   ensured runtime, or should operators invoke a separate wrapper command?
+## Resolved Questions
+1. The default generated maintenance runtime now lives under
+   project-root `.local/theknowledge-tool-runtime/`. No automatic XDG fallback
+   is part of the current implementation.
+2. The helper installs `.[dev]` directly from `pyproject.toml`.
+3. `scripts/run_tool_with_timeout.py` and
+   `scripts/run_quality_gate_cached.py` now ensure the checkout-local runtime
+   automatically during direct TheKnowledge maintenance. The standardized
+   commit helper continues to use the normal quality-gate entry point.
 
 ## Milestones
 1. Approve the runtime-isolation strategy.
@@ -210,3 +215,9 @@ The fallback order should be explicit and testable:
   TheKnowledge tool runtime, bare system Python 3.12, and an accidental
   attempt to use a consuming-project pyenv environment for TheKnowledge
   validation.
+- 2026-05-02T13:32:00-07:00 - Approved and implemented. TheKnowledge now
+  provides `scripts/ensure_theknowledge_tool_runtime.py`, provisions a
+  checkout-local tools runtime under `.local/theknowledge-tool-runtime/`,
+  resolves bare Python 3.12 base interpreters without requiring preinstalled
+  tool modules, and keeps that behavior scoped to direct-checkout maintenance
+  instead of consuming-project submodule use.

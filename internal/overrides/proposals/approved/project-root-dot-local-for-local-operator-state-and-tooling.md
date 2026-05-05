@@ -3,12 +3,12 @@
 Title: Project-Root `.local/` For Local Operator State And Tooling
 Author: Codex
 Date: 2026-04-25T10:21:12-07:00
-Status: Under Review
+Status: Approved
 Reviewers: operator, AI maintainers
 Related Work: `install.sh`; `bootstrap.sh`; `scripts/initial-setup.py`;
 `templates/README.md`; `templates/AGENTS-footer.md`;
 `standards-and-practices/docs/installation.txt`;
-`internal/overrides/proposals/under-review/`
+`internal/overrides/proposals/approved/`
 `theknowledge-tool-runtime-isolation-and-bootstrap-reliability.md`
 
 ## Problem Statement
@@ -133,3 +133,9 @@ future sessions can follow that rule instead of improvising new locations.
   session created a local TheKnowledge tool runtime under `.git/` and the
   operator requested that such state live under project-root `.local/`
   instead.
+- 2026-05-02T13:32:00-07:00 - Approved and implemented. TheKnowledge now
+  treats `.local/` as the standard home for checkout-local operator state,
+  ignores it through repository and starter-managed `.gitignore` content,
+  documents `.local/ai-local-notes.*` as local-only policy inputs, and uses
+  `.local/theknowledge-tool-runtime/` plus `.local/bin/` for direct-checkout
+  maintenance tooling.

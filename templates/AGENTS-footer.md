@@ -30,6 +30,15 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   starter documents, and generated guidance unless a file is machine-consumed,
   intentionally extensionless, or temporarily kept in a legacy format during
   an explicit migration.
+- Treat project-root `.local/` as the standard home for checkout-local
+  operator state and local policy inputs that AI agents must consider but
+  must not commit or push.
+- Load `.local/ai-local-notes.md` or `.local/ai-local-notes.txt` before broad
+  automation, validation, staging, or cleanup when either file exists.
+- Treat those local note files plus `.theknowledge-restricted-names.local` as
+  local-only policy inputs: obey them when present, keep them untracked, and
+  do not copy their contents into tracked prose unless the operator explicitly
+  directs that.
 - Do not name external client projects in TheKnowledge-bound records,
   proposals, bugs, feedback, or generated guidance. Use `an external project`
   or another operator-approved generic phrase instead.
@@ -54,12 +63,14 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `set-context-bootstrap.sh`, `requirements-dev.txt`,
   `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
   `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
-  and `tool_validation_profiles.json`. That flow starts from Python 3.9+,
-  defaults to a user-local standard install, supports explicit repo-local
-  development mode and venv-only mode, permits system installs only with
-  `--system` under root, and requires `direnv` for development mode.
-  `bootstrap.sh` and
-  `bootstrap-stage2.py` remain compatibility wrappers.
+  `tool_validation_profiles.json`, and a managed `.gitignore` block. That
+  flow starts from Python 3.9+, defaults to a user-local standard install,
+  supports explicit repo-local development mode and venv-only mode, permits
+  system installs only with `--system` under root, requires `direnv` for
+  development mode, and proactively ignores `.local/`,
+  `.theknowledge-restricted-names.local`, `.codex-local/`, `.codex-home/`,
+  `.codex`, `bin/codex-local`, and `README-LOCAL-Start-Codex.md`.
+  `bootstrap.sh` and `bootstrap-stage2.py` remain compatibility wrappers.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
@@ -119,9 +130,13 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   the current operator, and use `abort` when you want to restore the prior
   state without publishing.
 - When the active `{$KNOWLEDGE_ROOT}/` checkout is read-only for upstream
-  maintenance, draft the request first under `ECRs/TheKnowledge/` in the
-  consuming project so the handoff stays reviewable before it reaches a
-  writable TheKnowledge checkout.
+  maintenance, draft the request first under `ECRs/TheKnowledge/open/` in
+  the consuming project so the handoff stays reviewable before it reaches a
+  writable TheKnowledge checkout. Move the record to
+  `ECRs/TheKnowledge/in-progress/` when active upstream handling begins, and
+  move it to `ECRs/TheKnowledge/closed/` when a TheKnowledge proposal,
+  implementation, rejection, or deferral record resolves it. Closed records
+  should note which TheKnowledge record or commit settled the request.
 - The `Feedback` branch is only for cross-project feedback flowing back
   into TheKnowledge. Direct maintenance of TheKnowledge itself should keep
   using its normal internal trees on `trunk`.
@@ -132,7 +147,9 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `python {$KNOWLEDGE_ROOT}/scripts/validate_knacks.py --project-root .`.
 - Knack validation should stay lightweight: malformed Markdown and
   high-entropy findings are errors, word-count overruns are warnings, the
-  validator uses `.git/knack-validation-cache.json`, and path collisions with
+  validator uses `.git/knack-validation-cache.json` when a writable
+  Git-backed cache path is available and
+  `.cache/knack-validation-cache.json` otherwise, and path collisions with
   stock knacks should warn while still evaluating both files.
 - When updating the TheKnowledge submodule itself, prefer
   `python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`

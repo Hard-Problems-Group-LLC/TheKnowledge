@@ -19,15 +19,19 @@ The starter set also includes `install.sh`, `bootstrap.sh`,
 `set-context-bootstrap.sh`, `requirements-dev.txt`,
 `scripts/dev_setup.py`, `scripts/python_environment_bootstrap.py`,
 `scripts/tool_validation_profiles.py`, `tool_execution_constraints.json`,
-`tool_validation_profiles.json`, and `ECRs/TheKnowledge/` scaffolding.
+`tool_validation_profiles.json`, a managed `.gitignore` block, and
+`ECRs/TheKnowledge/` lifecycle scaffolding.
 Together they install TheKnowledge's default pinned Black, Ruff, and pytest
 toolchain plus a default user-local standard install, an explicit repo-local
 development mode with pinned pyenv runtime selection plus `.venv`, managed
 registries for known environment-specific tool execution constraints and
 placement-driven Black/runtime policy, development-mode `direnv`
 integration, and the standard local directory for read-only upstream
-TheKnowledge requests. `bootstrap.sh` and `bootstrap-stage2.py` remain
-compatibility wrappers around the canonical `install.sh` and
+TheKnowledge requests. The managed `.gitignore` block proactively ignores
+`.local/`, `.theknowledge-restricted-names.local`, `.codex-local/`,
+`.codex-home/`, `.codex`, `bin/codex-local`, and
+`README-LOCAL-Start-Codex.md`. `bootstrap.sh` and `bootstrap-stage2.py`
+remain compatibility wrappers around the canonical `install.sh` and
 `scripts/install-stage-2.py` entry points. Consuming projects may also
 provide `scripts/install_project.py` when they need custom development,
 user-local standard, or system-standard install semantics beyond the managed
@@ -43,13 +47,17 @@ so local project instructions can live between the managed sections. Before it
 rewrites `AGENTS.md`, it removes any existing managed header or footer blocks
 so rerunning the installer does not duplicate them.
 
+Project-local operator notes that AI agents must consider but must never
+commit or push should live under `.local/`, typically
+`.local/ai-local-notes.md` or `.local/ai-local-notes.txt`.
+
 After updating the submodule, first review the incoming upstream delta in the
 TheKnowledge checkout, then run `scripts/report_managed_agents_drift.py` to
 compare the consuming project's managed `AGENTS.md` sections plus managed
 starter files with the updated templates. The helper prints unified diffs that
 both human and AI developers can review before rerunning
 `scripts/initial-setup.py --force --template .python-version --template ECRs`
-`--template install.sh --template bootstrap.sh --template`
+`--template .gitignore --template install.sh --template bootstrap.sh --template`
 `bootstrap-stage2.py --template python-environments.json --template`
 `requirements-dev.txt --template scripts --template`
 `scripts/install-stage-2.py --template scripts/python_environment_bootstrap.py`
@@ -80,8 +88,15 @@ aligned with the current managed constraints.
 
 When the active `TheKnowledge/` checkout is read-only in the consuming
 project and an upstream request needs a local holding area first, use
-`ECRs/TheKnowledge/`. Keep the request there until it can be carried into a
-writable TheKnowledge checkout or the TheKnowledge `Feedback` branch flow.
+`ECRs/TheKnowledge/open/`. Move the request to
+`ECRs/TheKnowledge/in-progress/` during active upstream handling and to
+`ECRs/TheKnowledge/closed/` once the upstream disposition is recorded in a
+writable TheKnowledge checkout or through the TheKnowledge `Feedback` branch
+flow.
+
+When an upstream writable TheKnowledge checkout resolves a carried ECR, the
+consuming project can compare the ECR filename against that checkout's
+`internal/overrides/proposals/accepted-ecrs-list.md`.
 
 When contributors need to file TheKnowledge feedback from a consuming project,
 prefer the helper flow:

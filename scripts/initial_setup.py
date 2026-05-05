@@ -14,6 +14,8 @@ PROJECT_SLUG_PLACEHOLDERS = ("{{PROJECT_SLUG}}", "{$PROJECT_SLUG}")
 AGENTS_PATH = Path("AGENTS.md")
 AGENTS_HEADER = "AGENTS-header.md"
 AGENTS_FOOTER = "AGENTS-footer.md"
+GITIGNORE_PATH = Path(".gitignore")
+GITIGNORE_TEMPLATE = "gitignore-managed.txt"
 MANAGED_ROOT_FILES = (
     Path("scripts/install-stage-2.py"),
     Path("scripts/python_environment_bootstrap.py"),
@@ -22,6 +24,7 @@ MANAGED_ROOT_FILES = (
     Path("scripts/tool_validation_profiles.py"),
 )
 MANAGED_REFRESH_TEMPLATES = (
+    ".gitignore",
     ".python-version",
     "ECRs",
     "install.sh",
@@ -43,6 +46,10 @@ MANAGED_MARKERS = (
     "<!-- THEKNOWLEDGE_MANAGED_HEADER_END -->",
     "<!-- THEKNOWLEDGE_MANAGED_FOOTER_START -->",
     "<!-- THEKNOWLEDGE_MANAGED_FOOTER_END -->",
+)
+GITIGNORE_MARKERS = (
+    "# >>> THEKNOWLEDGE_MANAGED_IGNORES_START >>>",
+    "# <<< THEKNOWLEDGE_MANAGED_IGNORES_END <<<",
 )
 
 
@@ -121,8 +128,13 @@ def installable_entries(
     entries = {
         path.name: (path, path.relative_to(templates_root))
         for path in sorted(templates_root.iterdir())
-        if path.name not in {"README.md", AGENTS_HEADER, AGENTS_FOOTER}
+        if path.name
+        not in {"README.md", AGENTS_HEADER, AGENTS_FOOTER, GITIGNORE_TEMPLATE}
     }
+    entries[GITIGNORE_PATH.as_posix()] = (
+        templates_root / GITIGNORE_TEMPLATE,
+        GITIGNORE_PATH,
+    )
     for relative_path in MANAGED_ROOT_FILES:
         entries[relative_path.as_posix()] = (
             knowledge_repo_root / relative_path,
@@ -193,6 +205,18 @@ def strip_managed_agents_sections(content: str) -> str:
     return updated.strip()
 
 
+def strip_managed_block(content: str, markers: tuple[str, str]) -> str:
+    """Remove one managed block delimited by start and end markers."""
+
+    updated = content
+    start_marker, end_marker = markers
+    while start_marker in updated and end_marker in updated:
+        start = updated.index(start_marker)
+        end = updated.index(end_marker) + len(end_marker)
+        updated = updated[:start] + updated[end:]
+    return updated.strip()
+
+
 def install_agents_file(
     templates_root: Path,
     project_root: Path,
@@ -231,6 +255,37 @@ def install_agents_file(
     return destination
 
 
+def install_gitignore_file(
+    templates_root: Path,
+    project_root: Path,
+    knowledge_root: str,
+    project_name_slug: str,
+    dry_run: bool,
+) -> Path:
+    """Merge the managed ignore baseline into one project `.gitignore`."""
+
+    destination = project_root / GITIGNORE_PATH
+    managed_block = render_file(
+        templates_root / GITIGNORE_TEMPLATE,
+        knowledge_root,
+        project_name_slug,
+    ).decode("utf-8")
+    existing = destination.read_text(encoding="utf-8") if destination.exists() else ""
+    body = strip_managed_block(existing, GITIGNORE_MARKERS)
+    sections = []
+    if body:
+        sections.append(body)
+    sections.append(managed_block.strip())
+    content = "\n\n".join(sections) + "\n"
+
+    if dry_run:
+        return destination
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(content, encoding="utf-8")
+    return destination
+
+
 def install_templates(
     knowledge_repo_root: Path,
     templates_root: Path,
@@ -248,7 +303,8 @@ def install_templates(
     conflicts = [
         path
         for path in destinations
-        if path.exists() and path != project_root / AGENTS_PATH
+        if path.exists()
+        and path not in {project_root / AGENTS_PATH, project_root / GITIGNORE_PATH}
     ]
     if conflicts and not force:
         joined = ", ".join(
@@ -273,6 +329,19 @@ def install_templates(
     ]
     for source, relative_path in files:
         destination = project_root / relative_path
+        if destination == project_root / AGENTS_PATH:
+            continue
+        if destination == project_root / GITIGNORE_PATH:
+            written.append(
+                install_gitignore_file(
+                    templates_root,
+                    project_root,
+                    knowledge_root,
+                    project_name_slug,
+                    False,
+                )
+            )
+            continue
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(render_file(source, knowledge_root, project_name_slug))
         os.chmod(destination, source.stat().st_mode & 0o777)

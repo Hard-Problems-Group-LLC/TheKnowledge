@@ -13,6 +13,9 @@ from initial_setup import (
     AGENTS_FOOTER,
     AGENTS_HEADER,
     AGENTS_PATH,
+    GITIGNORE_MARKERS,
+    GITIGNORE_PATH,
+    GITIGNORE_TEMPLATE,
     MANAGED_REFRESH_TEMPLATES,
     infer_knowledge_root,
     installable_entries,
@@ -77,6 +80,17 @@ def render_expected_block(
         knowledge_root,
         project_name_slug,
     ).decode("utf-8")
+
+
+def extract_delimited_block(content: str, start_marker: str, end_marker: str) -> str:
+    if start_marker not in content or end_marker not in content:
+        return ""
+    start = content.index(start_marker)
+    end = content.index(end_marker) + len(end_marker)
+    block = content[start:end].strip()
+    if block:
+        return block + "\n"
+    return ""
 
 
 def print_diff(label: str, current: str, expected: str) -> None:
@@ -179,12 +193,38 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"[managed-drift] WARN: managed {label} differs.")
         print_diff(label, current, expected)
 
+    gitignore_path = project_root / GITIGNORE_PATH
+    gitignore_text = (
+        gitignore_path.read_text(encoding="utf-8") if gitignore_path.exists() else ""
+    )
+    start_marker, end_marker = GITIGNORE_MARKERS
+    current_gitignore = extract_delimited_block(
+        gitignore_text, start_marker, end_marker
+    )
+    expected_gitignore = render_expected_block(
+        templates_root,
+        GITIGNORE_TEMPLATE,
+        knowledge_root,
+        project_name_slug,
+    )
+    if current_gitignore == expected_gitignore:
+        print("[managed-drift] OK: managed file .gitignore is up to date.")
+    else:
+        drift_found = True
+        if not current_gitignore:
+            print("[managed-drift] WARN: managed file .gitignore is missing.")
+        else:
+            print("[managed-drift] WARN: managed file .gitignore differs.")
+        print_diff("file-.gitignore", current_gitignore, expected_gitignore)
+
     for source, relative_path in expected_managed_files(
         knowledge_repo_root,
         templates_root,
         knowledge_root,
         project_name_slug,
     ):
+        if relative_path == GITIGNORE_PATH:
+            continue
         destination = project_root / relative_path
         expected_bytes = render_file(source, knowledge_root, project_name_slug)
         current_bytes = destination.read_bytes() if destination.is_file() else None

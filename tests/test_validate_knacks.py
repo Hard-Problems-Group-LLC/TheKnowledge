@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import shutil
 import subprocess
 import sys
@@ -21,6 +22,15 @@ def _run(project_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
         text=True,
         cwd=ROOT,
     )
+
+
+def _load_module():
+    spec = importlib.util.spec_from_file_location("validate_knacks", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    assert spec is not None and spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
 
 
 def _git_dir(project_root: Path) -> Path:
@@ -94,6 +104,41 @@ def test_knack_validator_uses_real_git_dir_for_separate_git_repo(
     assert (project / ".git").is_file()
     assert (git_dir / "knack-validation-cache.json").is_file()
     assert not (project / ".git" / "knack-validation-cache.json").exists()
+
+
+def test_knack_validator_uses_dot_cache_without_git_repo(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / "knacks").mkdir(parents=True)
+    knack = project / "knacks" / "demo.knack.md"
+    knack.write_text(
+        "# Demo\n\nPlain prose with stable wording.\n",
+        encoding="utf-8",
+    )
+
+    result = _run(project, "--knowledge-root", str(ROOT))
+
+    assert result.returncode == 0
+    assert (project / ".cache" / "knack-validation-cache.json").is_file()
+    assert not (project / ".git").exists()
+
+
+def test_knack_cache_path_falls_back_when_git_cache_target_is_not_writable(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    module = _load_module()
+    project = tmp_path / "project"
+    project.mkdir()
+    git_dir = tmp_path / "actual-git-dir"
+    git_dir.mkdir()
+
+    monkeypatch.setattr(module, "resolve_git_dir", lambda _: git_dir)
+    monkeypatch.setattr(module, "cache_target_is_writable", lambda _: False)
+
+    resolved = module.resolve_cache_path(project, ".git/knack-validation-cache.json")
+
+    assert resolved == project / ".cache" / "knack-validation-cache.json"
 
 
 def test_knack_validator_reports_unclosed_fence_as_error(tmp_path: Path) -> None:

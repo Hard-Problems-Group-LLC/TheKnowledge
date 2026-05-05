@@ -19,26 +19,44 @@ Requirements
 - Managed starter files must install:
   - `ECRs/README.md`
   - `ECRs/TheKnowledge/README.md`
+  - `ECRs/TheKnowledge/open/README.md`
+  - `ECRs/TheKnowledge/in-progress/README.md`
+  - `ECRs/TheKnowledge/closed/README.md`
 - TheKnowledge guidance must define `ECRs/TheKnowledge/` as the standard
-  consuming-project directory for human-readable upstream requests when the
+  consuming-project subtree for human-readable upstream requests when the
   active `TheKnowledge/` checkout is read-only in that environment.
 - The guidance must explain that:
   - `ECRs/` is the local home for external or upstream engineering change
     requests;
-  - `ECRs/TheKnowledge/` is the dedicated area for requests aimed at
-    TheKnowledge; and
+  - `ECRs/TheKnowledge/` is the dedicated subtree for requests aimed at
+    TheKnowledge;
+  - `ECRs/TheKnowledge/open/` holds drafted local requests that are not yet
+    under active upstream handling;
+  - `ECRs/TheKnowledge/in-progress/` holds requests currently being carried
+    into a writable TheKnowledge workflow; and
+  - `ECRs/TheKnowledge/closed/` holds requests whose upstream disposition has
+    been recorded, with closure notes pointing back to the settling record;
+    and
   - direct maintenance in a writable TheKnowledge checkout still belongs in
     TheKnowledge's own `trunk` workflow and project-management records.
-- The guidance must distinguish the local `ECRs/TheKnowledge/` staging area
-  from the existing TheKnowledge `Feedback` branch workflow:
-  - use `ECRs/TheKnowledge/` to draft and preserve requests locally in the
-    consuming project;
+- The guidance must distinguish the local `ECRs/TheKnowledge/` lifecycle
+  subtree from the existing TheKnowledge `Feedback` branch workflow:
+  - use `ECRs/TheKnowledge/open/` to draft and preserve requests locally in
+    the consuming project;
+  - move requests to `ECRs/TheKnowledge/in-progress/` when upstream handling
+    begins;
+  - move requests to `ECRs/TheKnowledge/closed/` when the upstream
+    disposition is recorded; and
   - use the `Feedback` branch or a writable TheKnowledge checkout when the
     time comes to record or implement the upstream change itself.
 - `README.md`, `standards-and-practices/docs/installation.txt`,
   `templates/README.md`, `templates/AGENTS-footer.md`, and
   `standards-and-practices/docs/specifications/theknowledge_submodule_workflows.txt`
   must mention the convention.
+- That same documentation set must explain that a consuming project may
+  compare closed ECR filenames against the writable TheKnowledge checkout's
+  `internal/overrides/proposals/accepted-ecrs-list.md` when it needs to
+  confirm that one or more carried requests were accepted or implemented.
 - Tests must verify that starter installation includes the `ECRs/`
   scaffolding and that the guidance remains wired into the repo and starter
   docs.

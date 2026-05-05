@@ -9,6 +9,12 @@ Some repositories define override record locations for their own live state.
 When an override record map exists, use it instead of the default
 `project-management/` paths shown below.
 
+Project-root `.local/` is the standard home for checkout-local operator state
+and local-only policy inputs. Load `.local/ai-local-notes.md` or
+`.local/ai-local-notes.txt` when present, treat those notes and local
+restricted-name lists as untracked policy inputs, and do not stage or push
+them.
+
 Proposals
 ---------
 
@@ -41,6 +47,15 @@ identifiers. Record accepted or implemented imported ECR filenames in
 override equivalent so source projects can compare by filename. If an
 incoming ECR filename collides with an existing imported ECR filename, stop
 and ask the operator how to disambiguate before overwriting or renaming.
+When a consuming project uses local ECR directories, prefer a status-based
+subtree such as `ECRs/TheKnowledge/open/`, `ECRs/TheKnowledge/in-progress/`,
+and `ECRs/TheKnowledge/closed/`. Draft local upstream requests in `open/`,
+move them to `in-progress/` when active upstream handling begins, and move
+them to `closed/` once a proposal, implementation, rejection, or deferral
+record resolves them. In a writable TheKnowledge checkout, keep
+`under-review/imported-ecrs/` as raw intake only; deconflict those records
+into top-level actionable proposals and keep the mapping in the imported-ECR
+deconfliction index.
 
 Backlogging
 -----------
@@ -123,6 +138,13 @@ versions drift. The bootstrap entry point may still run on the bootstrap
 Python floor while creating the steady-state developer-tool environment with
 the managed runtime policy.
 
+When maintaining TheKnowledge directly, use
+`python scripts/ensure_theknowledge_tool_runtime.py` to create or refresh the
+checkout-local steady-state tools runtime under
+`.local/theknowledge-tool-runtime/` when needed. Do not borrow another
+project's Python environment merely because it already contains Black, Ruff,
+or pytest.
+
 If `tool_execution_constraints.json` marks a tool-and-environment
 combination unsafe to parallelize, follow the recorded workaround. In a
 matched Codex sandbox, run Black only through
@@ -178,9 +200,11 @@ For standardized git operations, use:
 See `standards-and-practices/docs/security/git-tripwire-operations.txt` for
 failure diagnostics and maintenance guidance.
 
-The default quality-gate cache file is `.git/project-quality-cache.json`.
-Delete it or pass `--no-quality-cache` through the commit/push script when a
-full uncached rerun is required.
+The default quality-gate cache file is `.git/project-quality-cache.json` when
+a writable Git-backed cache path is available and
+`.cache/project-quality-cache.json` otherwise. Delete the active cache file or
+pass `--no-quality-cache` through the commit/push script when a full uncached
+rerun is required.
 
 Clearing
 --------

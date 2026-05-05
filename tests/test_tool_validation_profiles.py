@@ -136,6 +136,26 @@ def test_resolve_runtime_policy_rejects_too_old_override(monkeypatch) -> None:
         )
 
 
+def test_resolve_runtime_policy_allows_explicit_candidate_without_modules(
+    monkeypatch,
+) -> None:
+    module = _load_module()
+
+    def fake_probe(executable: str, required_modules: list[str]):
+        return (3, 12, 1), required_modules == []
+
+    monkeypatch.setattr(module, "_probe_python_candidate", fake_probe)
+
+    resolved = module.resolve_runtime_policy_executable(
+        ROOT,
+        "steady_state_python_tools",
+        explicit_candidate="python3.12",
+        required_modules=[],
+    )
+
+    assert resolved == "python3.12"
+
+
 def test_resolve_runtime_policy_skips_missing_windows_candidate(
     monkeypatch,
 ) -> None:

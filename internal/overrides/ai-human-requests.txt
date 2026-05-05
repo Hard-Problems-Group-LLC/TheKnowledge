@@ -18,6 +18,47 @@ Completed Requests
 ------------------
 
 *
+  2026-05-02T16:20:35-07:00
+  Requestor: operator
+  Action: Fully implement the approved project-root `.local/`, direct-
+  checkout runtime-isolation, and consuming-project validation/wrapper
+  proposals, and clarify local-only project/system guidance plus proactive
+  Codex artifact ignores.
+  Status: completed by Codex on 2026-05-02T16:20:35-07:00. TheKnowledge now
+  provisions a checkout-local tools runtime under
+  `.local/theknowledge-tool-runtime/`, refreshes a managed `.gitignore`
+  starter block for `.local/`, restricted-name inputs, and local Codex
+  artifacts, documents `.local/ai-local-notes.*` as local-only policy
+  inputs, promotes the three implemented proposals to `approved/`, and
+  records the resolved imported ECR filenames in
+  `internal/overrides/proposals/accepted-ecrs-list.md`.
+
+*
+  2026-05-02T15:50:17-07:00
+  Requestor: operator
+  Action: Add an approved proposal that makes TheKnowledge proactively aware
+  of codex-wrangler and requires its local artifact paths to be ignored
+  whether or not they are already in use.
+  Status: completed by Codex on 2026-05-02T15:50:17-07:00. Added approved
+  proposal
+  `internal/overrides/proposals/approved/codex-wrangler-awareness-and-
+  proactive-ignore-baseline.md` to standardize proactive ignore coverage for
+  `.codex-local/`, `.codex-home/`, `.codex`, `bin/codex-local`, and
+  `README-LOCAL-Start-Codex.md`.
+
+*
+  2026-05-02T01:05:09-07:00
+  Requestor: operator
+  Action: Deconflict the imported ECR intake into actionable proposals or
+  existing proposal extensions, add explicit guidance for closing handled
+  ECRs, and improve the ECR directory structure and management guidance.
+  Status: completed by Codex on 2026-05-02T01:05:09-07:00. TheKnowledge now
+  carries a raw-import deconfliction map plus promoted top-level proposals
+  for the imported ECR themes, documents an `ECRs/TheKnowledge/`
+  `open/`, `in-progress/`, and `closed/` lifecycle in its guidance and
+  starter scaffolding, and updates the related tests accordingly.
+
+*
   2026-04-29T10:02:39-07:00
   Requestor: operator
   Action: Set up a project-local testing environment that will not pollute

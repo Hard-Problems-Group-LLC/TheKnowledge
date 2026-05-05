@@ -33,6 +33,14 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         help="Repository root containing the .git directory.",
     )
     parser.add_argument(
+        "--knowledge-root",
+        default=None,
+        help=(
+            "Optional path from the repository root to the TheKnowledge "
+            "checkout when hook commands should target vendored scripts."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print intended actions without writing files.",
@@ -53,13 +61,44 @@ def end_marker(spec: HookSpec) -> str:
     return f"# <<< {spec.marker_label} <<<"
 
 
-def managed_block(spec: HookSpec) -> str:
+def validation_script_paths(
+    repo_root: Path,
+    *,
+    knowledge_root: str | None,
+) -> tuple[str, str]:
+    local_timeout = repo_root / "scripts" / "run_tool_with_timeout.py"
+    local_quality = repo_root / "scripts" / "run_quality_gate_cached.py"
+    if local_timeout.is_file() and local_quality.is_file():
+        return (
+            "scripts/run_tool_with_timeout.py",
+            "scripts/run_quality_gate_cached.py",
+        )
+
+    if knowledge_root:
+        base = Path(knowledge_root)
+        return (
+            (base / "scripts" / "run_tool_with_timeout.py").as_posix(),
+            (base / "scripts" / "run_quality_gate_cached.py").as_posix(),
+        )
+
+    return (
+        "scripts/run_tool_with_timeout.py",
+        "scripts/run_quality_gate_cached.py",
+    )
+
+
+def managed_block(
+    spec: HookSpec,
+    *,
+    timeout_wrapper_path: str,
+    quality_gate_path: str,
+) -> str:
     if spec.name == "pre-commit":
         command_lines = [
             "if command -v python >/dev/null 2>&1; then",
-            "  python scripts/run_tool_with_timeout.py entropy_check",
+            f"  python {timeout_wrapper_path} entropy_check",
             "elif command -v python3 >/dev/null 2>&1; then",
-            "  python3 scripts/run_tool_with_timeout.py entropy_check",
+            f"  python3 {timeout_wrapper_path} entropy_check",
             "else",
             '  echo "[project pre-commit] python/python3 not found." >&2',
             "  exit 1",
@@ -69,15 +108,15 @@ def managed_block(spec: HookSpec) -> str:
         command_lines = [
             "if command -v python >/dev/null 2>&1; then",
             '  if [ "${PROJECT_QUALITY_GATE_NO_CACHE:-0}" = "1" ]; then',
-            "    python scripts/run_quality_gate_cached.py --no-cache",
+            f"    python {quality_gate_path} --repo-root . --no-cache",
             "  else",
-            "    python scripts/run_quality_gate_cached.py",
+            f"    python {quality_gate_path} --repo-root .",
             "  fi",
             "elif command -v python3 >/dev/null 2>&1; then",
             '  if [ "${PROJECT_QUALITY_GATE_NO_CACHE:-0}" = "1" ]; then',
-            "    python3 scripts/run_quality_gate_cached.py --no-cache",
+            f"    python3 {quality_gate_path} --repo-root . --no-cache",
             "  else",
-            "    python3 scripts/run_quality_gate_cached.py",
+            f"    python3 {quality_gate_path} --repo-root .",
             "  fi",
             "else",
             '  echo "[project pre-push] python/python3 not found." >&2',
@@ -95,7 +134,12 @@ def is_managed_hook(existing_text: str, spec: HookSpec) -> bool:
     return start_marker(spec) in existing_text and end_marker(spec) in existing_text
 
 
-def render_wrapper(spec: HookSpec) -> str:
+def render_wrapper(
+    spec: HookSpec,
+    *,
+    timeout_wrapper_path: str,
+    quality_gate_path: str,
+) -> str:
     local_hook = f".git/hooks/{spec.name}.local"
     lines = [
         "#!/usr/bin/env bash",
@@ -105,13 +149,23 @@ def render_wrapper(spec: HookSpec) -> str:
         f'  "{local_hook}" "$@"',
         "fi",
         "",
-        managed_block(spec),
+        managed_block(
+            spec,
+            timeout_wrapper_path=timeout_wrapper_path,
+            quality_gate_path=quality_gate_path,
+        ),
         "",
     ]
     return "\n".join(lines)
 
 
-def install_hook(repo_root: Path, spec: HookSpec, dry_run: bool = False) -> Path:
+def install_hook(
+    repo_root: Path,
+    spec: HookSpec,
+    *,
+    knowledge_root: str | None,
+    dry_run: bool = False,
+) -> Path:
     hooks_dir = repo_root / ".git" / "hooks"
     if not hooks_dir.exists():
         raise RuntimeError(f"Missing hooks directory: {hooks_dir}")
@@ -138,7 +192,15 @@ def install_hook(repo_root: Path, spec: HookSpec, dry_run: bool = False) -> Path
     elif local_hook_path.exists() and not dry_run:
         ensure_executable(local_hook_path)
 
-    wrapper = render_wrapper(spec)
+    timeout_wrapper_path, quality_gate_path = validation_script_paths(
+        repo_root,
+        knowledge_root=knowledge_root,
+    )
+    wrapper = render_wrapper(
+        spec,
+        timeout_wrapper_path=timeout_wrapper_path,
+        quality_gate_path=quality_gate_path,
+    )
     if dry_run:
         print(f"[dry-run] would write {hook_path}")
         return hook_path
@@ -154,7 +216,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     installed: list[Path] = []
     for spec in HOOK_SPECS:
-        installed.append(install_hook(repo_root, spec, dry_run=args.dry_run))
+        installed.append(
+            install_hook(
+                repo_root,
+                spec,
+                knowledge_root=args.knowledge_root,
+                dry_run=args.dry_run,
+            )
+        )
 
     if args.dry_run:
         for hook_path in installed:

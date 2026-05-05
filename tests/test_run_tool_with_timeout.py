@@ -130,6 +130,37 @@ def test_resolve_tool_run_can_reuse_wrapper_python() -> None:
     assert cleanup_patterns == []
 
 
+def test_resolve_tool_run_can_use_runtime_policy(monkeypatch) -> None:
+    module = _load_script_module()
+    config = {
+        "default_timeout_seconds": 60,
+        "tools": {
+            "pytest": {
+                "command": ["python", "-m", "pytest"],
+                "runtime_policy": "steady_state_python_tools",
+            }
+        },
+    }
+
+    monkeypatch.setattr(
+        module,
+        "resolve_runtime_policy_executable",
+        lambda cwd, policy_name: "managed-python",
+    )
+
+    command, timeout, retries, cleanup_patterns = module._resolve_tool_run(
+        config,
+        "pytest",
+        None,
+        [],
+    )
+
+    assert command == ["managed-python", "-m", "pytest"]
+    assert timeout == 60
+    assert retries == 0
+    assert cleanup_patterns == []
+
+
 def _write_execution_constraints(repo_root: Path) -> None:
     (repo_root / "tool_execution_constraints.json").write_text(
         json.dumps(

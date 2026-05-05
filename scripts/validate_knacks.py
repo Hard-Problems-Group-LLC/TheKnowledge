@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -16,6 +17,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
 SCHEMA_VERSION = "1.0.0"
+NON_GIT_CACHE_DIR = ".cache"
 OVERVIEW_TARGET = 1250
 REFERENCE_TARGET = 2500
 ABSOLUTE_MAXIMUM = 5000
@@ -110,6 +112,8 @@ def resolve_knowledge_root(project_root: Path, value: str | None) -> Path:
 
 
 def resolve_git_dir(project_root: Path) -> Path | None:
+    if not project_root.exists():
+        return None
     result = subprocess.run(
         ["git", "rev-parse", "--git-dir"],
         cwd=project_root,
@@ -126,6 +130,13 @@ def resolve_git_dir(project_root: Path) -> Path | None:
     return git_dir
 
 
+def cache_target_is_writable(path: Path) -> bool:
+    candidate = path.parent
+    while not candidate.exists() and candidate != candidate.parent:
+        candidate = candidate.parent
+    return os.access(candidate, os.W_OK)
+
+
 def resolve_cache_path(project_root: Path, cache_file: str) -> Path:
     configured_path = Path(cache_file)
     if configured_path.is_absolute():
@@ -135,8 +146,15 @@ def resolve_cache_path(project_root: Path, cache_file: str) -> Path:
         git_dir = resolve_git_dir(project_root)
         if git_dir is not None:
             if len(configured_path.parts) == 1:
-                return git_dir
-            return git_dir.joinpath(*configured_path.parts[1:])
+                git_path = git_dir
+            else:
+                git_path = git_dir.joinpath(*configured_path.parts[1:])
+            if cache_target_is_writable(git_path):
+                return git_path
+        fallback_parts = list(configured_path.parts[1:]) or [
+            "knack-validation-cache.json"
+        ]
+        return (project_root / NON_GIT_CACHE_DIR / Path(*fallback_parts)).resolve()
 
     return (project_root / configured_path).resolve()
 

@@ -70,6 +70,21 @@ Requirements
   managed steady-state tool runtime rather than to the bootstrap interpreter.
 - `scripts/initial_setup.py` must install `tool_validation_profiles.json`
   into consuming projects as a managed starter file.
+- `scripts/initial_setup.py` must also install or refresh the managed
+  `.gitignore` block so starter runtime, cache, and local-policy paths stay
+  ignored by default.
+- TheKnowledge direct-checkout maintenance must provide
+  `scripts/ensure_theknowledge_tool_runtime.py` to create or refresh a
+  compliant steady-state Python tools runtime under
+  `.local/theknowledge-tool-runtime/` from a base Python 3.12+ interpreter.
+- `scripts/run_tool_with_timeout.py` and
+  `scripts/run_quality_gate_cached.py` must ensure that checkout-local runtime
+  automatically only when they are running in a direct TheKnowledge checkout,
+  not merely because a consuming project includes TheKnowledge as a
+  submodule.
+- Cache files that default under `.git/` must resolve through the real Git
+  directory when one exists and fall back to `.cache/` when the target
+  repository has no usable Git directory.
 - `README.md`, `templates/README.md`, `templates/AGENTS-footer.md`,
   `templates/project-management/git-flow.txt`,
   `standards-and-practices/docs/development-workflow.txt`, and
@@ -82,6 +97,8 @@ Requirements
   - default skipping of Git-ignored files;
   - explicit inclusion of untracked files when named directly;
   - steady-state Python runtime resolution behavior;
+  - direct-checkout runtime provisioning from a bare Python 3.12+
+    interpreter;
   - managed starter installation of `tool_validation_profiles.json`; and
   - drift-report guidance that includes the new managed file.
 
@@ -94,11 +111,18 @@ Runtime Policy
   when it satisfies the configured minimum version and contains the required
   module, but it must also support ordered fallback candidates from the
   registry so bootstrap entry points can adopt a newer interpreter cleanly.
+- When a caller needs a base interpreter for runtime creation rather than an
+  already-provisioned tools runtime, the resolver must allow an explicit empty
+  required-module list instead of silently falling back to the profile's
+  steady-state module requirements.
 - The runtime resolver may honor documented environment-variable overrides
   ahead of the ordered fallback candidates.
 - The generic timeout-wrapper path must not force non-Black tools back to an
   ambient shell `python` when the wrapper was already launched from a
   deliberate interpreter.
+- Wrong-runtime discoveries are interrupt-class conditions. Guidance must tell
+  maintainers to fix the runtime selection rather than silently borrowing a
+  different project's environment.
 
 Non-Goals
 ---------

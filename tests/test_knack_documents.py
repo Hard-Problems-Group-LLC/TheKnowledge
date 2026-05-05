@@ -107,6 +107,7 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert "top-level `knacks/` directory" in guide_text
     assert "validate_knacks.py" in guide_text
     assert ".git/knack-validation-cache.json" in guide_text
+    assert ".cache/knack-validation-cache.json" in guide_text
     assert "dedicated unit tests" in guide_text
     assert "high-entropy findings as errors" in guide_text
     assert "word-count recommendation overruns as warnings" in guide_text
@@ -147,6 +148,7 @@ def test_knack_docs_are_wired_into_repository_docs() -> None:
     assert ".api.rendering.CPP.knack.md" in spec_text
     assert "`knacks/authoring-guide.md`" in spec_text
     assert ".git/knack-validation-cache.json" in spec_text
+    assert ".cache/knack-validation-cache.json" in spec_text
     assert "project-local knack path collides" in spec_text
     assert "dedicated unit tests" in spec_text
     assert "malformed Markdown documents as" in spec_text
