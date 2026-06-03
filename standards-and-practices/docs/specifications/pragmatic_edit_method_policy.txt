@@ -1,0 +1,40 @@
+Pragmatic Edit Method Policy
+============================
+
+Scope
+-----
+Define the safety requirements for choosing file-edit mechanisms in
+TheKnowledge-managed repositories and consuming projects.
+
+Problem Statement
+-----------------
+Edit safety comes from targeted scope, preserving unrelated work, reviewable
+diffs, and validation. A single mandatory edit transport can be the safest
+choice for small localized changes but can become counterproductive for
+whole-file records, generated content, mechanical multi-file updates, or
+environments where that transport is unavailable or unreliable.
+
+Requirements
+------------
+- Prefer patch-style edits for small localized manual changes because they
+  keep diffs targeted and reviewable.
+- Whole-file documentation records, project-management records, generated
+  content, and explicit mechanical multi-file transformations may use named
+  file writes, generators, formatters, or short scripts when that is safer
+  and clearer than hand-written patches.
+- Any script or codemod used for editing must have an explicit file set or a
+  narrow, reviewable discovery rule.
+- Do not use broad shell one-liners or hidden transformations that obscure
+  the affected file set.
+- Preserve unrelated user changes regardless of edit transport.
+- Inspect `git diff` or the equivalent review surface after edits and run
+  appropriate validation before clearing the work.
+- If a tool or edit transport repeatedly fails in one repository, surface the
+  failure to the operator and record it as a bug, local reliability note, or
+  strategy adjustment rather than retrying indefinitely.
+
+Non-Goals
+---------
+- Remove patch-style edits as the default for small local changes.
+- Relax diff review, validation, or user-change protection requirements.
+- Encourage generated rewrites where a small targeted patch is clearer.

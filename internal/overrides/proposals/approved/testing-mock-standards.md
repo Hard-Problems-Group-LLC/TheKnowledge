@@ -5,7 +5,7 @@
 | Title | Testing Mock Standards |
 | Author | Codex |
 | Date | 2026-05-02T00:42:40-07:00 |
-| Status | Under Review |
+| Status | Approved |
 | Reviewers | Matt Heck, repository maintainer/operator; AI maintainers |
 | Related Work | `internal/overrides/proposals/under-review/imported-ecrs/2026-04-22-testing-mock-standards.md`; `standards-and-practices/docs/development-workflow.txt` |
 
@@ -78,3 +78,8 @@ consuming repositories inherit the same baseline.
 ## Decision Log
 - 2026-05-02T00:42:40-07:00 - Promoted the imported testing-mocks ECR into
   one actionable TheKnowledge proposal.
+- 2026-05-08T11:01:07-07:00 - Approved by the operator for implementation as
+  part of the client-focused imported-ECR integration pass.
+- 2026-05-08T11:03:32-07:00 - Implemented by adding the mock-use testing
+  specification, reusable testing standard, direct guidance, managed
+  downstream guidance, and documentation test coverage.

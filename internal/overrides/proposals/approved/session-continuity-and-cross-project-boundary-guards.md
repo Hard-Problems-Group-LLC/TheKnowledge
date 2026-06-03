@@ -5,7 +5,7 @@
 | Title | Session Continuity And Cross-Project Boundary Guards |
 | Author | Codex |
 | Date | 2026-05-02T00:42:40-07:00 |
-| Status | Under Review |
+| Status | Approved |
 | Reviewers | Matt Heck, repository maintainer/operator; AI maintainers |
 | Related Work | `internal/overrides/proposals/under-review/imported-ecrs/2026-04-11-collision-resume-session-continuity.md`; `internal/overrides/proposals/under-review/imported-ecrs/2026-04-22-cross-project-change-confirmation.md`; `AGENTS.md` |
 
@@ -85,3 +85,8 @@ same boundary rules propagate downstream.
 ## Decision Log
 - 2026-05-02T00:42:40-07:00 - Promoted the session-continuity and
   cross-project-confirmation imported ECRs into one actionable proposal.
+- 2026-05-08T11:01:07-07:00 - Approved by the operator for implementation as
+  part of the client-focused imported-ECR integration pass.
+- 2026-05-08T11:03:32-07:00 - Implemented by adding the session-continuity
+  and project-boundary specification, direct TheKnowledge guidance, managed
+  downstream guidance, and documentation test coverage.

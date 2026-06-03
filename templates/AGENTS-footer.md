@@ -16,6 +16,11 @@ project needs behavior different from TheKnowledge's own repository setup. -->
 - Use `project-management/deferred.txt` for explicitly deferred work.
 - Queue brief commit-ready summaries in
   `project-management/state/pending-commit-changes.txt`.
+- Treat `pending-commit-changes.txt` as short-lived commit-body input, not
+  durable release history. Projects with durable user-facing,
+  operator-facing, or release-facing history needs should keep a
+  `CHANGELOG.md` and copy or summarize notable pending-queue entries there
+  before the queue is cleared by a successful commit.
 - Maintain bug lifecycle summary files under `project-management/bugs/` and
   detailed bug records under `open/`, `in-progress/`, and `closed/`.
 - Use `{$KNOWLEDGE_ROOT}/standards-and-practices/docs/`
@@ -30,6 +35,13 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   starter documents, and generated guidance unless a file is machine-consumed,
   intentionally extensionless, or temporarily kept in a legacy format during
   an explicit migration.
+- Prefer patch-style edits for small, localized manual changes. For
+  whole-file records, generated content, mechanical multi-file updates, or
+  environments where patch helpers are unavailable or failing, use explicit
+  named-file edits or short scripts with reviewable scope. Always inspect the
+  resulting diff, preserve unrelated user work, and record repeated tool
+  failures as bugs or local reliability notes instead of retrying them
+  indefinitely.
 - Treat project-root `.local/` as the standard home for checkout-local
   operator state and local policy inputs that AI agents must consider but
   must not commit or push.
@@ -71,6 +83,10 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   `.theknowledge-restricted-names.local`, `.codex-local/`, `.codex-home/`,
   `.codex`, `bin/codex-local`, and `README-LOCAL-Start-Codex.md`.
   `bootstrap.sh` and `bootstrap-stage2.py` remain compatibility wrappers.
+- Treat those Codex and codex-wrangler paths as local operator tooling or
+  generated artifacts. Do not classify `.codex-local/package.json` as the
+  consuming repository's tracked dependency manifest, and extend the managed
+  ignore baseline deliberately when future local Codex artifact paths appear.
 - For substantive development work, prefix intermediary status
   updates with an inline bracketed ISO 8601 timestamp including the
   timezone offset, for example
@@ -82,6 +98,26 @@ project needs behavior different from TheKnowledge's own repository setup. -->
 - Keep final answers readable; this rule applies to intermediary
   development updates for workflow profiling, not to every sentence
   of casual chat.
+- Treat the literal phrase `collision resume` as a session-continuity
+  directive for the current workspace. Do not assume the newest SSH, `mosh`,
+  terminal, or Codex session is correct; inspect candidate sessions when
+  session data is available.
+- For `collision resume`, prefer the prior session whose workspace, age,
+  origin, and current activity best match the task. If ambiguity remains,
+  summarize the candidates by origin, age, workspace, and current activity
+  before acting.
+- Preserve both the phrase `collision resume` and its operational meaning in
+  handoffs, compactions, and summaries.
+- Before mutating outside the active project root, stop and ask for explicit
+  cross-project confirmation in the current session. Name the active project
+  or path, the target project or path, and the intended change class.
+- Cross-project mutations include file edits, deletes, generated files,
+  project-management records, service restarts, container rebuilds, queued
+  jobs, commits, pushes, and deployments. Read-only inspection may proceed
+  when needed to identify the owning project, repository, or service.
+- Do not infer cross-project authorization from a URL, adjacent discussion,
+  command-escalation approval, or a prior session. When practical, disclose
+  any detected active writer in the target project before proceeding.
 - Before any `git add`, list the files about to be staged and ask the
   operator whether to review them.
 - Offer these staging-review choices: `1.` review at least one file in the
@@ -151,6 +187,15 @@ project needs behavior different from TheKnowledge's own repository setup. -->
   Git-backed cache path is available and
   `.cache/knack-validation-cache.json` otherwise, and path collisions with
   stock knacks should warn while still evaluating both files.
+- Prefer real local implementations when they are deterministic, cheap, and
+  safe. Prefer deterministic fixtures and fakes before dynamic mocks.
+- Reserve mocks for narrow external services, unsafe side effects, expensive
+  resources, nondeterministic dependencies, and hard-to-trigger failure
+  paths. Pair important mocked behavior with real integration, contract,
+  smoke, browser, or scripted coverage.
+- Avoid mocking owned application logic in integration, contract, smoke,
+  browser, and end-to-end tests unless the owned boundary is unsafe or
+  unavailable.
 - When updating the TheKnowledge submodule itself, prefer
   `python {$KNOWLEDGE_ROOT}/scripts/update_theknowledge_submodule.py`
   `--project-root . --knowledge-root {$KNOWLEDGE_ROOT}`. That helper fetches

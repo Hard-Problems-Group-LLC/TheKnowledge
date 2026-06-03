@@ -18,6 +18,30 @@ Completed Requests
 ------------------
 
 *
+  2026-05-08T13:37:36-07:00
+  Requestor: operator
+  Action: Implement the approved proposal set after the client-focused ECR
+  proposal integration pass.
+  Status: completed by Codex on 2026-05-08T13:37:36-07:00. The remaining
+  approved-proposal gap was the codex-wrangler awareness record: the
+  proactive ignore behavior already existed, and this pass completed its
+  direct and managed guidance, specification wording, decision-log status,
+  and documentation wiring coverage.
+
+*
+  2026-05-08T11:10:40-07:00
+  Requestor: operator
+  Action: Approve and implement the client-focused imported ECR proposals for
+  session continuity and cross-project boundary guards, mock-use testing,
+  pragmatic edit methods, changelog preservation, and structured ECR intake
+  lifecycle cleanup.
+  Status: completed by Codex on 2026-05-08T11:10:40-07:00. TheKnowledge now
+  carries the approved proposal records, compact specifications, direct and
+  managed downstream guidance, accepted-ECR index updates, and documentation
+  wiring coverage for the approved client-focused ECR set. The full required
+  local check sequence passed with 138 tests green.
+
+*
   2026-05-02T16:20:35-07:00
   Requestor: operator
   Action: Fully implement the approved project-root `.local/`, direct-

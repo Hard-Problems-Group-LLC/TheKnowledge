@@ -149,6 +149,13 @@ Keep project-local operator notes that AI agents must consider under
 `.local/ai-local-notes.md` or `.local/ai-local-notes.txt`. Those files are
 local-only guidance inputs, not tracked project payload.
 
+The managed guidance also includes client-safety rules for multi-session and
+multi-project work. The literal phrase `collision resume` tells an agent to
+inspect candidate sessions for the current workspace instead of assuming the
+newest session is correct. Before mutating outside the active project root,
+agents must ask for explicit cross-project confirmation in the current
+session; command escalation, a URL, or adjacent discussion is not enough.
+
 When another developer clones the consuming project later, they should either
 clone with submodules enabled:
 
@@ -292,6 +299,12 @@ Stage, commit, and push coherent blocks with appropriate commit
 messages; do not turn unrelated changes into one monolithic commit
 merely because the shorthand was used.
 
+The pending-commit queue is short-lived commit-body input, not a durable
+changelog. Projects with durable user-facing, operator-facing, or
+release-facing history should keep `CHANGELOG.md` and copy or summarize
+notable pending-queue entries there before the queue is cleared by a
+successful commit.
+
 ## Timestamped Intermediary Updates
 
 TheKnowledge recommends inline timestamp prefixes for substantive
@@ -353,6 +366,12 @@ That top-level `knacks/` directory is where consuming projects can keep
 proprietary or third-party knacks beside the stock knacks that ship inside the
 TheKnowledge subtree. When a project-local knack path collides with a stock
 TheKnowledge knack path, tooling should warn and evaluate both.
+
+Testing guidance favors real local implementations when they are
+deterministic, cheap, and safe. Prefer deterministic fixtures and fakes before
+dynamic mocks, reserve mocks for hard or unsafe boundaries, and pair important
+mocked behavior with real integration, contract, smoke, browser, or scripted
+coverage.
 
 ## Engineering Change Requests (ECRs) and the Feedback Branch
 

@@ -38,6 +38,13 @@ defines for this repository's live state.
 - Write or update specifications before implementation when behavior changes.
 - Keep standards and process docs concise, actionable, and testable.
 - Preserve append-only history in project-management records.
+- Prefer patch-style edits for small, localized manual changes. For
+  whole-file records, generated content, mechanical multi-file updates, or
+  environments where patch helpers are unavailable or failing, use explicit
+  named-file edits or short scripts with reviewable scope. Always inspect the
+  resulting diff, preserve unrelated user work, and record repeated tool
+  failures as bugs or local reliability notes instead of retrying them
+  indefinitely.
 
 ## Critical Context
 - Load this file before running automated tooling that edits, validates,
@@ -101,6 +108,28 @@ defines for this repository's live state.
   development updates for workflow profiling, not to every sentence
   of casual chat.
 
+## Session and Project Boundary Safety
+- Treat the literal phrase `collision resume` as a session-continuity
+  directive for the current workspace. Do not assume the newest SSH, `mosh`,
+  terminal, or Codex session is correct; inspect candidate sessions when
+  session data is available.
+- For `collision resume`, prefer the prior session whose workspace, age,
+  origin, and current activity best match the task. If ambiguity remains,
+  summarize the candidates by origin, age, workspace, and current activity
+  before acting.
+- Preserve both the phrase `collision resume` and its operational meaning in
+  handoffs, compactions, and summaries.
+- Before mutating outside the active project root, stop and ask for explicit
+  cross-project confirmation in the current session. Name the active project
+  or path, the target project or path, and the intended change class.
+- Cross-project mutations include file edits, deletes, generated files,
+  project-management records, service restarts, container rebuilds, queued
+  jobs, commits, pushes, and deployments. Read-only inspection may proceed
+  when needed to identify the owning project, repository, or service.
+- Do not infer cross-project authorization from a URL, adjacent discussion,
+  command-escalation approval, or a prior session. When practical, disclose
+  any detected active writer in the target project before proceeding.
+
 ## Git Safety
 - Before any `git add`, list the files about to be staged and ask the
   operator whether to review them.
@@ -142,6 +171,11 @@ defines for this repository's live state.
 - Use `internal/overrides/deferred.txt` for explicitly deferred work.
 - Queue brief commit-ready summaries in
   `internal/overrides/state/pending-commit-changes.txt`.
+- Treat `pending-commit-changes.txt` as short-lived commit-body input, not
+  durable release history. Repositories with durable user-facing,
+  operator-facing, or release-facing history needs should keep a
+  `CHANGELOG.md` and copy or summarize notable pending-queue entries there
+  before the queue is cleared by a successful commit.
 - Maintain bug lifecycle summary files under `internal/overrides/bugs/` and
   keep detailed bug records in the status subdirectories `open/`,
   `in-progress/`, and `closed/`.
@@ -206,6 +240,15 @@ defines for this repository's live state.
 - Use pessimistic, defense-in-depth tests.
 - Cover edge cases, failure modes, and regressions.
 - Keep reusable fixtures deterministic.
+- Prefer real local implementations when they are deterministic, cheap, and
+  safe. Prefer deterministic fixtures and fakes before dynamic mocks.
+- Reserve mocks for narrow external services, unsafe side effects, expensive
+  resources, nondeterministic dependencies, and hard-to-trigger failure
+  paths. Pair important mocked behavior with real integration, contract,
+  smoke, browser, or scripted coverage.
+- Avoid mocking owned application logic in integration, contract, smoke,
+  browser, and end-to-end tests unless the owned boundary is unsafe or
+  unavailable.
 - Prefer reusable scripted smoke checks over one-off shell snippets.
 - Follow `tool_execution_constraints.json` when it marks a
   tool-and-environment combination unsafe to parallelize.
@@ -274,11 +317,13 @@ Shortcut:
 
 ## Local Codex CLI
 - Treat `.codex-local/` as repository-local operator tooling for repo-scoped
-  Codex CLI installs when it exists.
-- Treat `.codex-home/`, `README-LOCAL-Start-Codex.md`, and
+  Codex CLI or codex-wrangler installs when it exists.
+- Treat `.codex-home/`, `.codex`, `README-LOCAL-Start-Codex.md`, and
   `bin/codex-local` as operator-local generated artifacts when they exist.
 - Do not classify `.codex-local/package.json` as a tracked project dependency
   manifest for TheKnowledge itself.
+- Add future codex-wrangler-generated local artifact paths to the managed
+  ignore baseline deliberately; do not improvise per-checkout ignore rules.
 - Prefer `python scripts/codex_local.py` when repo-local Codex CLI invocation
   is needed without remembering `npx --prefix` details. Do not rely on
   generated helper launchers being present.

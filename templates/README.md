@@ -51,6 +51,13 @@ Project-local operator notes that AI agents must consider but must never
 commit or push should live under `.local/`, typically
 `.local/ai-local-notes.md` or `.local/ai-local-notes.txt`.
 
+Managed agent guidance also carries session and project-boundary safeguards.
+The literal phrase `collision resume` tells agents to inspect candidate
+sessions for the current workspace rather than assuming the newest session is
+right. Before mutating outside the active project root, agents must ask for
+explicit cross-project confirmation in the current session and name the
+active project, target project, and intended change class.
+
 After updating the submodule, first review the incoming upstream delta in the
 TheKnowledge checkout, then run `scripts/report_managed_agents_drift.py` to
 compare the consuming project's managed `AGENTS.md` sections plus managed
@@ -115,6 +122,11 @@ The `project-management/state/` template directory includes
 summary lines. The standardized commit helper consumes that file as commit
 body text and clears it after a successful local commit.
 
+Projects with durable user-facing, operator-facing, or release-facing history
+should maintain `CHANGELOG.md` separately. Copy or summarize notable
+pending-queue entries there before the standardized commit helper clears the
+queue.
+
 The standardized commit helper also defaults to a review-first staging path.
 It lists files about to be staged, asks whether to review them, and
 prefers launching Meld when available as the default visual review
@@ -132,3 +144,9 @@ bracketed ISO 8601 prefixes such as
 `[2026-03-25T01:05:12-07:00] Running full pytest.` when work begins,
 before and after long-running commands or waits, and at major phase
 boundaries.
+
+Managed downstream testing guidance favors real local implementations when
+they are deterministic, cheap, and safe. Prefer deterministic fixtures and
+fakes before dynamic mocks, reserve mocks for hard or unsafe boundaries, and
+pair important mocked behavior with real integration, contract, smoke,
+browser, or scripted coverage.

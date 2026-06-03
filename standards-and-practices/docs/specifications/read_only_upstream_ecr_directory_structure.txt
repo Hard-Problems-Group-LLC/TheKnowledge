@@ -57,6 +57,10 @@ Requirements
   compare closed ECR filenames against the writable TheKnowledge checkout's
   `internal/overrides/proposals/accepted-ecrs-list.md` when it needs to
   confirm that one or more carried requests were accepted or implemented.
+- A writable TheKnowledge checkout must keep raw imported ECR records in a
+  project-neutral `imported-ecrs/` holding directory, promote actionable work
+  into top-level proposal records, and maintain a deconfliction map that links
+  raw filenames to accepted outcomes or active proposals.
 - Tests must verify that starter installation includes the `ECRs/`
   scaffolding and that the guidance remains wired into the repo and starter
   docs.

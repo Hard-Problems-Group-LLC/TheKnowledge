@@ -96,6 +96,9 @@ Requirements
 - TheKnowledge's own `AGENTS.md` and `README.md` must distinguish local
   `ECRs/TheKnowledge/open/` drafting, `in-progress/` handoff, and `closed/`
   resolution from actual writable maintenance in TheKnowledge itself.
+- TheKnowledge's own `AGENTS.md`, managed downstream guidance, and workflow
+  docs must require explicit cross-project confirmation before a session
+  mutates a project outside the active project root.
 - The Feedback workflow must tell contributors to capture the current branch
   or detached state, switch that same submodule checkout to `Feedback`,
   record, commit, and push the feedback there, and then switch the submodule

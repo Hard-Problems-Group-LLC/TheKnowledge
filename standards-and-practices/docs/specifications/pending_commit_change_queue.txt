@@ -15,8 +15,14 @@ Requirements
   `internal/overrides/state/pending-commit-changes.txt`.
 - Queue entries must be brief, commit-body-ready text. Use one bullet or short
   paragraph per item and avoid secrets, scratch notes, or TODO lists.
+- The queue is short-lived commit-body input, not durable release history.
 - Add queue entries as work lands after the last successful local commit so
   the next commit records the full change set, not only the last interaction.
+- Repositories with durable user-facing, operator-facing, or release-facing
+  history needs should keep a top-level `CHANGELOG.md`.
+- Before the standardized commit helper clears the queue, maintainers should
+  copy or summarize notable queued entries into `CHANGELOG.md` when those
+  entries affect durable release or operator history.
 - `scripts/git_standard_commit_push.py` must use the nonblank queue contents
   as commit body text in addition to the required commit subject.
 - `scripts/git_standard_commit_push.py` must refuse to create a commit when
@@ -34,3 +40,5 @@ Non-Goals
 ---------
 - Replacing detailed backlog, proposal, or completed-task records.
 - Storing long design notes or operational transcripts in the queue file.
+- Making changelog maintenance mandatory for repositories that have no
+  durable release-history need.

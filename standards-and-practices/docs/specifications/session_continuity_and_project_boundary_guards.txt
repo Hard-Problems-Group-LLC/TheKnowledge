@@ -1,0 +1,51 @@
+Session Continuity and Project Boundary Guards
+==============================================
+
+Scope
+-----
+Define session-continuity and cross-project mutation safeguards for AI
+maintenance sessions in TheKnowledge-managed repositories.
+
+Problem Statement
+-----------------
+Operators often work across multiple terminals, remoting sessions, worktrees,
+and AI agents at the same time. A resumed session can select stale context, or
+a request sent to the wrong tab can cause an agent to mutate a different
+project than the active one. These failures are high-impact because they can
+damage the wrong working tree or deployment surface before normal validation
+has a chance to run.
+
+Requirements
+------------
+- The literal phrase `collision resume` is a standing session-continuity
+  directive. Agents must preserve both the phrase and its operational meaning
+  in handoffs, compactions, and summaries.
+- When `collision resume` is invoked, agents must not assume the newest SSH,
+  `mosh`, terminal, or Codex session is the correct one. Inspect candidate
+  sessions for the current workspace first when session data is available.
+- Prefer the prior session whose workspace, age, origin, and current activity
+  best match the task. If ambiguity remains, summarize the candidates by
+  origin, age, workspace, and current activity before acting.
+- If the operator invoked `collision resume`, the agent may resume or
+  supersede the matching stale session without asking for that same takeover
+  permission again.
+- Before mutating outside the active project root, agents must stop and ask
+  for explicit cross-project confirmation in the current session.
+- Cross-project mutations include file edits, deletes, generated files,
+  project-management record updates, service restarts, container rebuilds,
+  queued jobs, commits, pushes, and deployments.
+- The confirmation must name the active project or path, the target project or
+  path, and the intended change class.
+- Do not infer cross-project authorization from a URL, adjacent discussion,
+  command-escalation approval, or approval in another session.
+- Bounded read-only inspection is allowed when needed to identify the owning
+  project, repository, service, or deployment surface.
+- Before proceeding with a confirmed cross-project mutation, disclose any
+  detected active writer in the target project when such detection is
+  practical.
+
+Non-Goals
+---------
+- Prevent explicitly authorized cross-project work.
+- Block read-only repository or dependency inspection.
+- Replace sandbox, filesystem, or command-escalation approval rules.

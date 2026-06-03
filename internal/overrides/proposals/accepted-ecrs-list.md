@@ -11,6 +11,39 @@ on filename, ask the operator for a disambiguation strategy before renaming
 or merging records.
 
 ## Accepted and Implemented
+- `2026-04-22-testing-mock-standards.md`
+  Resolution date: 2026-05-08.
+  Notes: resolved by the approved mock-use testing standard, including
+  guidance to prefer real local implementations, fixtures, and fakes before
+  mocks, and to pair important mocked behavior with real-path coverage.
+- `2026-04-22-cross-project-change-confirmation.md`
+  Resolution date: 2026-05-08.
+  Notes: resolved by the approved session-continuity and project-boundary
+  guidance requiring explicit current-session confirmation before mutating
+  outside the active project root.
+- `2026-04-11-collision-resume-session-continuity.md`
+  Resolution date: 2026-05-08.
+  Notes: resolved by the approved session-continuity and project-boundary
+  guidance preserving the literal `collision resume` directive and its
+  operational meaning.
+- `2026-04-16-codex-wrangler-pragmatic-edit-method-policy.md`
+  Resolution date: 2026-05-08.
+  Notes: resolved by the approved pragmatic edit-method policy that separates
+  edit safety from edit transport and permits named-file or scripted edits
+  for appropriate whole-file, generated, or mechanical changes.
+- `pragmatic-edit-method-policy.md`
+  Resolution date: 2026-05-08.
+  Notes: duplicate edit-method topic resolved with the same pragmatic
+  edit-method policy implementation.
+- `2026-04-16-codex-wrangler-changelog-sop-and-pending-queue-preservation.md`
+  Resolution date: 2026-05-08.
+  Notes: resolved by the approved changelog and pending-queue preservation
+  guidance, which keeps the queue short lived and recommends `CHANGELOG.md`
+  for repositories with durable release or operator-history needs.
+- `changelog-sop-and-pending-queue-preservation.md`
+  Resolution date: 2026-05-08.
+  Notes: duplicate changelog topic resolved with the same changelog and
+  pending-queue preservation implementation.
 - `update-helper-omits-install-entrypoints.txt`
   Resolution date: 2026-05-02.
   Notes: resolved by the consuming-project validation and wrapper contract

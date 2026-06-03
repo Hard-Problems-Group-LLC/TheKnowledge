@@ -1,0 +1,43 @@
+Mock-Use Testing Standards
+==========================
+
+Scope
+-----
+Define when mocks, fakes, fixtures, and real-path coverage should be used in
+TheKnowledge-managed testing guidance.
+
+Problem Statement
+-----------------
+Mocks are useful for isolating hard boundaries, but overuse creates brittle
+implementation-shaped tests. That risk is amplified in AI-assisted
+maintenance because an agent can satisfy call-count or call-shape
+expectations while breaking the real behavior users depend on.
+
+Requirements
+------------
+- Prefer real local implementations when they are deterministic, cheap, and
+  safe.
+- Prefer deterministic fixtures and fakes before dynamic mocks when the
+  substitute can model behavior clearly.
+- Reserve mocks for narrow external services, unsafe side effects,
+  expensive resources, nondeterministic dependencies, or hard-to-trigger
+  failure paths.
+- Unit tests may mock owned collaborators when the test is explicitly about
+  one small decision boundary, but assertions should still describe durable
+  behavior instead of incidental call choreography.
+- Integration, contract, smoke, browser, and end-to-end tests should not mock
+  owned application logic or owned wiring. Use real-path coverage there unless
+  the boundary is unsafe or unavailable.
+- Important behavior covered by mocks must also have representative
+  real-path coverage through integration, contract, smoke, browser, or
+  scripted checks.
+- Mocked tests should be reviewed for brittle call counts, incidental
+  ordering, and implementation details that do not express user-visible or
+  operator-visible behavior.
+
+Non-Goals
+---------
+- Ban mocks.
+- Require live third-party services for every test run.
+- Replace repository-specific testing guidance where a project needs stricter
+  boundaries.

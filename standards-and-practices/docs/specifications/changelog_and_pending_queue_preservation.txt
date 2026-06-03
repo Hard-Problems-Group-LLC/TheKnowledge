@@ -1,0 +1,41 @@
+Changelog and Pending-Queue Preservation
+========================================
+
+Scope
+-----
+Define the relationship between durable changelogs, completed-task records,
+and `pending-commit-changes.txt` in TheKnowledge-managed repositories.
+
+Problem Statement
+-----------------
+The pending-commit queue is intentionally short lived. It feeds useful commit
+body text into the standardized commit helper and is cleared after a
+successful local commit. Repositories that need durable release or
+operator-facing history therefore need a separate changelog policy so notable
+entries are not lost when the queue is truncated.
+
+Requirements
+------------
+- `pending-commit-changes.txt` remains short-lived commit-body input, not a
+  durable changelog.
+- `completed-tasks.txt`, bug records, and proposal records remain operational
+  traceability records, not release notes.
+- Repositories with durable user-facing, operator-facing, or release-facing
+  history needs should keep a top-level `CHANGELOG.md`.
+- When a changelog exists, it should keep an `## [Unreleased]` section and
+  use clear categories such as `Added`, `Changed`, `Fixed`, `Security`, and
+  `Removed` as needed.
+- Before running the standardized commit helper, maintainers should copy or
+  summarize notable pending-queue entries into `CHANGELOG.md` when those
+  entries affect durable release or operator history.
+- Internal-only repositories with no durable release-history need may omit
+  `CHANGELOG.md`, but they must not treat the pending queue as durable
+  history.
+- Any future helper-driven changelog sync must be explicit and reviewable; it
+  must not guess release-note categories from arbitrary prose.
+
+Non-Goals
+---------
+- Require changelogs in every repository.
+- Replace project-management history files.
+- Design a full release automation pipeline.

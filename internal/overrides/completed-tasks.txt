@@ -5,6 +5,28 @@ Record completed maintenance work for TheKnowledge here. Keep
 the template wording or examples are being revised.
 
 *
+  2026-05-08T13:37:36-07:00 - Reconciled the remaining approved
+  codex-wrangler awareness proposal by making the local Codex artifact policy
+  explicit in direct TheKnowledge guidance, managed downstream AGENTS
+  guidance, the local-operator-state specification, and documentation wiring
+  tests. Marked the approved proposal implemented after confirming the
+  proactive `.gitignore` baseline and starter template already carry the
+  local Codex and codex-wrangler artifact paths. Focused wiring validation
+  passed with 10 tests green.
+
+*
+  2026-05-08T11:10:40-07:00 - Implemented the operator-approved
+  client-focused imported ECR proposals by promoting session continuity and
+  cross-project boundary guards, mock-use testing standards, pragmatic
+  edit-method policy, changelog and pending-queue preservation, and
+  structured ECR intake lifecycle records into `approved/`. Added compact
+  specifications plus managed direct-checkout and downstream guidance,
+  updated the accepted-ECR index and deconfliction map, and expanded
+  documentation wiring tests. Focused wiring validation passed with 10 tests
+  green, then the full required local check sequence passed with 138 tests
+  green.
+
+*
   2026-05-02T16:20:35-07:00 - Implemented the approved project-root
   `.local/`, TheKnowledge runtime-isolation, and consuming-project
   validation/wrapper proposals by adding

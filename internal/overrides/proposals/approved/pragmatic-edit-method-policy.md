@@ -5,7 +5,7 @@
 | Title | Pragmatic Edit Method Policy |
 | Author | Codex |
 | Date | 2026-05-02T00:42:40-07:00 |
-| Status | Under Review |
+| Status | Approved |
 | Reviewers | Matt Heck, repository maintainer/operator; AI maintainers |
 | Related Work | `internal/overrides/proposals/under-review/imported-ecrs/pragmatic-edit-method-policy.md`; `internal/overrides/proposals/under-review/imported-ecrs/2026-04-16-codex-wrangler-pragmatic-edit-method-policy.md`; `AGENTS.md`; `templates/AGENTS-footer.md` |
 
@@ -88,3 +88,8 @@ projects inherit the same policy.
 ## Decision Log
 - 2026-05-02T00:42:40-07:00 - Promoted the duplicate imported edit-policy
   ECRs into one actionable TheKnowledge proposal.
+- 2026-05-08T11:01:07-07:00 - Approved by the operator for implementation as
+  part of the client-focused imported-ECR integration pass.
+- 2026-05-08T11:03:32-07:00 - Implemented by adding the pragmatic edit-method
+  specification plus direct and managed downstream guidance that separates
+  edit safety from edit transport.

@@ -5,7 +5,7 @@
 | Title | Structured ECR Intake Lifecycle And Deconfliction |
 | Author | Codex |
 | Date | 2026-05-02T00:49:43-07:00 |
-| Status | Under Review |
+| Status | Approved |
 | Reviewers | Matt Heck, repository maintainer/operator; AI maintainers |
 | Related Work | `internal/overrides/proposals/under-review/replace-feedback-branch-with-feedback-ecrs-intake.md`; `internal/overrides/proposals/under-review/imported-ecrs/ecr-directory-structure-for-read-only-upstream-feedback.md`; `internal/overrides/proposals/under-review/imported-ecrs/deconfliction-map.md`; `standards-and-practices/docs/specifications/read_only_upstream_ecr_directory_structure.txt`; `standards-and-practices/docs/specifications/theknowledge_submodule_workflows.txt` |
 
@@ -116,3 +116,10 @@ place.
 ## Decision Log
 - 2026-05-02T00:49:43-07:00 - Promoted the imported ECR-directory-structure
   request into a broader lifecycle and deconfliction proposal.
+- 2026-05-08T11:01:07-07:00 - Approved by the operator as part of the
+  client-focused imported-ECR integration pass.
+- 2026-05-08T11:03:32-07:00 - Marked implemented because the
+  `ECRs/TheKnowledge/open/`, `in-progress/`, and `closed/` lifecycle,
+  raw-import deconfliction map, accepted-ECR index, starter scaffolding, and
+  related tests were already in place; this pass tightened the specification
+  and bookkeeping around the completed lifecycle.

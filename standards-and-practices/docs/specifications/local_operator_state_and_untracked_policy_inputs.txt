@@ -11,9 +11,10 @@ Problem Statement
 -----------------
 TheKnowledge needs a clear boundary between tracked project payload and local
 operator state. Without one, maintainers improvise paths for tool runtimes,
-AI note files, restricted-name lists, and local Codex artifacts. That causes
-accidental staging risk, unclear instructions for AI agents, and confusion
-when a consuming project includes TheKnowledge as a submodule.
+AI note files, restricted-name lists, and local Codex or codex-wrangler
+artifacts. That causes accidental staging risk, unclear instructions for AI
+agents, and confusion when a consuming project includes TheKnowledge as a
+submodule.
 
 Requirements
 ------------
@@ -43,6 +44,12 @@ Requirements
   - `README-LOCAL-Start-Codex.md`
 - TheKnowledge itself must keep the same ignore baseline in its own
   `.gitignore`.
+- Documentation must classify those Codex and codex-wrangler paths as local
+  operator tooling or generated artifacts, not tracked project payload.
+- Documentation must state that `.codex-local/package.json` is not the
+  repository's tracked dependency manifest and that future local Codex
+  artifact paths belong in the managed ignore baseline only after deliberate
+  review.
 - Documentation must explain that `.local/` is for checkout-local mutable
   state such as wrappers, runtime environments, and AI note files, not for
   tracked source-of-truth configuration.

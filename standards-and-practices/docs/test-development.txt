@@ -12,12 +12,31 @@ Principles
 - Default to defense in depth: verify error handling, edge cases, and
   regression boundaries.
 - Prefer deterministic fixtures and explicit setup.
+- Prefer real local implementations when they are deterministic, cheap, and
+  safe.
+- Prefer deterministic fixtures and fakes before dynamic mocks.
+- Reserve mocks for narrow external services, unsafe side effects, expensive
+  resources, nondeterministic dependencies, and hard-to-trigger failure
+  paths.
+- Pair important mocked behavior with real integration, contract, smoke,
+  browser, or scripted coverage.
+- Avoid mocking owned application logic in integration-style tests unless the
+  boundary is unsafe or unavailable.
 
 Fixture guidance
 ----------------
 - Store reusable fixtures under `resources/tests/`.
 - Keep fixture names descriptive and ASCII-safe for portability.
 - Document fixture intent in docstrings or nearby standards docs.
+
+Mock guidance
+-------------
+- Use mocks to isolate hard boundaries, not to replace owned wiring in tests
+  that claim to exercise the real integration path.
+- Prefer behavior assertions over incidental call counts, call order, or
+  implementation-shaped expectations.
+- Review mock-heavy tests carefully during AI-assisted maintenance because
+  they can reward code that satisfies the mock while breaking real behavior.
 
 Implementing new tests
 ----------------------

@@ -135,3 +135,10 @@ generation path used for consuming projects.
 - 2026-05-02T15:50:17-07:00 - Added directly as an approved proposal per
   operator instruction so TheKnowledge treats codex-wrangler awareness and
   proactive ignore coverage as baseline behavior.
+- 2026-05-08T13:36:20-07:00 - Marked implemented. TheKnowledge's own
+  `.gitignore`, managed starter `.gitignore` template, direct and downstream
+  guidance, local-operator-state specification, and regression coverage now
+  treat `.codex-local/`, `.codex-home/`, `.codex`, `bin/codex-local`, and
+  `README-LOCAL-Start-Codex.md` as proactive local Codex or codex-wrangler
+  ignores, and clarify that `.codex-local/package.json` is not a tracked
+  project dependency manifest.

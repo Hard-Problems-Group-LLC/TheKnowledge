@@ -89,6 +89,9 @@ Notes and expectations
 - Keep project-local operator notes and similar AI guidance under
   `.local/ai-local-notes.md` or `.local/ai-local-notes.txt`. Those files are
   local-only policy inputs, not tracked starter payload.
+- Managed agent guidance treats `collision resume` as a session-continuity
+  directive and requires explicit cross-project confirmation before mutating
+  outside the active project root.
 - `sudo ./install.sh` without `--system` must fail with an explanation. Use
   `sudo` only for explicit system installs.
 - `./install.sh --system` without root privileges must fail with an
@@ -121,6 +124,10 @@ Notes and expectations
   - Operator shortcut: `ACP` means "add, commit, push." Treat it as a
     request to run the normal VCS workflow in meaningful commit-sized blocks,
     not as permission to make one monolithic commit or skip review and checks.
+  - Treat `project-management/state/pending-commit-changes.txt` as
+    short-lived commit-body input, not durable release history. Projects with
+    durable release or operator-history needs should update `CHANGELOG.md`
+    before the queue is cleared by a successful commit.
   - `python scripts/git_veteran_pull.py`
   - Cache file used by push quality gate:
     `.git/project-quality-cache.json` when a writable Git-backed cache path is

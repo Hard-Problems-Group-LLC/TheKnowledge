@@ -54,6 +54,7 @@ EXPECTED_FILES = [
     TEMPLATES / "project-management" / "bugs" / "in-progress" / "README.txt",
     TEMPLATES / "project-management" / "bugs" / "closed" / "README.txt",
     STANDARDS / "docs" / "development-workflow.txt",
+    STANDARDS / "docs" / "testing" / "mock-use.txt",
     STANDARDS
     / "docs"
     / "specifications"
@@ -75,6 +76,16 @@ EXPECTED_FILES = [
     / "tool_validation_profiles_and_python_runtime_selection.txt",
     STANDARDS / "docs" / "specifications" / "inline_ai_conversation_timestamps.txt",
     STANDARDS / "docs" / "specifications" / "theknowledge_submodule_workflows.txt",
+    STANDARDS
+    / "docs"
+    / "specifications"
+    / "session_continuity_and_project_boundary_guards.txt",
+    STANDARDS / "docs" / "specifications" / "mock_use_testing_standards.txt",
+    STANDARDS / "docs" / "specifications" / "pragmatic_edit_method_policy.txt",
+    STANDARDS
+    / "docs"
+    / "specifications"
+    / "changelog_and_pending_queue_preservation.txt",
     STANDARDS
     / "docs"
     / "specifications"
@@ -161,6 +172,27 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     pending_queue_spec_text = (
         STANDARDS / "docs" / "specifications" / "pending_commit_change_queue.txt"
     ).read_text(encoding="utf-8")
+    session_boundary_spec_text = (
+        STANDARDS
+        / "docs"
+        / "specifications"
+        / "session_continuity_and_project_boundary_guards.txt"
+    ).read_text(encoding="utf-8")
+    mock_testing_spec_text = (
+        STANDARDS / "docs" / "specifications" / "mock_use_testing_standards.txt"
+    ).read_text(encoding="utf-8")
+    edit_method_spec_text = (
+        STANDARDS / "docs" / "specifications" / "pragmatic_edit_method_policy.txt"
+    ).read_text(encoding="utf-8")
+    changelog_spec_text = (
+        STANDARDS
+        / "docs"
+        / "specifications"
+        / "changelog_and_pending_queue_preservation.txt"
+    ).read_text(encoding="utf-8")
+    mock_use_text = (STANDARDS / "docs" / "testing" / "mock-use.txt").read_text(
+        encoding="utf-8"
+    )
     submodule_spec_text = (
         STANDARDS / "docs" / "specifications" / "theknowledge_submodule_workflows.txt"
     ).read_text(encoding="utf-8")
@@ -182,6 +214,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "internal/overrides/proposals/" in agents_text
     assert "accepted-ecrs-list.md" in agents_text
     assert "internal/overrides/bugs/" in agents_text
+    assert ".codex-local/package.json" in agents_text
+    assert "codex-wrangler-generated local artifact paths" in agents_text
     assert "Load this file before running automated tooling" in agents_text
     assert "Every maintained source file should" in agents_text
     assert "Prefer Markdown (`.md`)" in agents_text
@@ -203,6 +237,11 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "`black -W 1`" in agents_text
     assert "inline bracketed ISO 8601 timestamp" in agents_text
     assert "workflow profiling" in agents_text
+    assert "collision resume" in agents_text
+    assert "cross-project confirmation" in agents_text
+    assert "Prefer patch-style edits" in agents_text
+    assert "deterministic fixtures and fakes before dynamic mocks" in agents_text
+    assert "CHANGELOG.md" in agents_text
     assert "default visual review path" in agents_text
     assert "submodule itself" in internal_text
     assert "templates/project-management/" in overrides_text
@@ -258,6 +297,11 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "tool_execution_constraints.json" in footer_text
     assert "tool_validation_profiles.json" in footer_text
     assert "send_theknowledge_feedback.py prepare" in footer_text
+    assert "collision resume" in footer_text
+    assert "cross-project confirmation" in footer_text
+    assert "Prefer patch-style edits" in footer_text
+    assert "deterministic fixtures and fakes before dynamic mocks" in footer_text
+    assert "CHANGELOG.md" in footer_text
     assert "update_theknowledge_submodule.py" in footer_text
     assert "Before any `git add`, list the files about to be staged" in footer_text
     assert "inline bracketed ISO 8601 timestamp" in footer_text
@@ -293,6 +337,10 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "tool_validation_profiles.json" in repo_text
     assert "update_theknowledge_submodule.py" in repo_text
     assert "send_theknowledge_feedback.py prepare" in repo_text
+    assert "collision resume" in repo_text
+    assert "cross-project confirmation" in repo_text
+    assert "deterministic fixtures and fakes before" in repo_text
+    assert "CHANGELOG.md" in repo_text
     assert "workflow profiling" in repo_text
     assert "[2026-03-25T01:05:12-07:00] Running full pytest." in repo_text
     assert "Review-first staging" in repo_text
@@ -316,6 +364,11 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "ensure_theknowledge_tool_runtime.py" in workflow_text
     assert "./scripts/install_prerequisites.sh" in workflow_text
     assert "project-management/state/pending-commit-changes.txt" in workflow_text
+    assert "collision resume" in workflow_text
+    assert "cross-project confirmation" in workflow_text
+    assert "Prefer patch-style edits" in workflow_text
+    assert "deterministic fixtures and fakes before" in workflow_text
+    assert "CHANGELOG.md" in workflow_text
     assert "review in Meld" in workflow_text
     assert "default visual review path" in workflow_text
     assert "Never infer a Git author or committer email address" in workflow_text
@@ -375,6 +428,8 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert ".cache/" in profile_spec_text
     assert "must refuse to create a commit" in pending_queue_spec_text
     assert "must never infer email addresses" in pending_queue_spec_text
+    assert "short-lived commit-body input" in pending_queue_spec_text
+    assert "CHANGELOG.md" in pending_queue_spec_text
     assert "review-and-adopt flow" in submodule_spec_text
     assert "active `TheKnowledge/` submodule checkout" in submodule_spec_text
     assert "--template .gitignore" in submodule_spec_text
@@ -384,9 +439,24 @@ def test_override_guidance_is_wired_into_repository_docs() -> None:
     assert "ECRs/TheKnowledge/closed/" in submodule_spec_text
     assert "update_theknowledge_submodule.py" in submodule_spec_text
     assert "send_theknowledge_feedback.py" in submodule_spec_text
+    assert "cross-project confirmation" in submodule_spec_text
+    assert "collision resume" in session_boundary_spec_text
+    assert "current session" in session_boundary_spec_text
+    assert "Cross-project mutations" in session_boundary_spec_text
+    assert "deterministic fixtures and fakes before dynamic mocks" in (
+        mock_testing_spec_text
+    )
+    assert "real-path coverage" in mock_testing_spec_text
+    assert "implementation-shaped expectations" in mock_use_text
+    assert "Edit safety comes from targeted scope" in edit_method_spec_text
+    assert "edit transport" in edit_method_spec_text
+    assert "short-lived commit-body input" in changelog_spec_text
+    assert "durable release or operator history" in changelog_spec_text
     assert ".local/ai-local-notes.md" in local_policy_spec_text
     assert ".theknowledge-restricted-names.local" in local_policy_spec_text
     assert ".codex-local/" in local_policy_spec_text
+    assert "codex-wrangler" in local_policy_spec_text
+    assert ".codex-local/package.json" in local_policy_spec_text
     assert "one file at a time" in sandbox_spec_text
     assert "`black -W 1`" in sandbox_spec_text
     assert "whole-repository validation" in sandbox_spec_text

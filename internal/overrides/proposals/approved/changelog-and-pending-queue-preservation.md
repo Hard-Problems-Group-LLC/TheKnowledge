@@ -5,7 +5,7 @@
 | Title | Changelog And Pending-Queue Preservation |
 | Author | Codex |
 | Date | 2026-05-02T00:42:40-07:00 |
-| Status | Under Review |
+| Status | Approved |
 | Reviewers | Matt Heck, repository maintainer/operator; AI maintainers |
 | Related Work | `internal/overrides/proposals/under-review/imported-ecrs/changelog-sop-and-pending-queue-preservation.md`; `internal/overrides/proposals/under-review/imported-ecrs/2026-04-16-codex-wrangler-changelog-sop-and-pending-queue-preservation.md`; `scripts/git_standard_commit_push.py`; `internal/overrides/state/pending-commit-changes.txt` |
 
@@ -99,3 +99,9 @@ in one pass so consuming projects inherit one clear rule.
 ## Decision Log
 - 2026-05-02T00:42:40-07:00 - Promoted the duplicate imported changelog ECRs
   into one actionable TheKnowledge proposal.
+- 2026-05-08T11:01:07-07:00 - Approved by the operator for implementation as
+  part of the client-focused imported-ECR integration pass.
+- 2026-05-08T11:03:32-07:00 - Implemented by adding a changelog preservation
+  specification and guidance that keeps `pending-commit-changes.txt` as
+  short-lived commit-body input while recommending `CHANGELOG.md` for
+  repositories with durable release or operator-history needs.

@@ -21,6 +21,14 @@ Run these commands from repository root:
 - `python scripts/run_tool_with_timeout.py entropy_tripwire_verify`
 - `python scripts/run_tool_with_timeout.py pytest`
 
+Test design
+-----------
+Prefer real local implementations when they are deterministic, cheap, and
+safe. Use deterministic fixtures and fakes before dynamic mocks, and pair
+important mocked behavior with real-path coverage. See
+`standards-and-practices/docs/testing/mock-use.txt` for the mock-use
+standard.
+
 Focused execution
 -----------------
 - Run a subset with pytest pattern matching:

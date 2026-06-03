@@ -9,7 +9,7 @@ Reviewers: operator (repository maintainer), AI maintainers
 Related Work: Direct operator request on 2026-03-31; AGENTS.md section
 "Feedback Branch"; README.md section "Feedback Branch";
 scripts/send_theknowledge_feedback.py;
-internal/overrides/proposals/under-review/
+internal/overrides/proposals/approved/
 structured-ecr-intake-lifecycle-and-deconfliction.md;
 standards-and-practices/docs/specifications/
 theknowledge_submodule_workflows.txt

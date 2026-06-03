@@ -1,0 +1,32 @@
+Mock-Use Testing Standard
+=========================
+
+Purpose
+-------
+Set a reusable baseline for when tests should use real implementations,
+fixtures, fakes, or mocks.
+
+Guidance
+--------
+- Prefer real local implementations when they are deterministic, cheap, and
+  safe.
+- Prefer deterministic fixtures and fakes before dynamic mocks. A fake with a
+  small, documented behavior contract is usually easier to trust than a mock
+  shaped around implementation details.
+- Reserve mocks for narrow external services, unsafe side effects, expensive
+  resources, nondeterministic dependencies, and hard-to-trigger failure paths.
+- Unit tests may mock owned collaborators when the test is about one isolated
+  decision boundary, but the assertion should describe durable behavior rather
+  than incidental call choreography.
+- Integration, contract, smoke, browser, and end-to-end tests should use real
+  owned wiring. Do not replace owned application logic with mocks in those
+  tests unless the boundary is unsafe or unavailable.
+- Pair important mocked behavior with representative real-path coverage.
+- Review mocked tests for brittle call counts, incidental ordering, and
+  implementation-shaped expectations.
+
+AI Maintenance Note
+-------------------
+Mock-heavy tests can give AI agents false confidence. Prefer tests that prove
+observable behavior through the real path, especially for regressions,
+workflow scripts, browser flows, storage boundaries, and command execution.

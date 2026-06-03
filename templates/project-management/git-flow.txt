@@ -100,6 +100,15 @@ Operational Notes
 - Use those timestamps when work begins, before and after
   long-running commands or waits, and at major phase boundaries.
   Include elapsed durations when they are easy to compute.
+- Treat `collision resume` as a literal session-continuity directive. Do not
+  assume the newest SSH, `mosh`, terminal, or Codex session is the right one;
+  inspect candidate sessions for the current workspace when session data is
+  available, and preserve the phrase and its meaning in handoffs.
+- Before mutating outside the active project root, ask for explicit
+  cross-project confirmation in the current session. Name the active project
+  or path, the target project or path, and the intended change class. Do not
+  treat a URL, adjacent discussion, command escalation, or prior-session
+  approval as cross-project authorization.
 - Before any `git add`, list the files about to be staged and ask whether to
   review them. Offer `1` review at least one file, `2` proceed without
   review for this changeset, and `3` proceed and suppress review prompts for
@@ -123,6 +132,11 @@ Operational Notes
   committer identity for author instead of inventing another address.
 - Run `git diff` before any `git add` and `git diff --cached` before any
   commit. The standardized commit helper does both automatically.
+- Treat `project-management/state/pending-commit-changes.txt` as short-lived
+  commit-body input, not durable release history. Projects with durable
+  user-facing, operator-facing, or release-facing history needs should keep a
+  `CHANGELOG.md` and copy or summarize notable pending-queue entries there
+  before the queue is cleared by a successful commit.
 - Use the repository's configured SSH host alias for remote operations, as
   documented in local operator notes.
 - Keep the managed git pre-commit hook installed; setup scripts maintain it
